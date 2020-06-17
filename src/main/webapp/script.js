@@ -1,1 +1,4 @@
-fetch("/query-datastore");
+
+$(document).ready(function() {
+    
+});

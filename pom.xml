@@ -9,7 +9,6 @@
   <artifactId>map-snapshot</artifactId>
 
   <properties>
-    <!-- <app.deploy.project>map-snapshot-step</app.deploy.project> -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -45,11 +44,11 @@
       <version>4.0.1</version>
       <scope>provided</scope>
     </dependency>
-    <!-- <dependency>
-      <groupId>jstl</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.2</version>
-    </dependency> -->
+    <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-drive</artifactId>
+      <version>v3-rev20200413-1.30.9</version>
+    </dependency>
     <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-storage</artifactId>
@@ -59,6 +58,17 @@
         <artifactId>gson</artifactId>
         <version>2.8.6</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.30.9</version>
+    </dependency>
+    <dependency>
+  <groupId>com.google.api-client</groupId>
+  <artifactId>google-api-client-appengine</artifactId>
+  <version>1.30.9</version>
+</dependency>
 
  </dependencies>
 
@@ -73,7 +83,6 @@
         <artifactId>appengine-maven-plugin</artifactId>
         <version>2.2.0</version>
         <configuration>
-          <!-- TODO: set project ID. -->
           <deploy.projectId>map-snapshot-step</deploy.projectId>
           <deploy.version>1</deploy.version>
         </configuration>

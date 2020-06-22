@@ -23,6 +23,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
+import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
+import com.google.api.services.drive.Drive.Files;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @WebServlet("/save-images-job")
 public class SaveImages extends HttpServlet {
@@ -34,7 +46,26 @@ public class SaveImages extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        
+        // AppIdentityCredential credential = new AppIdentityCredential(Arrays.asList(DriveScopes.DRIVE));
+        // Drive drive = new Drive.Builder(new UrlFetchTransport(), new JacksonFactory(), credential).setApplicationName("Map Stuff").build();
+        // List<File> result = new ArrayList<File>();
+        //     Files.List fileRequest = drive.files().list().setDriveId("0AJnQ8N4V8NrAUk9PVA").setIncludeItemsFromAllDrives(true).setCorpora("drive").setSupportsAllDrives(true);
+
+        //     do {
+        //         try {
+        //             FileList files = fileRequest.execute();
+
+        //             result.addAll(files.getFiles());
+        //             fileRequest.setPageToken(files.getNextPageToken());
+        //         } catch (IOException e) {
+        //             System.out.println("An error occurred: " + e);
+        //             fileRequest.setPageToken(null);
+        //         }
+        //     } while (fileRequest.getPageToken() != null && fileRequest.getPageToken().length() > 0);
+
+        //     result.forEach(file -> {
+        //         System.out.println(file.getName());
+        //     });
     }
 
     private byte[] getImageData(String requestURL) throws IOException {

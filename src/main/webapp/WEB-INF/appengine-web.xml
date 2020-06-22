@@ -5,7 +5,7 @@
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
-
+    <sessions-enabled>true</sessions-enabled>
     <static-files>
          <!-- prevent unwanted caching when accessing via the web preview server -->
         <include path="/**" expiration="0s" />
@@ -13,5 +13,7 @@
 
     <env-variables>
         <env-var name="PROJECT_ID" value="map-snapshot-step" />
+        <env-var name="client_id" value="921119595412-9gentt9le4uqg0p7taj157d2efvpcr84.apps.googleusercontent.com"/>
+        <env-var name="client_secret" value="H6p2OnREWz8W-3W_VenTDUcj"/>
     </env-variables>
 </appengine-web-app>

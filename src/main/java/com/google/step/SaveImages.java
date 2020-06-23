@@ -46,26 +46,7 @@ public class SaveImages extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // AppIdentityCredential credential = new AppIdentityCredential(Arrays.asList(DriveScopes.DRIVE));
-        // Drive drive = new Drive.Builder(new UrlFetchTransport(), new JacksonFactory(), credential).setApplicationName("Map Stuff").build();
-        // List<File> result = new ArrayList<File>();
-        //     Files.List fileRequest = drive.files().list().setDriveId("0AJnQ8N4V8NrAUk9PVA").setIncludeItemsFromAllDrives(true).setCorpora("drive").setSupportsAllDrives(true);
 
-        //     do {
-        //         try {
-        //             FileList files = fileRequest.execute();
-
-        //             result.addAll(files.getFiles());
-        //             fileRequest.setPageToken(files.getNextPageToken());
-        //         } catch (IOException e) {
-        //             System.out.println("An error occurred: " + e);
-        //             fileRequest.setPageToken(null);
-        //         }
-        //     } while (fileRequest.getPageToken() != null && fileRequest.getPageToken().length() > 0);
-
-        //     result.forEach(file -> {
-        //         System.out.println(file.getName());
-        //     });
     }
 
     private byte[] getImageData(String requestURL) throws IOException {

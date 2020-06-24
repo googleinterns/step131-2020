@@ -17,9 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 
+/***
+    This servlet will be used to retrieve images
+    from the shared Google Drive
+***/
 @WebServlet("/query-drive")
 public class QueryDrive extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
+    // The unique identifier for the shared Google Drive
+    private final String DRIVE_ID = "0AJnQ8N4V8NrAUk9PVA";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -27,10 +33,19 @@ public class QueryDrive extends HttpServlet {
         if(session != null) {
             String accessToken = (String)session.getAttribute("accessToken");
             GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
-            Drive drive = new Drive.Builder(new UrlFetchTransport(), new JacksonFactory(), credential).setApplicationName("Map Stuff").build();
+            Drive drive = new Drive.Builder(new UrlFetchTransport(), new JacksonFactory(), credential)
+                .setApplicationName(PROJECT_ID)
+                .build();
             List<File> result = new ArrayList<File>();
-            Files.List fileRequest = drive.files().list().setDriveId("0AJnQ8N4V8NrAUk9PVA").setIncludeItemsFromAllDrives(true).setCorpora("drive").setSupportsAllDrives(true);
+            Files.List fileRequest = drive.files().list()
+                .setDriveId(DRIVE_ID)
+                .setIncludeItemsFromAllDrives(true) // Required parameter for querying shared drives
+                .setCorpora("drive")                // Required parameter for querying shared drives
+                .setSupportsAllDrives(true);        // Required parameter for querying shared drives
 
+            // This retrieves all of the files in the shared drive
+            // NOTE: This will probably get removed when the searching/sorting methods are finalized
+            // TODO: Add logging to the application
             do {
                 try {
                     FileList files = fileRequest.execute();
@@ -43,6 +58,7 @@ public class QueryDrive extends HttpServlet {
                 }
             } while (fileRequest.getPageToken() != null && fileRequest.getPageToken().length() > 0);
 
+            // NOTE: This will also be removed later
             result.forEach(file -> {
                 System.out.println(file.getName());
             });

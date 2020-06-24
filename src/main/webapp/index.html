@@ -6,8 +6,8 @@
     <script>
         let baseURL = window.location.href;
         fetch("/authenticate?baseURL=" + baseURL).then(res => res.text()).then(url => {
-        window.location.href = url;
-    });
+            window.location.href = url;
+        });
     </script>
 </head>
 <body>

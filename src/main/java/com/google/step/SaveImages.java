@@ -45,8 +45,8 @@ public class SaveImages extends HttpServlet {
     private String year = String.format("%TY", date);
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println(request);
     }
 
     private byte[] getImageData(String requestURL) throws IOException {
@@ -55,6 +55,7 @@ public class SaveImages extends HttpServlet {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", bos);
         return bos.toByteArray();
+        // Add timestamp
     }
 
     private void saveImageToCloudStorage(byte[] imageData, String city, int zoomLevel) throws StorageException {

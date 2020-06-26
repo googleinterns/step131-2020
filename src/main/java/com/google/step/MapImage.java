@@ -74,13 +74,6 @@ public class MapImage {
       this.year = year;
       this.timeStamp = timeStamp;
   }
-
-  /** Overload the constructor for faster loading & querying from Datastore **/
-  public MapImage(double latitude, double longitude, int zoom) {
-      this.latitude = latitude;
-      this.longitude = longitude;
-      this.zoom = zoom;
-  }
   
   /** 
   * Create name based off of attributes: city name, zoom level, month, year.

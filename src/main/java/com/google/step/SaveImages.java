@@ -68,6 +68,7 @@ public class SaveImages extends HttpServlet {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", bos);
         return bos.toByteArray();
+        // Add timestamp
     }
 
     private void saveImageToCloudStorage(byte[] imageData, String city, int zoomLevel) throws StorageException {

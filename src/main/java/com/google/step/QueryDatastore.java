@@ -32,7 +32,7 @@ public class QueryDatastore extends HttpServlet {
 
         // Query Datastore for the locations and zoom levels that we need to get for this month.
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        Query query = new Query("mapImage").addSort("cityName", SortDirection.ASCENDING);
+        Query query = new Query("trackedLocations").addSort("cityName", SortDirection.ASCENDING);
         PreparedQuery results = datastore.prepare(query);
 
         // Store the MapImages from Datastore in a List.

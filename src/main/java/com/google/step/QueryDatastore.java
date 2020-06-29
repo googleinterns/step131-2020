@@ -12,6 +12,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.DataOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.ArrayList;
 
 /***
     This servlet retrieves the mapImage metadata (location, zoom level, etc.)
@@ -30,7 +36,7 @@ public class QueryDatastore extends HttpServlet {
         PreparedQuery results = datastore.prepare(query);
 
         // Store the MapImages from Datastore in a List.
-        List<Comment> mapImages = new ArrayList<>();
+        List<MapImage> mapImages = new ArrayList<>();
         for(Entity entity : results.asIterable()) {
             double latitude = (double) entity.getProperty("latitude");
             double longitude = (double) entity.getProperty("longitude");
@@ -40,11 +46,17 @@ public class QueryDatastore extends HttpServlet {
             mapImages.add(mapImage);
         }
 
-        // Send the location and zooms through JSON to the Static Maps servlet.
+        // Send the location and zoom levels through JSON to the Static Maps servlet.
         Gson gson = new Gson();
-        response.setContentType("application/json");
-        response.getWriter().println(gson.toJson(mapImages));
-        response.sendRedirect("/query-static-maps")
-
+        URL url = new URL("/save-images-job");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+        String data = gson.toJson(mapImages);
+        try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+            wr.write(data.getBytes(StandardCharsets.UTF_8));
+        }
     }
 }

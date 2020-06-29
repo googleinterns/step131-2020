@@ -105,7 +105,7 @@ public class MapImage {
   }
 
   public int getMonth() {
-      return longitude;
+      return month;
   }
 
   public int getYear() {

@@ -22,6 +22,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
@@ -34,6 +35,9 @@ import com.google.api.services.drive.model.FileList;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.StringBuilder;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 
 @WebServlet("/save-images-job")
@@ -46,7 +50,16 @@ public class SaveImages extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println(request);
+        BufferedReader reader = request.getReader();
+        Gson gson = new Gson();
+        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());  
+        ArrayList<String> requestUrls = generateRequestUrls(mapImages);
+
+        // There are an equal number of elements in mapImages & requestUrls
+        for(int i = 0; i < mapImages.size(); i++) {
+            byte[] imageData = getImageData(requestUrls.get(i));
+            saveImageToCloudStorage(imageData, mapImages.get(i).getCityName(), mapImages.get(i).getZoom());
+        }
     }
 
     private byte[] getImageData(String requestURL) throws IOException {
@@ -67,5 +80,20 @@ public class SaveImages extends HttpServlet {
         BlobId blobId = BlobId.of(bucketName, objectID);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
         Blob blob = storage.create(blobInfo, imageData);
+    }
+
+    private ArrayList<String> generateRequestUrls (ArrayList<MapImage> mapImages) {
+        ArrayList<String> requestUrls = new ArrayList<>();
+        for(MapImage mapImage : mapImages) {
+            StringBuilder requestUrl = new StringBuilder("https://maps.googleapis.com/maps/api/staticmap?");
+            requestUrl.append("center=" + mapImage.getLatitude() + "," + mapImage.getLongitude());
+            requestUrl.append("&zoom=" + mapImage.getZoom());
+            requestUrl.append("&size=640x640");
+            requestUrl.append("&scale=2");
+            // API key will be reset and removed from code in future commit
+            requestUrl.append("&key=AIzaSyA75DbMo0voP63IzAQykD1xXhPEI8_F984");
+            requestUrls.add(requestUrl.toString());
+        }
+        return requestUrls;
     }
 }

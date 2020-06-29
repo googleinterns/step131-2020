@@ -60,12 +60,12 @@ public class MapImage {
   private int year;
 
   /** Exact time snapshot was took. */
-  private int timeStamp;
+  private long timeStamp;
 
   /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
   private String objectID;  
 
-  public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, int timeStamp) {
+  public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, long timeStamp) {
       this.longitude = longitude;
       this.latitude = latitude;
       this.cityName = cityName;
@@ -88,6 +88,22 @@ public class MapImage {
   public void setObjectID() {
       String city = cityName.replaceAll(" ", "_");
       objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
+  }
+
+  public void setMonth(int month) {
+      this.month = month;
+  }
+
+  public void setYear(int year) {
+      this.year = year;
+  }
+
+  public void setCityName(String cityName) {
+      this.cityName = cityName;
+  }
+
+  public void setTimeStamp(long timeStamp) {
+      this.timeStamp = timeStamp;
   }
 
   public double getLongitude() {
@@ -113,7 +129,7 @@ public class MapImage {
       return year;
   }  
 
-  public int getTimeStamp() {
+  public long getTimeStamp() {
       return timeStamp;
   }
 

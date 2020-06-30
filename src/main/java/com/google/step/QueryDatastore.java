@@ -46,7 +46,7 @@ public class QueryDatastore extends HttpServlet {
             mapImages.add(mapImage);
         }
 
-        // Send the location and zoom levels through JSON to the Static Maps servlet.
+        // Send the location and zoom levels through JSON to SaveImages.java
         Gson gson = new Gson();
         URL url = new URL("/save-images-job");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();

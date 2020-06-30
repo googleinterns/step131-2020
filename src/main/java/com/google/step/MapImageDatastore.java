@@ -34,33 +34,38 @@ import com.google.api.services.drive.model.FileList;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 // TODO: Tests
 
 @WebServlet("/save-datastore")
-public class MapImageDataStore extends HttpServlet {
+public class MapImageDatastore extends HttpServlet {
 
-    /** Stores MapImage object into Datastore. */
+    /** Stores updated MapImage object metadata into Datastore. */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         
-        // TODO: Send MapImage objects here. OR combine this function into SaveImages.java servlet
-        MapImage mapImage = null;
+        // Get  MapImage objects here from SaveImages.java
+        BufferedReader reader = request.getReader();
+        Gson gson = new Gson();
+        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());  
 
-        // Creat new entity of kind MapImage and look-up key is MapImage's object name.
-        Entity mapImageEntity = new Entity("MapImage", mapImage.getObjectID());
+        // Put the updated mapImages into datastore
+        for(MapImage mapImage : mapImages) {
+            Entity mapImageEntity = new Entity("MapImage", mapImage.getObjectID());
+            mapImageEntity.setProperty("Longitude", mapImage.getLongitude());
+            mapImageEntity.setProperty("Latitude", mapImage.getLongitude());
+            mapImageEntity.setProperty("City Name", mapImage.getCityName());
+            mapImageEntity.setProperty("Zoom", mapImage.getZoom());
+            mapImageEntity.setProperty("Month", mapImage.getMonth());
+            mapImageEntity.setProperty("Year", mapImage.getYear());
+            mapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
 
-        mapImageEntity.setProperty("Longitude", mapImage.getLongitude());
-        mapImageEntity.setProperty("Latitude", mapImage.getLongitude());
-        mapImageEntity.setProperty("City Name", mapImage.getCityName());
-        mapImageEntity.setProperty("Zoom", mapImage.getZoom());
-        mapImageEntity.setProperty("Month", mapImage.getMonth());
-        mapImageEntity.setProperty("Year", mapImage.getYear());
-        mapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
-
-        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        datastore.put(mapImageEntity);
-
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            datastore.put(mapImageEntity);
+        }
+        
         // TODO: adjust redirect location
         response.sendRedirect("/index.html");
     }

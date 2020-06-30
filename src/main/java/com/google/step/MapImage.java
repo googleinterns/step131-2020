@@ -1,4 +1,3 @@
- 
 package com.google.step;
 
 import com.google.appengine.api.datastore.DatastoreService;
@@ -40,84 +39,97 @@ import java.util.List;
  * Class representing a map snapshot image and its metadata.
  */
 public class MapImage {
+    /** Snapshot's longitude coordinate. */
+    private double longitude;
 
-  /** Snapshot's longitude coordinate. */
-  private double longitude;
+    /** Snapshot's latitude coordinate. */
+    private double latitude;
 
-  /** Snapshot's latitude coordinate. */
-  private double latitude;
+    /** Snapshot's cityName coordinate. */
+    private String cityName;
 
-  /** Snapshot's cityName coordinate. */
-  private String cityName;
+    /** Snapshot's zoom coordinate. */
+    private int zoom;
 
-  /** Snapshot's zoom coordinate. */
-  private int zoom;
+    /** Month snapshot was took. */
+    private int month;
 
-  /** Month snapshot was took. */
-  private int month;
+    /** Year snapshot was took. */
+    private int year;
 
-  /** Year snapshot was took. */
-  private int year;
+    /** Exact time snapshot was took. */
+    private int timeStamp;
 
-  /** Exact time snapshot was took. */
-  private int timeStamp;
+    /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
+    private String objectID;
 
-  /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
-  private String objectID;  
+    /** URL given by Google Cloud Storage to display the image. */
+    private String url; 
 
-  public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, int timeStamp) {
-      this.longitude = longitude;
-      this.latitude = latitude;
-      this.cityName = cityName;
-      this.zoom = zoom;
-      this.month = month;
-      this.year = year;
-      this.timeStamp = timeStamp;
-  }
+    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, int timeStamp) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.cityName = cityName;
+        this.zoom = zoom;
+        this.month = month;
+        this.year = year;
+        this.timeStamp = timeStamp;
+    }
 
-  /** Overload the constructor for faster loading & querying from Datastore **/
-  public MapImage(double latitude, double longitude, int zoom) {
-      this.latitude = latitude;
-      this.longitude = longitude;
-      this.zoom = zoom;
-  }
-  
-  /** 
-  * Create name based off of attributes: year, month, name of city, and zoom level in this order.
-  */
-  public void setObjectID() {
-      String city = cityName.replaceAll(" ", "_");
-      objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
-  }
+    /** Overload the constructor for faster loading & querying from Datastore **/
+    public MapImage(double latitude, double longitude, int zoom) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.zoom = zoom;
+    }
 
-  public double getLongitude() {
-      return longitude;
-  }
+    /** 
+    * Sets name based off of attributes: year, month, name of city, and zoom level in this order.
+    */
+    public void setObjectID() {
+        String city = cityName.replaceAll(" ", "_");
+        objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
+    }
 
-  public double getLatitude() {
-      return latitude;
-  }
-  public String getCityName() {
-      return cityName;
-  }
+    /** 
+    * Sets image's URL created by GoogleCLoud Storage.
+    */
+    public void setURL(String gcsURL) {
+        url = gcsURL;
+    }
 
-  public int getZoom() {
-      return zoom;
-  }
+    public double getLongitude() {
+        return longitude;
+    }
 
-  public int getMonth() {
-      return month;
-  }
+    public double getLatitude() {
+        return latitude;
+    }
+    public String getCityName() {
+        return cityName;
+    }
 
-  public int getYear() {
-      return year;
-  }  
+    public int getZoom() {
+        return zoom;
+    }
 
-  public int getTimeStamp() {
-      return timeStamp;
-  }
+    public int getMonth() {
+        return month;
+    }
 
-  public String getObjectID() {
-      return objectID;
-  }    
+    public int getYear() {
+        return year;
+    }  
+
+    public int getTimeStamp() {
+        return timeStamp;
+    }
+
+    public String getObjectID() {
+        return objectID;
+    }
+
+    public String getURL() {
+        return url;
+    }     
 }

@@ -25,6 +25,3 @@ public class AddLocation extends HttpServlet {
         //TODO: A new "TrackedLocation" entity should be added as well.
     }
 }
-
-
-

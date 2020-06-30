@@ -18,8 +18,8 @@ public class AddLocation extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        double latitude = request.getParameter("latitude");
-        double longitude = request.getParameter("longitude");
+        double latitude = (double) request.getParameter("latitude");
+        double longitude = (double) request.getParameter("longitude");
         String cityName = request.getParameter("cityName");
 
         // A new "TrackedLocation" entity should be added as well.

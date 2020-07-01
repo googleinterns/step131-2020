@@ -51,18 +51,18 @@ public class MapImageDatastore extends HttpServlet {
         Gson gson = new Gson();
         ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());  
 
-        // Put the updated mapImages into datastore
+        // Put updated mapImages into Datastore of entity kind MapImage. Entity look-up key is objectID.
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         for(MapImage mapImage : mapImages) {
             Entity mapImageEntity = new Entity("MapImage", mapImage.getObjectID());
             mapImageEntity.setProperty("Longitude", mapImage.getLongitude());
-            mapImageEntity.setProperty("Latitude", mapImage.getLongitude());
+            mapImageEntity.setProperty("Latitude", mapImage.getLatitude());
             mapImageEntity.setProperty("City Name", mapImage.getCityName());
             mapImageEntity.setProperty("Zoom", mapImage.getZoom());
             mapImageEntity.setProperty("Month", mapImage.getMonth());
             mapImageEntity.setProperty("Year", mapImage.getYear());
             mapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
 
-            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
             datastore.put(mapImageEntity);
         }
         

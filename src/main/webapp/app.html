@@ -12,7 +12,72 @@
 <body>
 
     <div id="main-container">
-        <h1>You made it!</h1>
+ 
+        <h1>Maps Over Time</h1>
+ 
+        <p>Request a Map Snapshot:</p>
+
+        <form action="/query-datastore" method="POST">
+            <p>City:</p>
+            <select name="City">
+            <option value=""></option>
+            <option value="Stockholm">Stockholm</option>
+            <option value="São Paulo">São Paulo</option>
+            <option value="Tokyo">Tokyo</option>
+            <option value="Delhi">Delhi</option>
+            <option value="London">London</option>
+            <option value="Stillwater, OK">Stillwater, OK</option>
+            <option value="Canadian, TX">Canadian, TX</option>
+            </select>
+
+            <p>Zoom Level:</p>
+            <select name="Zoom Level">
+            <option value=""></option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>            
+            <option value="16">16</option>            
+            <option value="17">17</option>            
+            <option value="18">18</option> 
+            </select>
+
+            <!-- TODO: make max volatile to current year. -->
+            <p>Year:</p>
+            <input id="yearInput" type="number" name="year" min="2020" max="2020">
+
+            <p>Month:</p>
+            <select name="Month">
+            <option value=""></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>            
+            <option value="12">12</option>            
+            </select>
+
+            <br>
+            <input type="submit"/>
+        </form>
+
+        <div>
+            <p>Requested Images:</p>
+            <ul id="requestedImages"></ul>
+        </div>
     </div>
 
 </body>

@@ -9,7 +9,6 @@ import java.util.Arrays;
  * Class representing a map snapshot image and its metadata.
  */
 public class MapImage {
-<<<<<<< HEAD
     /** Snapshot's longitude coordinate. */
     private double longitude;
 
@@ -29,7 +28,7 @@ public class MapImage {
     private int year;
 
     /** Exact time snapshot was took. */
-    private int timeStamp;
+    private String timeStamp;
 
     /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
     private String objectID;
@@ -37,7 +36,7 @@ public class MapImage {
     /** URL given by Google Cloud Storage to display the image. */
     private String url; 
 
-    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, int timeStamp) {
+    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, String timeStamp) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.cityName = cityName;
@@ -108,7 +107,7 @@ public class MapImage {
         return year;
     }  
 
-    public int getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 

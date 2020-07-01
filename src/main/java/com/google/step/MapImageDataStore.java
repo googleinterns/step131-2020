@@ -51,7 +51,7 @@ public class MapImageDataStore extends HttpServlet {
         Entity mapImageEntity = new Entity("MapImage", mapImage.getObjectID());
 
         mapImageEntity.setProperty("Longitude", mapImage.getLongitude());
-        mapImageEntity.setProperty("Latitude", mapImage.getLongitude());
+        mapImageEntity.setProperty("Latitude", mapImage.getLatitude());
         mapImageEntity.setProperty("City Name", mapImage.getCityName());
         mapImageEntity.setProperty("Zoom", mapImage.getZoom());
         mapImageEntity.setProperty("Month", mapImage.getMonth());

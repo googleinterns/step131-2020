@@ -17,7 +17,7 @@ function getImages() {
 /** Creates a description list element. */
 function createListDescrip(image) {
     const liElement = document.createElement('li');
-    description = image.getCityName() + " on " + image.getMonth() + ", " + image.getYear() + " " + image.getTimeStamp() + " at zoom " + image.getZoom();
+    description = image.cityName + " on " + image.month + ", " + image.year + " " + image.timeStamp + " at zoom " + image.zoomAd;
     liElement.innerText = description;
     return liElement;
 }

@@ -41,8 +41,10 @@ public class QueryDatastore extends HttpServlet {
             double latitude = (double) entity.getProperty("latitude");
             double longitude = (double) entity.getProperty("longitude");
             int zoom = (int) entity.getProperty("zoom");
+            String cityName = (String) entity.getProperty("cityName");
 
             MapImage mapImage = new MapImage(latitude, longitude, zoom);
+            mapImage.setCityName(cityName);
             mapImages.add(mapImage);
         }
 

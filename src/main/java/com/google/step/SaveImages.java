@@ -41,12 +41,14 @@ import java.util.List;
 import java.lang.StringBuilder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 @WebServlet("/save-images-job")
 public class SaveImages extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final String baseURL = "https://maps.googleapis.com/maps/api/staticmap?size=640x512&scale=2&key=AIzaSyA75DbMo0voP63IzAQykD1xXhPEI8_F984";
+    private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private Date date = new Date();
     private String month = String.format("%tm", date);
     private String year = String.format("%TY", date);
@@ -61,7 +63,7 @@ public class SaveImages extends HttpServlet {
         // There are an equal number of elements in mapImages & requestUrls
         for(int i = 0; i < mapImages.size(); i++) {
             byte[] imageData = getImageData(requestUrls.get(i));
-            saveImageToCloudStorage(imageData, mapImages.get(i).getCityName(), mapImages.get(i).getZoom());
+            saveImageToCloudStorage(imageData, mapImages.get(i));
         }
 
         // Send the mapImages to MapImageDatastore.java after setting the metadata
@@ -85,16 +87,17 @@ public class SaveImages extends HttpServlet {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ImageIO.write(image, "png", bos);
         return bos.toByteArray();
-        // Add timestamp
     }
 
-    private void saveImageToCloudStorage(byte[] imageData, String city, int zoomLevel) throws StorageException {
-        // Add underscores to city names with spaces
-        city = city.replaceAll(" ", "_");
-        String bucketName = String.format("%s.appspot.com", PROJECT_ID);
+    private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage) throws StorageException {
         Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        String objectID = String.format("%s_%dx_%s_%s.png", city, zoomLevel, month, year);
-        BlobId blobId = BlobId.of(bucketName, objectID);
+        mapImage.setMonth(Integer.parseInt(month));
+        mapImage.setYear(Integer.parseInt(year));
+        mapImage.setObjectID();
+        LocalDateTime time = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:m a");
+        mapImage.setTimeStamp(time.format(formatter));
+        BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
         Blob blob = storage.create(blobInfo, imageData);
     }

@@ -22,9 +22,6 @@ public class AddLocation extends HttpServlet {
         double longitude = (double) request.getParameter("longitude");
         String cityName = request.getParameter("cityName");
 
-        // A new "TrackedLocation" entity should be added as well.
+        //TODO: A new "TrackedLocation" entity should be added as well.
     }
 }
-
-
-

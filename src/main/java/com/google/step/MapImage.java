@@ -1,123 +1,121 @@
- 
 package com.google.step;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.cloud.storage.Blob.BlobSourceOption;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageException;
-import com.google.cloud.storage.StorageOptions;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
-import javax.imageio.ImageIO;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
-import com.google.api.services.drive.Drive.Files;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class representing a map snapshot image and its metadata.
  */
 public class MapImage {
+    /** Snapshot's longitude coordinate. */
+    private double longitude;
 
-  /** Snapshot's longitude coordinate. */
-  private double longitude;
+    /** Snapshot's latitude coordinate. */
+    private double latitude;
 
-  /** Snapshot's latitude coordinate. */
-  private double latitude;
+    /** Snapshot's cityName coordinate. */
+    private String cityName;
 
-  /** Snapshot's cityName coordinate. */
-  private String cityName;
+    /** Snapshot's zoom coordinate. */
+    private int zoom;
 
-  /** Snapshot's zoom coordinate. */
-  private int zoom;
+    /** Month snapshot was took. */
+    private int month;
 
-  /** Month snapshot was took. */
-  private int month;
+    /** Year snapshot was took. */
+    private int year;
 
-  /** Year snapshot was took. */
-  private int year;
+    /** Exact time snapshot was took. */
+    private String timeStamp;
 
-  /** Exact time snapshot was took. */
-  private int timeStamp;
+    /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
+    private String objectID;
 
-  /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
-  private String objectID;  
+    /** URL given by Google Cloud Storage to display the image. */
+    private String url; 
 
-  public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, int timeStamp) {
-      this.longitude = longitude;
-      this.latitude = latitude;
-      this.cityName = cityName;
-      this.zoom = zoom;
-      this.month = month;
-      this.year = year;
-      this.timeStamp = timeStamp;
-  }
+    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, String timeStamp) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.cityName = cityName;
+        this.zoom = zoom;
+        this.month = month;
+        this.year = year;
+        this.timeStamp = timeStamp;
+    }
 
-  /** Overload the constructor for faster loading & querying from Datastore **/
-  public MapImage(double latitude, double longitude, int zoom) {
-      this.latitude = latitude;
-      this.longitude = longitude;
-      this.zoom = zoom;
-  }
-  
-  /** 
-  * Create name based off of attributes: year, month, name of city, and zoom level in this order.
-  */
-  public void setObjectID() {
-      String city = cityName.replaceAll(" ", "_");
-      objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
-  }
+    /** Overload the constructor for faster loading & querying from Datastore **/
+    public MapImage(double latitude, double longitude, int zoom) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.zoom = zoom;
+    }
 
-  public double getLongitude() {
-      return longitude;
-  }
+    /** 
+    * Sets name based off of attributes: year, month, name of city, and zoom level in this order.
+    */
+    public void setObjectID() {
+        String city = cityName.replaceAll(" ", "_");
+        objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
+    }
 
-  public double getLatitude() {
-      return latitude;
-  }
-  public String getCityName() {
-      return cityName;
-  }
+    /** 
+    * Sets image's URL created by GoogleCLoud Storage.
+    */
+    public void setURL(String gcsURL) {
+        url = gcsURL;
+    }
 
-  public int getZoom() {
-      return zoom;
-  }
+    public void setMonth(int month) {
+        this.month = month;
+    }
 
-  public int getMonth() {
-      return month;
-  }
+    public void setYear(int year) {
+        this.year = year;
+    }
 
-  public int getYear() {
-      return year;
-  }  
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
 
-  public int getTimeStamp() {
-      return timeStamp;
-  }
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 
-  public String getObjectID() {
-      return objectID;
-  }    
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+    public String getCityName() {
+        return cityName;
+    }
+
+    public int getZoom() {
+        return zoom;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public int getYear() {
+        return year;
+    }  
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public String getObjectID() {
+        return objectID;
+    }
+
+    public String getURL() {
+        return url;
+    }     
 }

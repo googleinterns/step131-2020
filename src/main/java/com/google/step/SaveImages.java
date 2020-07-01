@@ -67,14 +67,14 @@ public class SaveImages extends HttpServlet {
         }
 
         // Send the mapImages to MapImageDatastore.java after setting the metadata
-        Gson gson = new Gson();
+        Gson sendGson = new Gson();
         URL url = new URL("/save-datastore");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json");
         con.setDoOutput(true);
-        String data = gson.toJson(mapImages);
+        String data = sendGson.toJson(mapImages);
         try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
             wr.write(data.getBytes(StandardCharsets.UTF_8));
         }

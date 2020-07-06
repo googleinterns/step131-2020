@@ -1,5 +1,5 @@
 cron:
 - description: "monthly map snapshots"
-  url: /save-images-job
+  url: /query-datastore
   schedule: 1 of month 00:00
   timezone: America/Seattle

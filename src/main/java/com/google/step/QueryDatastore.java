@@ -6,7 +6,6 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.datastore.Query.Filter;
 import java.io.IOException;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
@@ -56,7 +55,7 @@ public class QueryDatastore extends HttpServlet {
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json");
-
+        con.setDoInput(true);
         con.setDoOutput(true);
         String data = gson.toJson(mapImages);
         try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {

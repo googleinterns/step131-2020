@@ -60,9 +60,9 @@ public class FrontendQueryDatastore extends HttpServlet {
             // TODO: log error
         }
 
-        // Send the mapImages back to app.html
+        // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
-        URL url = new URL("/app.html");
+        URL url = new URL("/query-cloud");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");

@@ -53,7 +53,7 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Add all the mapEntities that matched the filter
         QueryResults<Entity> resultList = datastore.run(query);
-        ArrayList<MapImage> Images = new ArrayList<>();
+        ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
             mapImages = entitiesToMapImages(resultList);
         } catch (ClassCastException e) {

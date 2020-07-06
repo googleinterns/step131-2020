@@ -65,8 +65,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         con.setDoInput(true);
         con.setDoOutput(true);
         String data = gson.toJson(mapImages);
-        try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            wr.write(data.getBytes(StandardCharsets.UTF_8));
+        try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+            writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
     }
 

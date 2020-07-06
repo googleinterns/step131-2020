@@ -17,9 +17,9 @@
  
         <p>Request a Map Snapshot:</p>
 
-        <form action="/query-datastore" method="POST">
+        <form action="/frontend-query-datastore" method="POST">
             <p>City:</p>
-            <select name="City">
+            <select name="city">
             <option value=""></option>
             <option value="Stockholm">Stockholm</option>
             <option value="São Paulo">São Paulo</option>
@@ -31,7 +31,7 @@
             </select>
 
             <p>Zoom Level:</p>
-            <select name="Zoom Level">
+            <select name="zoomLevel">
             <option value=""></option>
             <option value="5">5</option>
             <option value="6">6</option>
@@ -54,7 +54,7 @@
             <input id="yearInput" type="number" name="year" min="2020" max="2020">
 
             <p>Month:</p>
-            <select name="Month">
+            <select name="month">
             <option value=""></option>
             <option value="1">1</option>
             <option value="2">2</option>

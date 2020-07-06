@@ -59,8 +59,8 @@ public class Redirect extends HttpServlet {
                 con.setDoInput(true);
                 con.setDoOutput(true);
                 // TODO: add logging for error handling
-                try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-                    wr.write(data.getBytes(StandardCharsets.UTF_8));
+                try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+                    writer.write(data.getBytes(StandardCharsets.UTF_8));
                 }
                 catch(IOException e) {}
                 InputStream is = con.getInputStream();

@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 /***
-    This servlet retrieves the mapImage metadata (location, zoom level, etc.)
-    from Datastore so request URLs can be constructed and sent to Static Maps.
+    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
+    A GET request gets TrackedLocations so request URLs can be constructed and sent to Static Maps.
 ***/
 @WebServlet("/query-datastore")
 public class QueryDatastore extends HttpServlet {
@@ -55,6 +55,7 @@ public class QueryDatastore extends HttpServlet {
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json");
+        con.setDoInput(true);
         con.setDoOutput(true);
         String data = gson.toJson(mapImages);
         try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {

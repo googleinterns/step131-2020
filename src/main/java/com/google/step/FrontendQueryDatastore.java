@@ -37,9 +37,9 @@ public class FrontendQueryDatastore extends HttpServlet {
         Datastore datastore = DatastoreOptions.getDefaultInstance().getService(); // Authorized Datastore service.
         KeyFactory keyFactory = datastore.newKeyFactory().setKind("mapImage"); // Used to create keys later.
 
-        String zoomStr = request.getParameter("Zoom Level");
-        String city = request.getParameter("City");
-        String monthStr = request.getParameter("Month");
+        String zoomStr = request.getParameter("zoomLevel");
+        String city = request.getParameter("city");
+        String monthStr = request.getParameter("month");
         String yearStr = request.getParameter("yearInput");  
 
         // Add the appropriate filters according to the form input.

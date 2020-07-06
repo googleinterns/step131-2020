@@ -1,9 +1,5 @@
-// NOTE - Failed jobs are not retried (status code not in 200-299). You can retry with a retry_parameters block
-// NOTE - To upload your cron jobs, use gcloud command, gcloud app deploy cron.yaml
----
 cron:
 - description: "monthly map snapshots"
   url: /save-images-job
   schedule: 1 of month 00:00
   timezone: America/Seattle
----

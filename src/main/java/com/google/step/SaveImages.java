@@ -43,6 +43,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import com.google.apphosting.api.DeadlineExceededException;
 
 
 @WebServlet("/save-images-job")
@@ -62,22 +63,37 @@ public class SaveImages extends HttpServlet {
 
         // There are an equal number of elements in mapImages & requestUrls
         for(int i = 0; i < mapImages.size(); i++) {
-            byte[] imageData = getImageData(requestUrls.get(i));
-            saveImageToCloudStorage(imageData, mapImages.get(i));
+            try {
+                byte[] imageData = getImageData(requestUrls.get(i));
+                saveImageToCloudStorage(imageData, mapImages.get(i));
+            }
+            // TODO: add error handling
+            catch(DeadlineExceededException e) {}
+
         }
+
+        response.getWriter().println("Part 1 Complete!");
 
         // Send the mapImages to MapImageDatastore.java after setting the metadata
         Gson sendGson = new Gson();
-        URL url = new URL("/save-datastore");
+        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-datastore");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
         con.setRequestProperty("Accept", "application/json");
+        con.setDoInput(true);
         con.setDoOutput(true);
         String data = sendGson.toJson(mapImages);
-        try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            wr.write(data.getBytes(StandardCharsets.UTF_8));
+        con.setRequestProperty("Content-Length", Integer.toString(data.length()));
+        try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+            writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
+        // TODO: add logging
+        catch(IOException e) {}
+        // Consume the InputStream
+        new BufferedReader(new InputStreamReader(con.getInputStream()))
+            .lines()
+            .collect(Collectors.joining(""));
 
     }
 

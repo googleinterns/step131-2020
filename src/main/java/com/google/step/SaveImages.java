@@ -74,7 +74,7 @@ public class SaveImages extends HttpServlet {
 
         }
 
-        response.getWriter().println("Part 1 Complete!");
+        response.getWriter().println("Images have been saved to Cloud Storage");
 
         // Send the mapImages to MapImageDatastore.java after setting the metadata
         Gson sendGson = new Gson();

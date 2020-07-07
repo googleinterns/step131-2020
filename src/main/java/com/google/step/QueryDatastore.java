@@ -66,6 +66,7 @@ public class QueryDatastore extends HttpServlet {
         try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
+        // TODO: add logging
         catch(IOException e) {
 
         }

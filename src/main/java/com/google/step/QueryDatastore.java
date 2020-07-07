@@ -18,6 +18,9 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 /***
     This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
@@ -32,25 +35,26 @@ public class QueryDatastore extends HttpServlet {
 
         // Query Datastore for the locations and zoom levels that we need to get for this month.
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-        Query query = new Query("trackedLocations").addSort("cityName", SortDirection.ASCENDING);
+        Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
         PreparedQuery results = datastore.prepare(query);
 
         // Store the MapImages from Datastore in a List.
         List<MapImage> mapImages = new ArrayList<>();
         for(Entity entity : results.asIterable()) {
-            double latitude = (double) entity.getProperty("latitude");
-            double longitude = (double) entity.getProperty("longitude");
-            int zoom = (int) entity.getProperty("zoom");
-            String cityName = (String) entity.getProperty("cityName");
+            for(int zoom = 5; zoom <= 18; zoom++) {
+                double latitude = (double) entity.getProperty("latitude");
+                double longitude = (double) entity.getProperty("longitude");
+                String cityName = (String) entity.getProperty("cityName");
 
-            MapImage mapImage = new MapImage(latitude, longitude, zoom);
-            mapImage.setCityName(cityName);
-            mapImages.add(mapImage);
+                MapImage mapImage = new MapImage(latitude, longitude, zoom);
+                mapImage.setCityName(cityName);
+                mapImages.add(mapImage);
+            }
         }
 
         // Send the location and zoom levels through JSON to SaveImages.java
         Gson gson = new Gson();
-        URL url = new URL("/save-images-job");
+        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-images-job");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -58,8 +62,17 @@ public class QueryDatastore extends HttpServlet {
         con.setDoInput(true);
         con.setDoOutput(true);
         String data = gson.toJson(mapImages);
-        try(DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            wr.write(data.getBytes(StandardCharsets.UTF_8));
+        con.setRequestProperty("Content-Length", Integer.toString(data.length()));
+        try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+            writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
+        // TODO: add logging
+        catch(IOException e) {
+
+        }
+        // Consume the InputStream
+        new BufferedReader(new InputStreamReader(con.getInputStream()))
+            .lines()
+            .collect(Collectors.joining(""));
     }
 }

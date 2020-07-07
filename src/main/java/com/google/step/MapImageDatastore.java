@@ -66,9 +66,8 @@ public class MapImageDatastore extends HttpServlet {
 
             datastore.put(mapImageEntity);
         }
-        
-        // TODO: adjust redirect location
-        response.sendRedirect("/index.html");
+        response.getWriter().println("Datastore objects representing the store map images have been saved");
+
     }
 
 }

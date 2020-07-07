@@ -35,7 +35,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Datastore datastore = DatastoreOptions.getDefaultInstance().getService(); // Authorized Datastore service.
-        KeyFactory keyFactory = datastore.newKeyFactory().setKind("mapImage"); // Used to create keys later.
+        KeyFactory keyFactory = datastore.newKeyFactory().setKind("MapImage"); // Used to create keys later.
 
         String zoomStr = request.getParameter("zoomLevel");
         String city = request.getParameter("city");
@@ -47,22 +47,22 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Build the query for Datastore.
         Query<Entity> query = Query.newEntityQueryBuilder()
-            .setKind("mapImage")
+            .setKind("MapImage")
             .setFilter(compositeFilter)
             .build();
 
         // Add all the mapEntities that matched the filter
         QueryResults<Entity> resultList = datastore.run(query);
-        ArrayList<MapImage> Images = new ArrayList<>();
+        ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
             mapImages = entitiesToMapImages(resultList);
         } catch (ClassCastException e) {
             // TODO: log error
         }
 
-        // Send the mapImages back to app.html
+        // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
-        URL url = new URL("/app.html");
+        URL url = new URL("/query-cloud");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");

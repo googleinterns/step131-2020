@@ -57,7 +57,8 @@ public class MapImage {
     * Sets name based off of attributes: year, month, name of city, and zoom level in this order.
     */
     public void setObjectID() {
-        objectID = (year + "/" + month  + "/" + cityName + "/" + zoom + "x.png");
+        String city = cityName.replaceAll(" ", "_").replaceAll(",", "_");
+        objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
     }
 
     /** 

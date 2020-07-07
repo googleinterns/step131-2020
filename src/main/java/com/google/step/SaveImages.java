@@ -113,7 +113,7 @@ public class SaveImages extends HttpServlet {
         mapImage.setYear(Integer.parseInt(year));
         mapImage.setObjectID();
         LocalDateTime time = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:m a");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
         mapImage.setTimeStamp(time.format(formatter));
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();

@@ -68,11 +68,9 @@ public class QueryDatastore extends HttpServlet {
         }
         // TODO: add logging
         catch(IOException e) {
-
+            response.getWriter().println(e.getMessage());
         }
         // Consume the InputStream
-        new BufferedReader(new InputStreamReader(con.getInputStream()))
-            .lines()
-            .collect(Collectors.joining(""));
+        con.getInputStream().close();
     }
 }

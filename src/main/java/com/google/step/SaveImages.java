@@ -74,8 +74,6 @@ public class SaveImages extends HttpServlet {
 
         }
 
-        response.getWriter().println("Images have been saved to Cloud Storage");
-
         // Send the mapImages to MapImageDatastore.java after setting the metadata
         Gson sendGson = new Gson();
         URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-datastore");
@@ -93,9 +91,7 @@ public class SaveImages extends HttpServlet {
         // TODO: add logging
         catch(IOException e) {}
         // Consume the InputStream
-        new BufferedReader(new InputStreamReader(con.getInputStream()))
-            .lines()
-            .collect(Collectors.joining(""));
+        con.getInputStream().close();
 
     }
 

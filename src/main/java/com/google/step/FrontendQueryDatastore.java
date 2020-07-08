@@ -22,6 +22,8 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 
 /***
     This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
+    private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters*/
     @Override
@@ -62,7 +65,7 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
-        URL url = new URL("/query-cloud");
+        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/query-cloud");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -104,8 +107,12 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Construct the CompositeFilter.
         CompositeFilter compositeFilter = null;
-        for (Filter filter : filters) {
-            compositeFilter = CompositeFilter.and(filter);
+        if(filters.size() > 1) {
+            compositeFilter = CompositeFilter.and(
+                filters.stream().findFirst().get(), filters.stream().skip(1).toArray(Filter[]::new));
+        }
+        else {
+            compositeFilter = CompositeFilter.and(filters.get(0));
         }
         return compositeFilter;
     }

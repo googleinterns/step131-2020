@@ -66,8 +66,6 @@ public class MapImageDatastore extends HttpServlet {
 
             datastore.put(mapImageEntity);
         }
-        response.getWriter().println("Datastore objects representing the store map images have been saved");
-
     }
 
 }

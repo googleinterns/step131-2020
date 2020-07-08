@@ -73,6 +73,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
+        con.getInputStream().close();
+        response.sendRedirect("/app.html");
     }
 
     private CompositeFilter buildCompositeFilter(String zoomStr, String city, String monthStr, String yearStr) {
@@ -80,24 +82,24 @@ public class FrontendQueryDatastore extends HttpServlet {
         ArrayList<Filter> filters = new ArrayList<>();
         try {
             int zoom = Integer.parseInt(zoomStr);
-            filters.add(PropertyFilter.eq("zoom", zoom));
+            filters.add(PropertyFilter.eq("Zoom", zoom));
         } catch (NumberFormatException e) {
             // TODO: log and handle error.
         }
         try {
             int month = Integer.parseInt(monthStr);
-            filters.add(PropertyFilter.eq("month", month));
+            filters.add(PropertyFilter.eq("Month", month));
         } catch (NumberFormatException e) {
             // TODO: log and handle error.
         }
         try {
             int year = Integer.parseInt(yearStr);
-            filters.add(PropertyFilter.eq("year", year));
+            filters.add(PropertyFilter.eq("Year", year));
         } catch (NumberFormatException e) {
             // TODO: log and handle error.
         }
         if (!city.equals("")) {
-            filters.add(PropertyFilter.eq("cityName", city));
+            filters.add(PropertyFilter.eq("City Name", city));
         }
 
         // Construct the CompositeFilter.
@@ -122,13 +124,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
         */
 
-        double latitude = entity.getDouble("latitude");
-        double longitude = entity.getDouble("longitude");
-        int zoom = (int) entity.getLong("zoom");
-        String cityName = entity.getString("cityName");
-        int month = (int) entity.getLong("month");
-        int year = (int) entity.getLong("year");
-        String timeStamp = entity.getString("timeStamp");
+        double latitude = entity.getDouble("Latitude");
+        double longitude = entity.getDouble("Longitude");
+        int zoom = (int) entity.getLong("Zoom");
+        String cityName = entity.getString("City Name");
+        int month = (int) entity.getLong("Month");
+        int year = (int) entity.getLong("Year");
+        String timeStamp = entity.getString("Time Stamp");
 
         MapImage mapImage = new MapImage(longitude, latitude, cityName, zoom, month, year, timeStamp);
         mapImage.setObjectID();

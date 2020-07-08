@@ -43,9 +43,6 @@ import com.google.gson.reflect.TypeToken;
 @WebServlet("/save-datastore")
 public class MapImageDatastore extends HttpServlet {
 
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {}
-
     /** Stores updated MapImage object metadata into Datastore. */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -68,7 +68,6 @@ public class QueryDatastore extends HttpServlet {
         }
         // TODO: add logging
         catch(IOException e) {
-            response.getWriter().println(e.getMessage());
         }
         // Consume the InputStream
         con.getInputStream().close();

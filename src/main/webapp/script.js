@@ -4,6 +4,7 @@ $(document).ready(function() {
         if(array !== "{}"){
             for(var i = 0; i < array.length; i++) {
                 const url = URL.createObjectURL(new Blob([Uint8Array.from(array[i].bytes).buffer], { type: "image/png" }));
+                // TODO: create entire image list structure
                 $("#requestedImages").append(`<li><img src="${url}"></li>`);
             }
         }

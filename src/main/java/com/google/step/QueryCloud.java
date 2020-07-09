@@ -26,7 +26,7 @@ public class QueryCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
-    private ArrayList<Item> items = null;
+    private ArrayList<MapImageWithImageBytes> items = null;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -55,7 +55,7 @@ public class QueryCloud extends HttpServlet {
         Bucket bucket = storage.get(BUCKET_NAME);
         items = new ArrayList<>();
         mapImages.forEach(image -> {
-            items.add(new Item(image, bucket.get(image.getObjectID()).getContent()));
+            items.add(new MapImageWithImageBytes(image, bucket.get(image.getObjectID()).getContent()));
         });
     }
 
@@ -63,11 +63,11 @@ public class QueryCloud extends HttpServlet {
 }
 
 // This class represents a MapImage and its corresponding image data
-class Item {
+class MapImageWithImageBytes {
     private MapImage image;
     private byte[] bytes;
 
-    public Item(MapImage image, byte[] bytes) {
+    public MapImageWithImageBytes(MapImage image, byte[] bytes) {
         this.image = image;
         this.bytes = bytes;
     }

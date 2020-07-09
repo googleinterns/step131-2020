@@ -1,5 +1,15 @@
 $(document).ready(function() {
- 
+    fetch("/query-cloud").then(res => res.json()).then(array => {
+        // Array is not equal to "{}" when the request is made after the form is submitted
+        if(array !== "{}"){
+            for(var i = 0; i < array.length; i++) {
+                const url = URL.createObjectURL(new Blob([Uint8Array.from(array[i].bytes).buffer], { type: "image/png" }));
+                // TODO: create entire image list structure
+                $("#requestedImages").append(`<li><img src="${url}"></li>`);
+            }
+        }
+    });
+    
 });
 
 /** Builds Unordered List of map snapshots and their descriptions. */

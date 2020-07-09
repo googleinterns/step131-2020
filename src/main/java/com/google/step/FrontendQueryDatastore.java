@@ -22,6 +22,8 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 
 /***
     This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
+    private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters*/
     @Override
@@ -73,6 +76,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
+        con.getInputStream().close();
+        response.sendRedirect("/app.html");
     }
 
     private CompositeFilter buildCompositeFilter(String zoomStr, String city, String monthStr, String yearStr) {
@@ -80,30 +85,37 @@ public class FrontendQueryDatastore extends HttpServlet {
         ArrayList<Filter> filters = new ArrayList<>();
         try {
             int zoom = Integer.parseInt(zoomStr);
-            filters.add(PropertyFilter.eq("zoom", zoom));
+            filters.add(PropertyFilter.eq("Zoom", zoom));
         } catch (NumberFormatException e) {
             // TODO: log and handle error.
         }
         try {
             int month = Integer.parseInt(monthStr);
-            filters.add(PropertyFilter.eq("month", month));
+            filters.add(PropertyFilter.eq("Month", month));
         } catch (NumberFormatException e) {
             // TODO: log and handle error.
         }
         try {
             int year = Integer.parseInt(yearStr);
-            filters.add(PropertyFilter.eq("year", year));
+            filters.add(PropertyFilter.eq("Year", year));
         } catch (NumberFormatException e) {
             // TODO: log and handle error.
         }
         if (!city.equals("")) {
-            filters.add(PropertyFilter.eq("cityName", city));
+            filters.add(PropertyFilter.eq("City Name", city));
         }
 
         // Construct the CompositeFilter.
         CompositeFilter compositeFilter = null;
-        for (Filter filter : filters) {
-            compositeFilter = CompositeFilter.and(filter);
+        if (filters.size() > 1) {
+            // Filters.stream() allows us to pass an ArrayList to a function with VarArgs parameters
+            compositeFilter = CompositeFilter.and(
+                filters.get(0), filters.stream().skip(1).toArray(Filter[]::new));
+        } else if (filters.size() == 1) {
+            compositeFilter = CompositeFilter.and(filters.get(0));
+        } else {
+            // Load all MapImages from Datastore b/c all year properties are >= 2020
+            compositeFilter = CompositeFilter.and(PropertyFilter.ge("Year", 2020));
         }
         return compositeFilter;
     }
@@ -122,13 +134,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
         */
 
-        double latitude = entity.getDouble("latitude");
-        double longitude = entity.getDouble("longitude");
-        int zoom = (int) entity.getLong("zoom");
-        String cityName = entity.getString("cityName");
-        int month = (int) entity.getLong("month");
-        int year = (int) entity.getLong("year");
-        String timeStamp = entity.getString("timeStamp");
+        double latitude = entity.getDouble("Latitude");
+        double longitude = entity.getDouble("Longitude");
+        int zoom = (int) entity.getLong("Zoom");
+        String cityName = entity.getString("City Name");
+        int month = (int) entity.getLong("Month");
+        int year = (int) entity.getLong("Year");
+        String timeStamp = entity.getString("Time Stamp");
 
         MapImage mapImage = new MapImage(longitude, latitude, cityName, zoom, month, year, timeStamp);
         mapImage.setObjectID();

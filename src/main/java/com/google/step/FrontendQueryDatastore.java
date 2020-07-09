@@ -107,12 +107,15 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Construct the CompositeFilter.
         CompositeFilter compositeFilter = null;
-        if(filters.size() > 1) {
+        if (filters.size() > 1) {
+            // Filters.stream() allows us to pass an ArrayList to a function with VarArgs parameters
             compositeFilter = CompositeFilter.and(
-                filters.stream().findFirst().get(), filters.stream().skip(1).toArray(Filter[]::new));
-        }
-        else {
+                filters.get(0), filters.stream().skip(1).toArray(Filter[]::new));
+        } else if (filters.size() == 1) {
             compositeFilter = CompositeFilter.and(filters.get(0));
+        } else {
+            // Load all MapImages from Datastore b/c all year properties are >= 2020
+            compositeFilter = CompositeFilter.and(PropertyFilter.ge("Year", 2020));
         }
         return compositeFilter;
     }

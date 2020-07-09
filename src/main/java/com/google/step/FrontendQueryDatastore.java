@@ -84,9 +84,37 @@ public class FrontendQueryDatastore extends HttpServlet {
         // Check for empty values from the form and build filters for user-input values.
         ArrayList<Filter> filters = new ArrayList<>();
         try {
-            int zoom = Integer.parseInt(zoomStr);
-            filters.add(PropertyFilter.eq("Zoom", zoom));
-        } catch (NumberFormatException e) {
+            // Zoom ranges are based on documented Zoom Bands.
+            switch(zoomStr) {
+                // Atlas is zoom levels 1 - 10, but zoom levels 1-4 are not tracked.
+                case "Atlas":
+                    for (int zoom = 5; zoom <= 10; zoom++) {
+                        filters.add(PropertyFilter.eq("Zoom", zoom));
+                    }
+                    break;
+                case "Regional":
+                    for (int zoom = 11; zoom <= 12; zoom++) {
+                        filters.add(PropertyFilter.eq("Zoom", zoom));
+                    }
+                    break;
+                case "Multi-city":
+                    for (int zoom = 13; zoom <= 14; zoom++) {
+                        filters.add(PropertyFilter.eq("Zoom", zoom));
+                    }
+                    break;
+                case "Multi-sublocality":
+                    for (int zoom = 15; zoom <= 17; zoom++) {
+                        filters.add(PropertyFilter.eq("Zoom", zoom));
+                    }
+                    break;
+                // Pedestrian is zoom levels 18 - 21, but zoom levels 19-21 are not tracked.
+                case "Pedestrian":
+                    filters.add(PropertyFilter.eq("Zoom", 18));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Zoom not specified");
+            }
+        } catch (IllegalArgumentException e) {
             // TODO: log and handle error.
         }
         try {

@@ -65,7 +65,7 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
-        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/query-cloud");
+        URL url = new URL("/query-cloud");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");

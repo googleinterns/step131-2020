@@ -85,31 +85,24 @@ public class FrontendQueryDatastore extends HttpServlet {
         ArrayList<Filter> filters = new ArrayList<>();
         try {
             // Zoom ranges are based on documented Zoom Bands.
+            // Global zoom level (0-3) is not tracked.
             switch(zoomStr) {
-                // Atlas is zoom levels 1 - 10, but zoom levels 1-4 are not tracked.
-                case "Atlas":
-                    for (int zoom = 5; zoom <= 10; zoom++) {
-                        filters.add(PropertyFilter.eq("Zoom", zoom));
-                    }
+                // Continental is zoom levels 4 - 6, but zoom level 4 is not tracked.
+                case "Continental":
+                    filters.addAll(buildZoomFilters(5, 6));
                     break;
                 case "Regional":
-                    for (int zoom = 11; zoom <= 12; zoom++) {
-                        filters.add(PropertyFilter.eq("Zoom", zoom));
-                    }
+                    filters.addAll(buildZoomFilters(7, 10));
                     break;
-                case "Multi-city":
-                    for (int zoom = 13; zoom <= 14; zoom++) {
-                        filters.add(PropertyFilter.eq("Zoom", zoom));
-                    }
+                case "Local":
+                    filters.addAll(buildZoomFilters(11, 14));
                     break;
-                case "Multi-sublocality":
-                    for (int zoom = 15; zoom <= 17; zoom++) {
-                        filters.add(PropertyFilter.eq("Zoom", zoom));
-                    }
+                case "Sublocal":
+                    filters.addAll(buildZoomFilters(15, 16));
                     break;
-                // Pedestrian is zoom levels 18 - 21, but zoom levels 19-21 are not tracked.
-                case "Pedestrian":
-                    filters.add(PropertyFilter.eq("Zoom", 18));
+                // House is zoom levels 17 - 20, but zoom levels 19-20 are not tracked.
+                case "House":
+                    filters.addAll(buildZoomFilters(17, 18));
                     break;
                 default:
                     throw new IllegalArgumentException("Zoom not specified");
@@ -146,6 +139,14 @@ public class FrontendQueryDatastore extends HttpServlet {
             compositeFilter = CompositeFilter.and(PropertyFilter.ge("Year", 2020));
         }
         return compositeFilter;
+    }
+
+    private ArrayList<Filter> buildZoomFilters(int startingZoom, int endingZoom) {
+        ArrayList<Filter> zoomFilters = new ArrayList<>();
+        for(int zoom = startingZoom; zoom <= endingZoom; zoom++) {
+            zoomFilters.add(PropertyFilter.eq("Zoom", zoom));
+        }
+        return zoomFilters;
     }
 
     private ArrayList<MapImage> entitiesToMapImages(QueryResults<Entity> resultList) {

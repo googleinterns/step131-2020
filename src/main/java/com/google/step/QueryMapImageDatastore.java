@@ -65,7 +65,7 @@ public class QueryMapImageDatastore extends HttpServlet {
 
         // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
-        URL url = new URL("/query-cloud");
+        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/query-cloud");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -84,9 +84,30 @@ public class QueryMapImageDatastore extends HttpServlet {
         // Check for empty values from the form and build filters for user-input values.
         ArrayList<Filter> filters = new ArrayList<>();
         try {
-            int zoom = Integer.parseInt(zoomStr);
-            filters.add(PropertyFilter.eq("Zoom", zoom));
-        } catch (NumberFormatException e) {
+            // Zoom ranges are based on documented Zoom Bands.
+            // Global zoom level (0-3) is not tracked.
+            switch(zoomStr) {
+                // Continental is zoom levels 4 - 6, but zoom level 4 is not tracked.
+                case "Continental":
+                    filters.addAll(buildZoomFilters(5, 6));
+                    break;
+                case "Regional":
+                    filters.addAll(buildZoomFilters(7, 10));
+                    break;
+                case "Local":
+                    filters.addAll(buildZoomFilters(11, 14));
+                    break;
+                case "Sublocal":
+                    filters.addAll(buildZoomFilters(15, 16));
+                    break;
+                // House is zoom levels 17 - 20, but zoom levels 19-20 are not tracked.
+                case "House":
+                    filters.addAll(buildZoomFilters(17, 18));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Zoom not specified");
+            }
+        } catch (IllegalArgumentException e) {
             // TODO: log and handle error.
         }
         try {
@@ -118,6 +139,14 @@ public class QueryMapImageDatastore extends HttpServlet {
             compositeFilter = CompositeFilter.and(PropertyFilter.ge("Year", 2020));
         }
         return compositeFilter;
+    }
+
+    private ArrayList<Filter> buildZoomFilters(int startingZoom, int endingZoom) {
+        ArrayList<Filter> zoomFilters = new ArrayList<>();
+        for(int zoom = startingZoom; zoom <= endingZoom; zoom++) {
+            zoomFilters.add(PropertyFilter.eq("Zoom", zoom));
+        }
+        return zoomFilters;
     }
 
     private ArrayList<MapImage> entitiesToMapImages(QueryResults<Entity> resultList) {

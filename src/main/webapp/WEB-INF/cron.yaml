@@ -1,5 +1,5 @@
-// Retries up to five times by default.
-// Intervals between retries are 4hrs, 8hrs, 16h, 32h, 64h. Retries must happen within a week.
+# Retries up to five times by default.
+# Intervals between retries are 4hrs, 8hrs, 16h, 32h, 64h. Retries must happen within a week.
 ---
 cron:
 - description: "monthly map snapshots"

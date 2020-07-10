@@ -20,27 +20,29 @@ import java.util.Arrays;
 import java.io.BufferedReader;
 import com.google.gson.reflect.TypeToken;
 import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import com.google.auth.ServiceAccountSigner.SigningException;
 
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
-    private ArrayList<MapImageWithImageBytes> items = null;
+    private ArrayList<MapImage> mapImages = null;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // The request is made before the form is submitted (on page load)
-        if(items == null) {
+        if(mapImages == null) {
             response.getWriter().println("{}"); 
         }
         // The request is made after the form is submitted
         else {
             Gson gson = new Gson();
-            String data = gson.toJson(items);
+            String data = gson.toJson(mapImages);
             response.setContentType("application/json");
             response.getWriter().println(data);
-            items = null;
+            mapImages = null;
         }
     }
 
@@ -48,31 +50,21 @@ public class QueryCloud extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        BufferedReader reader = request.getReader();
-        Gson gson = new Gson();
-        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
-        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        Bucket bucket = storage.get(BUCKET_NAME);
-        items = new ArrayList<>();
-        mapImages.forEach(image -> {
-            items.add(new MapImageWithImageBytes(image, bucket.get(image.getObjectID()).getContent()));
-        });
+        try {
+            BufferedReader reader = request.getReader();
+            Gson gson = new Gson();
+            mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
+            Storage storage = StorageOptions.getDefaultInstance().getService();
+            mapImages.forEach(image -> {
+                BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
+                String url = storage.signUrl(blobInfo, 10, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature()).toString();
+                image.setURL(url);
+            });
+        }
+        catch(SigningException e) {
+            LOGGER.severe(e.getCause().getMessage());
+        }
     }
 
 
-}
-
-// This class represents a MapImage and its corresponding image data
-class MapImageWithImageBytes {
-    private MapImage image;
-    private byte[] bytes;
-
-    public MapImageWithImageBytes(MapImage image, byte[] bytes) {
-        this.image = image;
-        this.bytes = bytes;
-    }
-
-    public MapImage getMapImage() { return image; }
-
-    public byte[] getBytes() { return bytes; }
 }

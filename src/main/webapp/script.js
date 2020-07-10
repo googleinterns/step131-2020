@@ -1,7 +1,7 @@
 $(document).ready(function() {
     fetch("/query-cloud").then(res => res.json()).then(array => {
         // Array is not equal to "{}" when the request is made after the form is submitted
-        if(array !== "{}"){
+        if (array !== "{}") {
             for(var i = 0; i < array.length; i++) {
                 const url = array[i].url;
                 // TODO: create entire image list structure

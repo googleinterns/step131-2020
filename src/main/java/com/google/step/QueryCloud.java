@@ -28,21 +28,21 @@ public class QueryCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
-    private ArrayList<MapImage> items = null;
+    private ArrayList<MapImage> mapImages = null;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // The request is made before the form is submitted (on page load)
-        if(items == null) {
+        if(mapImages == null) {
             response.getWriter().println("{}"); 
         }
         // The request is made after the form is submitted
         else {
             Gson gson = new Gson();
-            String data = gson.toJson(items);
+            String data = gson.toJson(mapImages);
             response.setContentType("application/json");
             response.getWriter().println(data);
-            items = null;
+            mapImages = null;
         }
     }
 
@@ -50,17 +50,20 @@ public class QueryCloud extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        BufferedReader reader = request.getReader();
-        Gson gson = new Gson();
-        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
-        Storage storage = StorageOptions.getDefaultInstance().getService();
-        items = new ArrayList<>();
-        mapImages.forEach(image -> {
-            BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
-            String url = storage.signUrl(blobInfo, 10, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature()).toString();
-            image.setURL(url);
-        });
-        items = mapImages;
+        try {
+            BufferedReader reader = request.getReader();
+            Gson gson = new Gson();
+            mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
+            Storage storage = StorageOptions.getDefaultInstance().getService();
+            mapImages.forEach(image -> {
+                BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
+                String url = storage.signUrl(blobInfo, 10, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature()).toString();
+                image.setURL(url);
+            });
+        }
+        catch(SigningException e) {
+            LOGGER.severe(e.getCause().getMessage());
+        }
     }
 
 

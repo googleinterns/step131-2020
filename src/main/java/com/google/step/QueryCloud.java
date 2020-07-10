@@ -20,13 +20,15 @@ import java.util.Arrays;
 import java.io.BufferedReader;
 import com.google.gson.reflect.TypeToken;
 import java.util.logging.Logger;
+import java.util.concurrent.TimeUnit;
+import com.google.auth.ServiceAccountSigner.SigningException;
 
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
-    private ArrayList<MapImageWithImageBytes> items = null;
+    private ArrayList<MapImage> items = null;
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -51,28 +53,15 @@ public class QueryCloud extends HttpServlet {
         BufferedReader reader = request.getReader();
         Gson gson = new Gson();
         ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
-        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        Bucket bucket = storage.get(BUCKET_NAME);
+        Storage storage = StorageOptions.getDefaultInstance().getService();
         items = new ArrayList<>();
         mapImages.forEach(image -> {
-            items.add(new MapImageWithImageBytes(image, bucket.get(image.getObjectID()).getContent()));
+            BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
+            String url = storage.signUrl(blobInfo, 10, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature()).toString();
+            image.setURL(url);
         });
+        items = mapImages;
     }
 
 
-}
-
-// This class represents a MapImage and its corresponding image data
-class MapImageWithImageBytes {
-    private MapImage image;
-    private byte[] bytes;
-
-    public MapImageWithImageBytes(MapImage image, byte[] bytes) {
-        this.image = image;
-        this.bytes = bytes;
-    }
-
-    public MapImage getMapImage() { return image; }
-
-    public byte[] getBytes() { return bytes; }
 }

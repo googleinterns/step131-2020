@@ -11,6 +11,7 @@ $(document).ready(function() {
         }
     });
 
+    // This fetch loads the location options for the form through Datastore.
     fetch("/form-locations").then(response => response.json()).then(locations => {
         $("#locations").empty();
         var emptyOption = $('<option></option>').attr("value", "").text("");

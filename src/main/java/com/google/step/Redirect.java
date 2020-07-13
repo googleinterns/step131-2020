@@ -25,12 +25,13 @@ import java.net.URISyntaxException;
     third steps of the authentication
     process, specifically the retrieval
     of the authorization code
-    and the storage of the access token
+    and the storage of the access token.
 ***/
 @WebServlet("/redirect")
 public class Redirect extends HttpServlet {
-    private final String CLIENT_ID = System.getenv("client_id"); // Unique identifier for OAuth for the project
-    private final String CLIENT_SECRET = System.getenv("client_secret"); // Unique identifier for OAuth for the project
+    // Both of these variables are unique identifiers for OAuth for the project.
+    private final String CLIENT_ID = System.getenv("client_id"); 
+    private final String CLIENT_SECRET = System.getenv("client_secret");
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -73,12 +74,11 @@ public class Redirect extends HttpServlet {
                 session.setAttribute("accessToken", tokenResponse.getAccessToken());
                 response.sendRedirect("/app.html");
             }
-            // TODO: add logging
-            catch(URISyntaxException e) {}
+            catch(URISyntaxException e) {
+                // TODO: add logging
+            }
         }
     }
-
-  
 }
 
 class TokenResponse {
@@ -87,11 +87,19 @@ class TokenResponse {
     private String scope;
     private String token_type;
     
-    public String getAccessToken() { return access_token; }
+    public String getAccessToken() {
+        return access_token;
+    }
 
-    public int getExpiresIn() { return expires_in; }
+    public int getExpiresIn() {
+        return expires_in;
+    }
 
-    public String getScope() { return scope; }
+    public String getScope() {
+        return scope;
+    }
 
-    public String getTokenType() { return token_type; }
+    public String getTokenType() {
+        return token_type;
+    }
 }

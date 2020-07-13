@@ -1,15 +1,11 @@
 package com.google.step;
 
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
-import com.google.cloud.datastore.StructuredQuery.Filter;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import java.io.IOException;
 import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
@@ -22,50 +18,44 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Logger;
-import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 /***
-    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
-    A POST request gets the parameters from a form and returns the MapImages to be displayed.
+    This servlet retrieves the tracked metadata (location and coordinates) from Datastore.
+    This metadata along with a range of zoom levels is used to initiate new MapImage instances representing new map snapshots.
+    The MapImage instances are sent  
+    A GET request gets TrackedLocations so request URLs can be constructed and sent to Static Maps.
 ***/
-@WebServlet("/frontend-query-datastore")
+@WebServlet("/backend-query-datastore")
 public class BackendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final static Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
 
-    /** Get form parameters and query Datastore to get objectIDs based on those parameters*/
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Datastore datastore = DatastoreOptions.getDefaultInstance().getService(); // Authorized Datastore service.
-        KeyFactory keyFactory = datastore.newKeyFactory().setKind("MapImage"); // Used to create keys later.
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Query Datastore for the locations and zoom levels that we need to get for this month.
+        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+        Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
+        PreparedQuery results = datastore.prepare(query);
 
-        String zoomStr = request.getParameter("zoomLevel");
-        String city = request.getParameter("city");
-        String monthStr = request.getParameter("month");
-        String yearStr = request.getParameter("yearInput");  
+        // Combine Datastore tracked metadata with zooms to store new MapImage objects in a List.
+        List<MapImage> mapImages = new ArrayList<>();
+        for (Entity entity : results.asIterable()) {
+            for (int zoom = 5; zoom <= 18; zoom++) {
+                double latitude = (double) entity.getProperty("latitude");
+                double longitude = (double) entity.getProperty("longitude");
+                String cityName = (String) entity.getProperty("cityName");
 
-        // Add the appropriate filters according to the form input.
-        CompositeFilter compositeFilter = buildCompositeFilter(zoomStr, city, monthStr, yearStr);
-
-        // Build the query for Datastore.
-        Query<Entity> query = Query.newEntityQueryBuilder()
-            .setKind("MapImage")
-            .setFilter(compositeFilter)
-            .build();
-
-        // Add all the mapEntities that matched the filter
-        QueryResults<Entity> resultList = datastore.run(query);
-        ArrayList<MapImage> mapImages = new ArrayList<>();
-        try {
-            mapImages = entitiesToMapImages(resultList);
-        } catch (ClassCastException e) {
-            // TODO: log error
+                MapImage mapImage = new MapImage(latitude, longitude, zoom);
+                mapImage.setCityName(cityName);
+                mapImages.add(mapImage);
+            }
         }
 
-        // Send the MapImage metadata to QueryCloud.java
+        // Send new MapImage objects through JSON to SaveImageCloud.java
         Gson gson = new Gson();
-        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/query-cloud");
+        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-images-cloud-job");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -73,106 +63,14 @@ public class BackendQueryDatastore extends HttpServlet {
         con.setDoInput(true);
         con.setDoOutput(true);
         String data = gson.toJson(mapImages);
+        con.setRequestProperty("Content-Length", Integer.toString(data.length()));
         try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
+        catch(IOException e) {
+            // TODO: add logging
+        }
+        // Consume the InputStream
         con.getInputStream().close();
-        response.sendRedirect("/app.html");
-    }
-
-    private CompositeFilter buildCompositeFilter(String zoomStr, String city, String monthStr, String yearStr) {
-        // Check for empty values from the form and build filters for user-input values.
-        ArrayList<Filter> filters = new ArrayList<>();
-        try {
-            // Zoom ranges are based on documented Zoom Bands.
-            // Global zoom level (0-3) is not tracked.
-            switch(zoomStr) {
-                // Continental is zoom levels 4 - 6, but zoom level 4 is not tracked.
-                case "Continental":
-                    filters.addAll(buildZoomFilters(5, 6));
-                    break;
-                case "Regional":
-                    filters.addAll(buildZoomFilters(7, 10));
-                    break;
-                case "Local":
-                    filters.addAll(buildZoomFilters(11, 14));
-                    break;
-                case "Sublocal":
-                    filters.addAll(buildZoomFilters(15, 16));
-                    break;
-                // House is zoom levels 17 - 20, but zoom levels 19-20 are not tracked.
-                case "House":
-                    filters.addAll(buildZoomFilters(17, 18));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Zoom not specified");
-            }
-        } catch (IllegalArgumentException e) {
-            // TODO: log and handle error.
-        }
-        try {
-            int month = Integer.parseInt(monthStr);
-            filters.add(PropertyFilter.eq("Month", month));
-        } catch (NumberFormatException e) {
-            // TODO: log and handle error.
-        }
-        try {
-            int year = Integer.parseInt(yearStr);
-            filters.add(PropertyFilter.eq("Year", year));
-        } catch (NumberFormatException e) {
-            // TODO: log and handle error.
-        }
-        if (!city.equals("")) {
-            filters.add(PropertyFilter.eq("City Name", city));
-        }
-
-        // Construct the CompositeFilter.
-        CompositeFilter compositeFilter = null;
-        if (filters.size() > 1) {
-            // Filters.stream() allows us to pass an ArrayList to a function with VarArgs parameters
-            compositeFilter = CompositeFilter.and(
-                filters.get(0), filters.stream().skip(1).toArray(Filter[]::new));
-        } else if (filters.size() == 1) {
-            compositeFilter = CompositeFilter.and(filters.get(0));
-        } else {
-            // Load all MapImages from Datastore b/c all year properties are >= 2020
-            compositeFilter = CompositeFilter.and(PropertyFilter.ge("Year", 2020));
-        }
-        return compositeFilter;
-    }
-
-    private ArrayList<Filter> buildZoomFilters(int startingZoom, int endingZoom) {
-        ArrayList<Filter> zoomFilters = new ArrayList<>();
-        for(int zoom = startingZoom; zoom <= endingZoom; zoom++) {
-            zoomFilters.add(PropertyFilter.eq("Zoom", zoom));
-        }
-        return zoomFilters;
-    }
-
-    private ArrayList<MapImage> entitiesToMapImages(QueryResults<Entity> resultList) {
-        ArrayList<MapImage> resultMapImages = new ArrayList<>();
-        while (resultList.hasNext()) {  // While we still have data
-            resultMapImages.add(entityToMapImage(resultList.next())); // Add the MapImage to the List
-        }
-        return resultMapImages;
-    }
-
-    private MapImage entityToMapImage(Entity entity) {
-        /* 
-        *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-        *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-        */
-
-        double latitude = entity.getDouble("Latitude");
-        double longitude = entity.getDouble("Longitude");
-        int zoom = (int) entity.getLong("Zoom");
-        String cityName = entity.getString("City Name");
-        int month = (int) entity.getLong("Month");
-        int year = (int) entity.getLong("Year");
-        String timeStamp = entity.getString("Time Stamp");
-
-        MapImage mapImage = new MapImage(longitude, latitude, cityName, zoom, month, year, timeStamp);
-        mapImage.setObjectID();
-        return mapImage;
     }
 }

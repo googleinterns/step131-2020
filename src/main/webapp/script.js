@@ -10,12 +10,19 @@ $(document).ready(function() {
         }
     });
 
-    fetch("/query-datastore").then(response => response.json()).then(array => {
-        for (location : array) {
-            $("#requestedImages").append(`<li><img src="${url}"></li>`);
+    fetch("/form-locations").then(response => response.json()).then(locations => {
+        $("#locations").empty();
+        var emptyOption = $('<option></option>').attr("value", "").text("");
+        $("#locations").append(option);
+        for (var j = 0; j < locations.length; j++) {
+            var option = $('<option></option>').attr("value", locations[j]).text(locations[j]);
+            $("#locations").append(option);
         }
-    
     });
+
+})
+
+
 
 /** Builds Unordered List of map snapshots and their descriptions. */
 function getImages() {

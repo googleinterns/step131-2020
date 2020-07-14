@@ -1,8 +1,5 @@
 package com.google.step;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
 import com.google.cloud.storage.Blob.BlobSourceOption;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
@@ -15,8 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
-
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -37,7 +31,6 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.List;
 import java.lang.StringBuilder;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -47,9 +40,12 @@ import com.google.apphosting.api.DeadlineExceededException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-
-@WebServlet("/save-images-job")
-public class SaveImages extends HttpServlet {
+/***
+    This servlet stores Static Maps binary image data in Cloud.
+    A POST request gets MapImages to make Static Maps URL requests and store the binary image data in Cloud.
+***/
+@WebServlet("/save-images-cloud-job")
+public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private Date date = new Date();
@@ -63,20 +59,20 @@ public class SaveImages extends HttpServlet {
         ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());  
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
-        // There are an equal number of elements in mapImages & requestUrls
+        // There are an equal number of elements in mapImages & requestUrls.
         for(int i = 0; i < mapImages.size(); i++) {
             try {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
             }
-            // TODO: add error handling
-            catch(DeadlineExceededException e) {}
-
+            catch(DeadlineExceededException e) {
+                // TODO: add error handling
+            }
         }
 
-        // Send the mapImages to MapImageDatastore.java after setting the metadata
+        // Send the MapImages to SaveMapImageDatastore.java after setting the metadata.
         Gson sendGson = new Gson();
-        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-datastore");
+        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-mapimage-datastore");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
         con.setRequestProperty("Content-Type", "application/json");
@@ -88,11 +84,11 @@ public class SaveImages extends HttpServlet {
         try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
-        // TODO: add logging
-        catch(IOException e) {}
+        catch(IOException e) {
+            // TODO: add logging
+        }
         // Consume the InputStream
         con.getInputStream().close();
-
     }
 
     private byte[] getImageData(String requestURL) throws IOException {

@@ -10,7 +10,6 @@
     <script src="script.js"></script>
 </head>
 <body>
-
     <div id="main-container">
  
         <h1>Maps Over Time</h1>
@@ -18,17 +17,8 @@
         <p>Request a Map Snapshot:</p>
 
         <form id="request-form" action="/frontend-query-datastore" method="POST">
-            <p>City:</p>
-            <select name="city">
-            <option value=""></option>
-            <option value="Stockholm">Stockholm</option>
-            <option value="São Paulo">São Paulo</option>
-            <option value="Tokyo">Tokyo</option>
-            <option value="Delhi">Delhi</option>
-            <option value="London">London</option>
-            <option value="Stillwater, OK">Stillwater, OK</option>
-            <option value="Canadian, TX">Canadian, TX</option>
-            </select>
+            <p>Location:</p>
+            <select name="city" id="locations"></select>
 
             <p>Zoom Level:</p>
             <select name="zoomLevel">
@@ -57,8 +47,8 @@
             <option value="8">8</option>
             <option value="9">9</option>
             <option value="10">10</option>
-            <option value="11">11</option>            
-            <option value="12">12</option>            
+            <option value="11">11</option>
+            <option value="12">12</option>
             </select>
 
             <br>

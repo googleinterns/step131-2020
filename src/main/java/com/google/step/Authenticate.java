@@ -1,6 +1,5 @@
 package com.google.step;
 
-
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.annotation.WebServlet;
@@ -13,7 +12,7 @@ import java.net.URISyntaxException;
 /***
     This servlet handles the first step of the authentication process with OAuth.
     When the user visits the home page they are immediately sent here to begin the
-    authentication and redirection process
+    authentication and redirection process.
 ***/
 @WebServlet("/authenticate")
 public class Authenticate extends HttpServlet {
@@ -45,7 +44,8 @@ public class Authenticate extends HttpServlet {
             response.setContentType("text/html");
             response.getWriter().println(req);
         }
-        // TODO: add logging to application
-        catch(URISyntaxException e) {}
+        catch(URISyntaxException e) {
+            // TODO: add logging to application
+        }
     }
 }

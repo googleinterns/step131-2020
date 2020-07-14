@@ -26,8 +26,8 @@ import java.util.logging.Logger;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 
 /***
-    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
-    A POST request gets the parameters from a form and returns the MapImages to be displayed.
+    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore corresponding to user form request.
+    A POST request gets the parameter values from the form and prepares the MapImages to be sent to query Google Cloud Storage.
 ***/
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
@@ -162,7 +162,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
         *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
         */
-
         double latitude = entity.getDouble("Latitude");
         double longitude = entity.getDouble("Longitude");
         int zoom = (int) entity.getLong("Zoom");

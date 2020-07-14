@@ -33,7 +33,7 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 ***/
 @WebServlet(
     name = "BackendQueryDatastore",
-    description = "taskqueue: ",
+    description = "taskqueue: Get MapImage data from Datastore",
     urlPatterns = "/backend-query-datastore"
     )
 public class BackendQueryDatastore extends HttpServlet {

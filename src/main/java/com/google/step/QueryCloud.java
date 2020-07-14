@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.List;
 import java.lang.StringBuilder;
 import com.google.gson.Gson;
 import java.util.Arrays;
@@ -23,6 +22,11 @@ import java.util.logging.Logger;
 import java.util.concurrent.TimeUnit;
 import com.google.auth.ServiceAccountSigner.SigningException;
 
+/***
+    This servlet retrieves binary image data from Cloud for corresponding MapImage instance.
+    A POST request gets image data to convert to a URL then sets the 'url' attribute of its MapImage instance.
+    A GET request writes the POST-modified MapImage ArrayList to write on the servlet.
+***/
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
@@ -32,11 +36,11 @@ public class QueryCloud extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // The request is made before the form is submitted (on page load)
+        // Handles the request that is made before the form is submitted (on page load).
         if(mapImages == null) {
             response.getWriter().println("{}"); 
         }
-        // The request is made after the form is submitted
+        // Handles the request that is made after the form is submitted.
         else {
             Gson gson = new Gson();
             String data = gson.toJson(mapImages);
@@ -45,8 +49,6 @@ public class QueryCloud extends HttpServlet {
             mapImages = null;
         }
     }
-
-
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -65,6 +67,4 @@ public class QueryCloud extends HttpServlet {
             LOGGER.severe(e.getCause().getMessage());
         }
     }
-
-
 }

@@ -30,8 +30,8 @@ import java.util.Level;
 
 
 /***
-    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore.
-    A POST request gets the parameters from a form and returns the MapImages to be displayed.
+    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore corresponding to user form request.
+    A POST request gets the parameter values from the form and prepares the MapImages to be sent to query Google Cloud Storage.
 ***/
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {

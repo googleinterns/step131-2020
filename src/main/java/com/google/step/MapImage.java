@@ -1,9 +1,6 @@
 package com.google.step;
 
 import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Class representing a map snapshot image and its metadata.
@@ -33,7 +30,7 @@ public class MapImage {
     /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
     private String objectID;
 
-    /** URL given by Google Cloud Storage to display the image. */
+    /** URL given by Cloud to display the image. */
     private String url; 
 
     public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, String timeStamp) {
@@ -46,7 +43,7 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
-    /** Overload the constructor for faster loading & querying from Datastore **/
+    /** Overload the constructor for faster loading & querying from Datastore. **/
     public MapImage(double latitude, double longitude, int zoom) {
         this.latitude = latitude;
         this.longitude = longitude;
@@ -54,7 +51,7 @@ public class MapImage {
     }
 
     /** 
-    * Sets name based off of attributes: year, month, name of city, and zoom level in this order.
+    * Sets object's ID based off of attributes: year, month, name of city, and zoom level in this order.
     */
     public void setObjectID() {
         String city = cityName.replaceAll(" ", "_").replaceAll(",", "_");
@@ -62,7 +59,7 @@ public class MapImage {
     }
 
     /** 
-    * Sets image's URL created by GoogleCLoud Storage.
+    * Sets image's URL created by Cloud.
     */
     public void setURL(String gcsURL) {
         url = gcsURL;

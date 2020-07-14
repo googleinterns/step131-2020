@@ -64,7 +64,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             mapImages = entitiesToMapImages(resultList);
         } catch (ClassCastException e) {
-            //Logger.log(Level.WARNING, "Error while converting entities to Map Image", e);
+            LOGGER.log(Level.WARNING, e.getCause().getMessage());
         }
 
         // Send the MapImage metadata to QueryCloud.java
@@ -112,25 +112,25 @@ public class FrontendQueryDatastore extends HttpServlet {
                     throw new IllegalArgumentException("Zoom not specified");
             }
         } catch (IllegalArgumentException e) {
-            //Logger.log(Level.WARNING, "Error while building zoom Filters", e);
+            //LOGGER.log(Level.WARNING, e.getCause().getMessage());
         }
         try {
             int month = Integer.parseInt(monthStr);
             filters.add(FilterOperator.EQUAL.of("Month", month));
         } catch (NumberFormatException e) {
-            //Logger.log(Level.WARNING, "Error while parsing Month", e);
+            //LOGGER.log(Level.WARNING, e.getCause().getMessage());
         }
         try {
             int year = Integer.parseInt(yearStr);
             filters.add(FilterOperator.EQUAL.of("Year", year));
         } catch (NumberFormatException e) {
-           // Logger.log(Level.WARNING, "Error while parsing Year", e);
+           // LOGGER.log(Level.WARNING, e.getCause().getMessage());
         }
         try {
-            // TODO: add the hotel date range stuff
+            // TODO: add the hotel date range UI
             // filters.add(buildDateFilters(0, 0, 0, 0));
         } catch (ClassCastException e) {
-           // Logger.log(Level.WARNING, "Error while building Date Filters", e);
+            //LOGGER.log(Level.WARNING, e.getCause().getMessage());
         }
         if (!city.equals("")) {
             filters.add(FilterOperator.EQUAL.of("City Name", city));
@@ -156,6 +156,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
     }
 
+    // TODO: Incomplete feature
     private Filter buildDateFilters(int monthFrom, int monthTo, int yearFrom, int yearTo) {
         // Allot (and test) for when the range is not uniform (i.e. July 1st 2020 - April 2nd 2021)
         // Maybe look for the year? 
@@ -169,22 +170,17 @@ public class FrontendQueryDatastore extends HttpServlet {
     private ArrayList<MapImage> entitiesToMapImages(PreparedQuery resultList) {
         ArrayList<MapImage> resultMapImages = new ArrayList<>();
         for(Entity entity : resultList.asIterable()) {
-            MapImage mapImage = null;
-            try {
-                mapImage = entityToMapImage(entity);
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-            resultMapImages.add(mapImage); // Add the MapImage to the List
+            MapImage mapImage = entityToMapImage(entity);
+            resultMapImages.add(mapImage);
         }
         return resultMapImages;
     }
 
-    private MapImage entityToMapImage(Entity entity) {
-        /* 
-        *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-        *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-        */
+    /* 
+    *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
+    *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
+    */
+    private MapImage entityToMapImage(Entity entity) { 
         double latitude = (double) entity.getProperty("Latitude");
         double longitude = (double) entity.getProperty("Longitude");
         long zoom = (long) entity.getProperty("Zoom");
@@ -192,7 +188,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         long month = (long) entity.getProperty("Month");
         long year = (long) entity.getProperty("Year");
         String timeStamp = (String) entity.getProperty("Time Stamp");
-
+        System.out.println("H");
         MapImage mapImage = new MapImage(longitude, latitude, cityName, 
             toIntExact(zoom), toIntExact(month), toIntExact(year), timeStamp);
         mapImage.setObjectID();

@@ -42,7 +42,17 @@ public class SaveMapImageDatastore extends HttpServlet {
             mapImageEntity.setProperty("Year", mapImage.getYear());
             mapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
 
+            Entity driveMapImageEntity = new Entity("DriveMapImage", mapImage.getObjectID());
+            driveMapImageEntity.setProperty("Longitude", mapImage.getLongitude());
+            driveMapImageEntity.setProperty("Latitude", mapImage.getLatitude());
+            driveMapImageEntity.setProperty("City Name", mapImage.getCityName());
+            driveMapImageEntity.setProperty("Zoom", mapImage.getZoom());
+            driveMapImageEntity.setProperty("Month", mapImage.getMonth());
+            driveMapImageEntity.setProperty("Year", mapImage.getYear());
+            driveMapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
+
             datastore.put(mapImageEntity);
+            datastore.put(driveMapImageEntity);
         }
     }
 }

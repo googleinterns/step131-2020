@@ -39,24 +39,30 @@ import java.time.format.DateTimeFormatter;
 import com.google.apphosting.api.DeadlineExceededException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
 
 /***
     This servlet stores Static Maps binary image data in Cloud.
     A POST request gets MapImages to make Static Maps URL requests and store the binary image data in Cloud.
 ***/
-@WebServlet("/save-images-cloud-job")
+@WebServlet(
+    name = "SaveToGCS",
+    description = "taskqueue: Save images to GCS",
+    urlPatterns = "/save-images-cloud-job"
+    )
 public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private Date date = new Date();
     private String month = String.format("%tm", date);
     private String year = String.format("%TY", date);
+    private final static Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         BufferedReader reader = request.getReader();
         Gson gson = new Gson();
-        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());  
+        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
         // There are an equal number of elements in mapImages & requestUrls.

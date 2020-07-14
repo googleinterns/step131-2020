@@ -59,7 +59,7 @@ public class QueryCloud extends HttpServlet {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             mapImages.forEach(image -> {
                 BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
-                String url = storage.signUrl(blobInfo, 10, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature()).toString();
+                String url = storage.signUrl(blobInfo, 5, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature()).toString();
                 image.setURL(url);
             });
         }

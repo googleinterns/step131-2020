@@ -22,7 +22,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-/***MapImage instances are sent to SaveImageCloud.java?
+/*** 
     This servlet retrieves the tracked metadata (location and coordinates) from Datastore.
     This metadata along with a range of zoom levels is used to initiate new MapImage instances representing new map snapshots.
     The MapImage instances are sent to SaveImageCloud.java

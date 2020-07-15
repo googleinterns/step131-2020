@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    fetch('/query-cloud').then(response => response.json()).then((array) => {
+    fetch('/query-cloud').then((response) => response.json()).then((array) => {
         // array '{}' on page load: request made before form submission
         // array not '{}' when request is made after form submission.
         if (array !== '{}') {
@@ -12,13 +12,13 @@ $(document).ready(function() {
     });
 
     // This fetch loads the location options for the form through Datastore.
-    fetch('/form-locations').then(response => response.json())
+    fetch('/form-locations').then((response) => response.json())
     .then((locations) => {
         $('#locations').empty();
         const emptyOption = $('<option></option>').attr('value', '').text('');
         $('#locations').append(emptyOption);
         for (let j = 0; j < locations.length; j++) {
-            let option = $('<option></option>').attr('value', locations[j])
+            const option = $('<option></option>').attr('value', locations[j])
             .text(locations[j]);
             $('#locations').append(option);
         }
@@ -39,7 +39,8 @@ $(document).ready(function() {
 
 // /** Builds Unordered List of map snapshots and their descriptions. */
 // function getImages() {
-//     fetch('/query-drive').then(response => response.json()).then((listMapImages) => {
+//     fetch('/query-drive').then(response => response.json())
+//     .then((listMapImages) => {
 //         // listMapImages is MapImages with a url image attribute.
 //         const imageDisplay = document.getElementById('requested-images');
 //         listMapImages.forEach((mapImage) => {
@@ -48,11 +49,12 @@ $(document).ready(function() {
 //         });
 //     });
 // }
- 
+
 // /** Creates a description list element. */
 // function createListDescrip(image) {
 //     const liElement = document.createElement('li');
-//     description = image.cityName + ' on ' + image.month + ', ' + image.year + ' ' + image.timeStamp + ' at zoom ' + image.zoomAd;
+//     description = image.cityName + ' on ' + image.month + ', ' + image.year 
+//         + ' ' + image.timeStamp + ' at zoom ' + image.zoomAd;
 //     liElement.innerText = description;
 //     return liElement;
 // }

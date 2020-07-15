@@ -132,7 +132,7 @@ public class FrontendQueryDatastore extends HttpServlet {
            LOGGER.log(Level.WARNING, e.getMessage());
         }
         try {
-            // TODO: add the hotel date range UI.
+            // TODO: Add hotel date range UI so buildDateFilters can properly work. 
             // filters.add(buildDateFilters(0, 0, 0, 0));
         } catch (ClassCastException e) {
             LOGGER.log(Level.WARNING, e.getMessage());

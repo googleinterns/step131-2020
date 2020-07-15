@@ -32,8 +32,9 @@ import static java.lang.Math.toIntExact;
 
 
 /***
-    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore corresponding to user form request.
-    A POST request gets the parameter values from the form and prepares the MapImages to be sent to query Google Cloud Storage.
+    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore 
+    corresponding to user form request. A POST request gets the parameter values from the form 
+    and prepares the MapImages to be sent to QueryCloud.java.
 ***/
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
@@ -64,7 +65,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             mapImages = entitiesToMapImages(resultList);
         } catch (ClassCastException e) {
-            LOGGER.log(Level.WARNING, e.getCause().getMessage());
+            LOGGER.log(Level.WARNING, e.getMessage());
         }
 
         // Send the MapImage metadata to QueryCloud.java
@@ -84,9 +85,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         response.sendRedirect("/app.html");
     }
 
+    /***
+        Builds a composite filter for the Datastore query. The Composite Filter is constructed 
+        using sub-filters of zooms, dates, and locations based off user-input values from the form.
+    ***/
     private CompositeFilter buildCompositeFilter(String zoomStr, String city, String monthStr, String yearStr) {
-        // Check for empty values from the form and build filters for user-input values.
         ArrayList<Filter> filters = new ArrayList<>();
+        // Check for empty values from the form and build filters for user-input values.
         try {
             // Zoom ranges are based on documented Zoom Bands.
             // Global zoom level (0-3) is not tracked.
@@ -112,25 +117,25 @@ public class FrontendQueryDatastore extends HttpServlet {
                     throw new IllegalArgumentException("Zoom not specified");
             }
         } catch (IllegalArgumentException e) {
-            //LOGGER.log(Level.WARNING, e.getCause().getMessage());
+            LOGGER.log(Level.WARNING, e.getMessage());
         }
         try {
             int month = Integer.parseInt(monthStr);
             filters.add(FilterOperator.EQUAL.of("Month", month));
         } catch (NumberFormatException e) {
-            //LOGGER.log(Level.WARNING, e.getCause().getMessage());
+            LOGGER.log(Level.WARNING, e.getMessage());
         }
         try {
             int year = Integer.parseInt(yearStr);
             filters.add(FilterOperator.EQUAL.of("Year", year));
         } catch (NumberFormatException e) {
-           // LOGGER.log(Level.WARNING, e.getCause().getMessage());
+           LOGGER.log(Level.WARNING, e.getMessage());
         }
         try {
-            // TODO: add the hotel date range UI
+            // TODO: add the hotel date range UI.
             // filters.add(buildDateFilters(0, 0, 0, 0));
         } catch (ClassCastException e) {
-            //LOGGER.log(Level.WARNING, e.getCause().getMessage());
+            LOGGER.log(Level.WARNING, e.getMessage());
         }
         if (!city.equals("")) {
             filters.add(FilterOperator.EQUAL.of("City Name", city));
@@ -148,6 +153,9 @@ public class FrontendQueryDatastore extends HttpServlet {
         return compositeFilter;
     }
 
+    /***
+        Builds the zoom filters for the overall Composite Filter.
+    ***/
     private Filter buildZoomFilters(int startingZoom, int endingZoom) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for(int zoom = startingZoom; zoom <= endingZoom; zoom++) {
@@ -156,7 +164,10 @@ public class FrontendQueryDatastore extends HttpServlet {
         return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
     }
 
-    // TODO: Incomplete feature
+    // TODO: Incomplete feature.
+    /***
+        Builds the date filters for the overall Composite Filter.
+    ***/
     private Filter buildDateFilters(int monthFrom, int monthTo, int yearFrom, int yearTo) {
         // Allot (and test) for when the range is not uniform (i.e. July 1st 2020 - April 2nd 2021)
         // Maybe look for the year? 
@@ -167,9 +178,12 @@ public class FrontendQueryDatastore extends HttpServlet {
             FilterOperator.LESS_THAN_OR_EQUAL.of("Year", yearTo)));
     }
 
+    /***
+        Converts the entities returned from the Datastore query into MapImage objects for us to use.
+    ***/
     private ArrayList<MapImage> entitiesToMapImages(PreparedQuery resultList) {
         ArrayList<MapImage> resultMapImages = new ArrayList<>();
-        for(Entity entity : resultList.asIterable()) {
+        for (Entity entity : resultList.asIterable()) {
             MapImage mapImage = entityToMapImage(entity);
             resultMapImages.add(mapImage);
         }
@@ -180,6 +194,10 @@ public class FrontendQueryDatastore extends HttpServlet {
     *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
     *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
     */
+    /***
+        Helper function for entitiesToMapImages.
+        Converts each individual entity into a MapImage object.
+    ***/
     private MapImage entityToMapImage(Entity entity) { 
         double latitude = (double) entity.getProperty("Latitude");
         double longitude = (double) entity.getProperty("Longitude");
@@ -188,7 +206,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         long month = (long) entity.getProperty("Month");
         long year = (long) entity.getProperty("Year");
         String timeStamp = (String) entity.getProperty("Time Stamp");
-        System.out.println("H");
         MapImage mapImage = new MapImage(longitude, latitude, cityName, 
             toIntExact(zoom), toIntExact(month), toIntExact(year), timeStamp);
         mapImage.setObjectID();

@@ -6,7 +6,7 @@ $(document).ready(function() {
             for (var i = 0; i < array.length; i++) {
                 const url = array[i].url;
                 // TODO: create entire image list structure
-                $("#requestedImages").append(`<li><img src="${url}"></li>`);
+                $("#requested-images").append(`<li><img src="${url}"></li>`);
             }
         }
     });
@@ -25,7 +25,7 @@ $(document).ready(function() {
 
 /** Removes any current description and image li elements on the page. */
 async function clearImages() {    
-    var list = document.getElementById("requestedImages");
+    var list = document.getElementById("requested-images");
     // As long as <ul> has a child node, remove it
     while (list.hasChildNodes()) {
         list.removeChild(list.firstChild);
@@ -38,7 +38,7 @@ async function clearImages() {
 function getImages() {
     fetch('/query-drive').then(response => response.json()).then((listMapImages) => {
         // listMapImages is an ArrayList of MapImages with their metadata which includes a url attribute for image data.
-        const imageDisplay = document.getElementById('requestedImages');
+        const imageDisplay = document.getElementById('requested-images');
         listMapImages.forEach((mapImage) => {
             imageDisplay.appendChild(createListDescrip(mapImage));
             imageDisplay.appendChild(createListImage(mapImage.getURL()));

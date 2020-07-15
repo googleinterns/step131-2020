@@ -52,7 +52,7 @@
     "href-style": false,
     "link-req-noopener": true,
     "label-req-for": true,
-    "line-end-style": "lf",
+    "line-end-style": false,
     "line-no-trailing-whitespace": true,
     "line-max-len": false,
     "line-max-len-ignore-regex": false,

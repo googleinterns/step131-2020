@@ -21,6 +21,9 @@ $(document).ready(function() {
             $("#locations").append(option);
         }
     });
+
+    // Upload files any files to Drive that need to be uploaded
+    fetch("/start-save-drive");
 })
 
 /** Removes any current description and image li elements on the page. */

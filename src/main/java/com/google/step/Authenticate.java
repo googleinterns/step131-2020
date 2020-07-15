@@ -34,7 +34,7 @@ public class Authenticate extends HttpServlet {
             uriBuilder.setScheme("https");
             uriBuilder.setHost("accounts.google.com");
             uriBuilder.setPath("/o/oauth2/v2/auth");
-            uriBuilder.addParameter("access_type", "offline");
+            uriBuilder.addParameter("access_type", "online");
             uriBuilder.addParameter("client_id", CLIENT_ID);
             uriBuilder.addParameter("redirect_uri", redirectUri);
             uriBuilder.addParameter("response_type", "code");

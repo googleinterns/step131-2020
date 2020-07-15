@@ -13,3 +13,4 @@ jobs:
       - name: Lint
         # Run ESLint on diffed JS files. Do not run if there are no diffs.
         run: git diff --diff-filter=ACM --name-only origin/master HEAD -- . ':!node_modules' | grep -E "(.*)\.(jsx|js)$" | xargs --no-run-if-empty npx eslint
+

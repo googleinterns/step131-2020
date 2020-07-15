@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 
 /*** 
     This servlet retrieves the tracked metadata (location and coordinates) from Datastore.
@@ -28,7 +31,11 @@ import java.util.stream.Collectors;
     The MapImage instances are sent to SaveImageCloud.java
     A GET request gets TrackedLocations to instantiate new MapImages.
 ***/
-@WebServlet("/backend-query-datastore")
+@WebServlet(
+    name = "BackendQueryDatastore",
+    description = "taskqueue: Get MapImage data from Datastore",
+    urlPatterns = "/backend-query-datastore"
+    )
 public class BackendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
 
@@ -52,25 +59,13 @@ public class BackendQueryDatastore extends HttpServlet {
                 mapImages.add(mapImage);
             }
         }
-
         // Send new MapImage objects through JSON to SaveImageCloud.java
         Gson gson = new Gson();
-        URL url = new URL("https://map-snapshot-step.uc.r.appspot.com/save-images-cloud-job");
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
-        con.setRequestProperty("Accept", "application/json");
-        con.setDoInput(true);
-        con.setDoOutput(true);
         String data = gson.toJson(mapImages);
-        con.setRequestProperty("Content-Length", Integer.toString(data.length()));
-        try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
-            writer.write(data.getBytes(StandardCharsets.UTF_8));
-        }
-        catch(IOException e) {
-            // TODO: add logging
-        }
-        // Consume the InputStream
-        con.getInputStream().close();
+        Queue queue = QueueFactory.getDefaultQueue();
+        TaskOptions options = TaskOptions.Builder.withUrl("/save-images-cloud-job")
+            .method(TaskOptions.Method.POST)
+            .payload(data.getBytes(), "application/json");
+        queue.add(options);
     }
 }

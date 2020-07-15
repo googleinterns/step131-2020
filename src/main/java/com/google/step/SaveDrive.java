@@ -97,7 +97,7 @@ public class SaveDrive extends HttpServlet {
                     Key key = Key.newBuilder(PROJECT_ID, "DriveMapImage", image.getObjectID()).build();
                     datastore.delete(key);
                 }
-                catch(CancelledException | GoogleJsonResponseException | DeadlineExceededException | IOException e) {
+                catch(CancelledException | DeadlineExceededException | IOException e) {
                     LOGGER.severe(e.getMessage());
                 }
             }

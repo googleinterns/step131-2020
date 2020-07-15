@@ -77,7 +77,7 @@ public class FrontendQueryDatastore extends HttpServlet {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
         con.getInputStream().close();
-        response.sendRedirect("/app");
+        response.sendRedirect("/app.html");
     }
 
     private CompositeFilter buildCompositeFilter(String zoomStr, String city, String monthStr, String yearStr) {

@@ -23,6 +23,11 @@ import com.google.cloud.datastore.Query;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpSession;
 
+/********
+    This servlet is used to push the StartDrive
+    task in the TaskQueue
+********/
+
 @WebServlet(
     name = "StartSaveDrive",
     description = "taskqueue: Set up SaveDrive.java to run in the background",
@@ -41,9 +46,9 @@ public class StartSaveDrive extends HttpServlet {
             .build();
         QueryResults<Entity> resultList = datastore.run(query);
         // Only run the task if there are remaining DriveMapImageEntities
-        if(resultList.hasNext()) {
+        if (resultList.hasNext()) {
             HttpSession session = request.getSession(false);
-            if(session != null) {
+            if (session != null) {
                 String accessToken = (String)session.getAttribute("accessToken");
                 Queue queue = QueueFactory.getDefaultQueue();
                 TaskOptions options = TaskOptions.Builder.withUrl("/save-drive")

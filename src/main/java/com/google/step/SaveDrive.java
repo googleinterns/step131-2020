@@ -61,7 +61,7 @@ public class SaveDrive extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String accessToken = request.getParameter("accessToken");
-        if(!accessToken.equals("")) {
+        if (!accessToken.equals("")) {
             GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
             drive = new Drive.Builder(new UrlFetchTransport(), new JacksonFactory(), credential)
                 .setApplicationName(PROJECT_ID)
@@ -74,11 +74,11 @@ public class SaveDrive extends HttpServlet {
             // Get objects from Datastore
             QueryResults<Entity> resultList = datastore.run(query);
             ArrayList<MapImage> mapImages = entitiesToMapImages(resultList);
-            for(MapImage image : mapImages) {
+            for (MapImage image : mapImages) {
                 try {
                     long timeRemaining = ApiProxy.getCurrentEnvironment().getRemainingMillis();
                     // Stop uploading images if the task has less than 20 seconds remaining
-                    if(timeRemaining < 20000) break;
+                    if (timeRemaining < 20000) break;
                     // Get url from Storage
                     URL url = getFileURL(storage, image);
                     // Generate file metadata
@@ -112,12 +112,11 @@ public class SaveDrive extends HttpServlet {
         return resultMapImages;
     }
 
+    /* 
+    *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
+    *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
+    */
     private MapImage entityToMapImage(Entity entity) {
-        /* 
-        *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-        *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-        */
-
         double latitude = entity.getDouble("Latitude");
         double longitude = entity.getDouble("Longitude");
         int zoom = (int) entity.getLong("Zoom");
@@ -154,7 +153,7 @@ public class SaveDrive extends HttpServlet {
             .setFields("files(id, name)")
             .execute();
             // Check if the folder exists
-        if(result.getFiles().size() == 0) {
+        if (result.getFiles().size() == 0) {
             File fileMetadata = new File();
             fileMetadata.setName(yearString);
             fileMetadata.setParents(Collections.singletonList(DRIVE_ID));
@@ -180,7 +179,7 @@ public class SaveDrive extends HttpServlet {
             .setFields("files(id, name)")
             .execute();
         // Check if the folder exists
-        if(result.getFiles().size() == 0) {
+        if (result.getFiles().size() == 0) {
             File fileMetadata = new File();
             fileMetadata.setName(monthString);
             fileMetadata.setParents(Collections.singletonList(yearFolderID));
@@ -206,7 +205,7 @@ public class SaveDrive extends HttpServlet {
             .setFields("files(id, name)")
             .execute();
         // Check if the folder exists
-        if(result.getFiles().size() == 0) {
+        if (result.getFiles().size() == 0) {
             File fileMetadata = new File();
             fileMetadata.setName(cityString);
             fileMetadata.setParents(Collections.singletonList(monthFolderID));

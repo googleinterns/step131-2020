@@ -72,7 +72,7 @@ public class Redirect extends HttpServlet {
                 // Save access token
                 HttpSession session = request.getSession();
                 session.setAttribute("accessToken", tokenResponse.getAccessToken());
-                response.sendRedirect("/app");
+                response.sendRedirect("/app.html");
             }
             catch(URISyntaxException e) {
                 // TODO: add logging

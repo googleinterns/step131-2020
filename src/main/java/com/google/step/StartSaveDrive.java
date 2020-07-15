@@ -25,7 +25,7 @@ public class StartSaveDrive extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Queue queue = QueueFactory.getDefaultQueue();
-        TaskOptions options = TaskOptions.Builder.withUrl("/save-drive");
+        TaskOptions options = TaskOptions.Builder.withUrl("/save-drive").method(TaskOptions.Method.GET);
         queue.add(options);
     }
 }

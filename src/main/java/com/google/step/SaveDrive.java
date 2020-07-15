@@ -15,7 +15,6 @@ import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpSession;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -59,10 +58,9 @@ public class SaveDrive extends HttpServlet {
     private Drive drive = null;
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession(false);
-        if(session != null) {
-            String accessToken = (String)session.getAttribute("accessToken");
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String accessToken = request.getParameter("accessToken");
+        if(!accessToken.equals("")) {
             GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
             drive = new Drive.Builder(new UrlFetchTransport(), new JacksonFactory(), credential)
                 .setApplicationName(PROJECT_ID)

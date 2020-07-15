@@ -13,6 +13,15 @@ import java.util.ArrayList;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.Query;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(
     name = "StartSaveDrive",
@@ -21,11 +30,27 @@ import com.google.appengine.api.taskqueue.TaskOptions;
 )
 public class StartSaveDrive extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
+    private final static Logger LOGGER = Logger.getLogger(StartSaveDrive.class.getName());
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Queue queue = QueueFactory.getDefaultQueue();
-        TaskOptions options = TaskOptions.Builder.withUrl("/save-drive").method(TaskOptions.Method.GET);
-        queue.add(options);
+        Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+        Query<Entity> query = Query.newEntityQueryBuilder()
+            .setKind("DriveMapImage")
+            .setLimit(1)
+            .build();
+        QueryResults<Entity> resultList = datastore.run(query);
+        // Only run the task if there are remaining DriveMapImageEntities
+        if(resultList.hasNext()) {
+            HttpSession session = request.getSession(false);
+            if(session != null) {
+                String accessToken = (String)session.getAttribute("accessToken");
+                Queue queue = QueueFactory.getDefaultQueue();
+                TaskOptions options = TaskOptions.Builder.withUrl("/save-drive")
+                .method(TaskOptions.Method.POST)
+                .param("accessToken", accessToken);
+                queue.add(options);
+            }
+        }
     }
 }

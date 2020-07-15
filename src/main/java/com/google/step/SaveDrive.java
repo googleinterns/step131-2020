@@ -1,44 +1,45 @@
 package com.google.step;
 
-import java.io.IOException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.InputStreamContent;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive.Files;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.apphosting.api.ApiProxy.CancelledException;
+import com.google.apphosting.api.ApiProxy;
+import com.google.apphosting.api.DeadlineExceededException;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.storage.Blob.BlobSourceOption;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.google.cloud.storage.Blob.BlobSourceOption;
-import javax.imageio.ImageIO;
-import java.net.URL;
-import com.google.api.client.http.InputStreamContent;
-import java.util.concurrent.TimeUnit;
-import java.util.Collections;
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.Query;
-import java.util.logging.Logger;
-import com.google.apphosting.api.ApiProxy.CancelledException;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.google.apphosting.api.DeadlineExceededException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /***
     This servlet will be used to retrieve images
@@ -75,6 +76,9 @@ public class SaveDrive extends HttpServlet {
             ArrayList<MapImage> mapImages = entitiesToMapImages(resultList);
             for(MapImage image : mapImages) {
                 try {
+                    long timeRemaining = ApiProxy.getCurrentEnvironment().getRemainingMillis();
+                    // Stop uploading images if the task has less than 20 seconds remaining
+                    if(timeRemaining < 20000) break;
                     // Get url from Storage
                     URL url = getFileURL(storage, image);
                     // Generate file metadata
@@ -93,7 +97,7 @@ public class SaveDrive extends HttpServlet {
                     Key key = Key.newBuilder(PROJECT_ID, "DriveMapImage", image.getObjectID()).build();
                     datastore.delete(key);
                 }
-                catch(CancelledException | GoogleJsonResponseException | DeadlineExceededException e) {
+                catch(CancelledException | GoogleJsonResponseException | DeadlineExceededException | IOException e) {
                     LOGGER.severe(e.getMessage());
                 }
             }

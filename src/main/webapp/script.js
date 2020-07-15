@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    fetch('/query-cloud).then(response => response.json()).then(array => {
+    fetch('/query-cloud').then(response => response.json()).then(array => {
         // array will be '{}' since a request is made before the form is submitted (on page load).
         // array will not equal '{}' when request is made after form submission.
         if (array !== '{}') {

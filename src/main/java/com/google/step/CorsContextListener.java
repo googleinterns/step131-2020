@@ -10,14 +10,10 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-/********
-    This servlet is a context listenter
-    that runs at application startup.
-    It configures the Cloud Storage
-    bucket to accept CORS requests
-    from the project URL.
-********/
-
+/**
+ * ****** This servlet is a context listenter that runs at application startup. It configures the
+ * Cloud Storage bucket to accept CORS requests from the project URL. ******
+ */
 @WebListener
 public class CorsContextListener implements ServletContextListener {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
@@ -32,12 +28,13 @@ public class CorsContextListener implements ServletContextListener {
         String responseHeader = "Content-Type";
         int maxAgeSeconds = 3600;
 
-        Cors cors = Cors.newBuilder()
-                    .setOrigins(ImmutableList.of(Cors.Origin.of(origin)))
-                    .setMethods(ImmutableList.of(method))
-                    .setResponseHeaders(ImmutableList.of(responseHeader))
-                    .setMaxAgeSeconds(maxAgeSeconds)
-                    .build();
+        Cors cors =
+                Cors.newBuilder()
+                        .setOrigins(ImmutableList.of(Cors.Origin.of(origin)))
+                        .setMethods(ImmutableList.of(method))
+                        .setResponseHeaders(ImmutableList.of(responseHeader))
+                        .setMaxAgeSeconds(maxAgeSeconds)
+                        .build();
 
         bucket.toBuilder().setCors(ImmutableList.of(cors)).build().update();
     }

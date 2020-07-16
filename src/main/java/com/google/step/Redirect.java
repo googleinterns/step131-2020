@@ -18,17 +18,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.http.client.utils.URIBuilder;
 
-/***
-    This servlet handles the second and
-    third steps of the authentication
-    process, specifically the retrieval
-    of the authorization code
-    and the storage of the access token.
-***/
+/**
+ * * This servlet handles the second and third steps of the authentication process, specifically the
+ * retrieval of the authorization code and the storage of the access token. *
+ */
 @WebServlet("/redirect")
 public class Redirect extends HttpServlet {
     // Both of these variables are unique identifiers for OAuth for the project.
-    private final String CLIENT_ID = System.getenv("client_id"); 
+    private final String CLIENT_ID = System.getenv("client_id");
     private final String CLIENT_SECRET = System.getenv("client_secret");
 
     @Override
@@ -36,7 +33,7 @@ public class Redirect extends HttpServlet {
         String code = request.getParameter("code");
         String redirectUri = request.getParameter("state");
         // The request was approved
-        if(code != null) {
+        if (code != null) {
             try {
                 String req = "https://oauth2.googleapis.com/token";
                 URIBuilder builder = new URIBuilder();
@@ -58,10 +55,10 @@ public class Redirect extends HttpServlet {
                 con.setDoInput(true);
                 con.setDoOutput(true);
                 // TODO: add logging for error handling
-                try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+                try (DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
                     writer.write(data.getBytes(StandardCharsets.UTF_8));
+                } catch (IOException e) {
                 }
-                catch(IOException e) {}
                 InputStream is = con.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                 String responseData = reader.lines().collect(Collectors.joining(""));
@@ -71,8 +68,7 @@ public class Redirect extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("accessToken", tokenResponse.getAccessToken());
                 response.sendRedirect("/app.html");
-            }
-            catch(URISyntaxException e) {
+            } catch (URISyntaxException e) {
                 // TODO: add logging
             }
         }
@@ -84,7 +80,7 @@ class TokenResponse {
     private int expires_in;
     private String scope;
     private String token_type;
-    
+
     public String getAccessToken() {
         return access_token;
     }

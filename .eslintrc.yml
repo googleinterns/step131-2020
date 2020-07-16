@@ -1,0 +1,31 @@
+env:
+  browser: true
+  commonjs: true
+  es2020: true
+extends:
+  - google
+parserOptions:
+  ecmaVersion: 11
+rules: {
+  'indent': [
+      'error', 4, {
+        'CallExpression': {
+          'arguments': 1,
+        },
+        'FunctionDeclaration': {
+          'body': 1,
+          'parameters': 1,
+        },
+        'FunctionExpression': {
+          'body': 1,
+          'parameters': 1,
+        },
+        'MemberExpression': 1,
+        'ObjectExpression': 1,
+        'SwitchCase': 1,
+        'ignoredNodes': [
+          'ConditionalExpression',
+        ],
+      },
+    ],
+}

@@ -21,6 +21,8 @@ $(document).ready(function() {
             $("#locations").append(option);
         }
     });
+    
+    loadDateRange();
 })
 
 /** Removes any current description and image li elements on the page. */
@@ -61,4 +63,45 @@ function createListImage(url) {
     imgElement.setAttribute("src", url);
     liElement.appendChild(imgElement)
     return liElement;
+}
+
+function loadDateRange() {
+    let startDate = moment().subtract(29, 'days');
+    let endDate = moment();
+
+    function callback(start, end) {
+        $('#request-form').submit((eventObj) => {
+            $('<input />').attr("type", "hidden")
+                .attr("name", "startDateRange")
+                .attr("value", start.valueOf())
+                .appendTo('#form');
+            $('<input />').attr("type", "hidden")
+                .attr("name", "endDateRange")
+                .attr("value", end.valueOf())
+                .appendTo('#form');
+                //TODO: the JQuery.value below is undefined.
+            console.log("startDate: " + $('input[name="startDateRange"]').value);
+            console.log("endDate: " + $('input[name="endDateRange"]').value);
+            return true;
+        });
+    }
+
+    $('input[name="dateFilter"]').daterangepicker({
+        "showDropdowns": true,
+         ranges: {
+            'A month ago': [moment().subtract(1, 'month'), moment()],
+            '3 months ago': [moment().subtract(3, 'month'), moment()],
+            '6 months ago': [moment().subtract(6, 'month'), moment()],
+            'A year ago': [moment().subtract(1, 'year'), moment()],
+            '18 months ago': [moment().subtract(18, 'month'), moment()],
+            '2 years ago': [moment().subtract(2, 'year'), moment()]
+        },
+        "linkedCalendars": false,
+        "alwaysShowCalendars": true,
+        "startDate": startDate,
+        "endDate": endDate,
+        "minDate": "07/01/2020"
+    }, callback);
+
+    //callback(start, end);
 }

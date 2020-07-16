@@ -143,8 +143,11 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Construct the CompositeFilter.
         CompositeFilter compositeFilter = null;
-        if (filters.size() >= 1) {
+        if (filters.size() > 1) {
             compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
+        } else if(filters.size() == 1) {
+            //TODO: 2 subfilters are required to construct a Composite Filter. Find a work around.
+            compositeFilter = new CompositeFilter(CompositeFilterOperator.OR, filters);
         } else {
             // Load all MapImages from Datastore b/c all year properties are >= 2020
             compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(

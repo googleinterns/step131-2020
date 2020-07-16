@@ -13,16 +13,16 @@ $(document).ready(function() {
 
     // This fetch loads the location options for the form through Datastore.
     fetch('/form-locations').then((response) => response.json())
-    .then((locations) => {
-        $('#locations').empty();
-        const emptyOption = $('<option></option>').attr('value', '').text('');
-        $('#locations').append(emptyOption);
-        for (let j = 0; j < locations.length; j++) {
-            const option = $('<option></option>').attr('value', locations[j])
-            .text(locations[j]);
-            $('#locations').append(option);
-        }
-    });
+        .then((locations) => {
+            $('#locations').empty();
+            const emptyOption = $('<option></option>').attr('value', '').text('');
+            $('#locations').append(emptyOption);
+            for (let j = 0; j < locations.length; j++) {
+                const option = $('<option></option>').attr('value', locations[j])
+                    .text(locations[j]);
+                $('#locations').append(option);
+            }
+        });
 })
 
 /** CODE BELOW not incorporated currently. Referenced for jQuery above. */

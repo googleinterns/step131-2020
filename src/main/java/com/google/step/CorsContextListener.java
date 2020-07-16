@@ -10,6 +10,14 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+/********
+    This servlet is a context listenter
+    that runs at application startup.
+    It configures the Cloud Storage
+    bucket to accept CORS requests
+    from the project URL.
+********/
+
 @WebListener
 public class CorsContextListener implements ServletContextListener {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");

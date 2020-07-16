@@ -7,5 +7,25 @@ extends:
 parserOptions:
   ecmaVersion: 11
 rules: {
-  "indent-width": 4
+  'indent': [
+      'error', 4, {
+        'CallExpression': {
+          'arguments': 4,
+        },
+        'FunctionDeclaration': {
+          'body': 2,
+          'parameters': 4,
+        },
+        'FunctionExpression': {
+          'body': 2,
+          'parameters': 4,
+        },
+        'MemberExpression': 4,
+        'ObjectExpression': 2,
+        'SwitchCase': 2,
+        'ignoredNodes': [
+          'ConditionalExpression',
+        ],
+      },
+    ],
 }

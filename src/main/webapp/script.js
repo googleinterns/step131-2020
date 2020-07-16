@@ -23,7 +23,7 @@ $(document).ready(function() {
                 $('#locations').append(option);
             }
         });
-})
+});
 
 /** CODE BELOW not incorporated currently. Referenced for jQuery above. */
 

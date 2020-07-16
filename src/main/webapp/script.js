@@ -15,17 +15,18 @@ $(document).ready(function() {
     fetch('/form-locations').then((response) => response.json())
         .then((locations) => {
             $('#locations').empty();
-            const emptyOption = $('<option></option>').attr('value', '').text('');
+            const emptyOption = $('<option></option>').attr('value', '')
+                .text('');
             $('#locations').append(emptyOption);
             for (let j = 0; j < locations.length; j++) {
-                const option = $('<option></option>').attr('value', locations[j])
-                    .text(locations[j]);
+                const option = $('<option></option>')
+                    .attr('value', locations[j]).text(locations[j]);
                 $('#locations').append(option);
             }
         });
 
     // Upload files any files to Drive that need to be uploaded
-    fetch("/start-save-drive");
+    fetch('/start-save-drive');
 });
 
 /** CODE BELOW not incorporated currently. Referenced for jQuery above. */

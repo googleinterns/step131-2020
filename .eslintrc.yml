@@ -10,19 +10,19 @@ rules: {
   'indent': [
       'error', 4, {
         'CallExpression': {
-          'arguments': 4,
+          'arguments': 1,
         },
         'FunctionDeclaration': {
-          'body': 2,
-          'parameters': 4,
+          'body': 1,
+          'parameters': 1,
         },
         'FunctionExpression': {
-          'body': 2,
-          'parameters': 4,
+          'body': 1,
+          'parameters': 1,
         },
-        'MemberExpression': 4,
-        'ObjectExpression': 2,
-        'SwitchCase': 2,
+        'MemberExpression': 1,
+        'ObjectExpression': 1,
+        'SwitchCase': 1,
         'ignoredNodes': [
           'ConditionalExpression',
         ],

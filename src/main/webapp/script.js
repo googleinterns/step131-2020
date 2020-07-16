@@ -23,6 +23,9 @@ $(document).ready(function() {
                 $('#locations').append(option);
             }
         });
+
+    // Upload files any files to Drive that need to be uploaded
+    fetch("/start-save-drive");
 });
 
 /** CODE BELOW not incorporated currently. Referenced for jQuery above. */

@@ -6,4 +6,6 @@ extends:
   - google
 parserOptions:
   ecmaVersion: 11
-rules: {}
+rules: {
+  "indent-width": 4
+}

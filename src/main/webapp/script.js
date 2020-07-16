@@ -25,7 +25,7 @@ $(document).ready(function() {
     });
 })
 
-// CODE BELOW not incorporated currently. Referenced for jQuery above.
+/** CODE BELOW not incorporated currently. Referenced for jQuery above. */
 
 
 // /** Removes any current description and image li elements on the page. */
@@ -53,7 +53,7 @@ $(document).ready(function() {
 // /** Creates a description list element. */
 // function createListDescrip(image) {
 //     const liElement = document.createElement('li');
-//     description = image.cityName + ' on ' + image.month + ', ' + image.year 
+//     description = image.cityName + ' on ' + image.month + ', ' + image.year
 //         + ' ' + image.timeStamp + ' at zoom ' + image.zoomAd;
 //     liElement.innerText = description;
 //     return liElement;

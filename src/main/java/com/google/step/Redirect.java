@@ -1,24 +1,22 @@
 package com.google.step;
 
+import com.google.gson.Gson;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.DataOutputStream;
-import java.net.HttpURLConnection;
-import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
-import com.google.gson.Gson;
 import javax.servlet.http.HttpSession;
 import org.apache.http.client.utils.URIBuilder;
-import java.net.URISyntaxException;
 
 /***
     This servlet handles the second and

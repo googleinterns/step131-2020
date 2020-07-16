@@ -1,26 +1,19 @@
 package com.google.step;
 
-import java.io.IOException;
-import com.google.gson.Gson;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.net.URL;
-import java.net.HttpURLConnection;
-import java.util.List;
-import java.util.ArrayList;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import java.io.IOException;
 import java.util.logging.Logger;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 /********

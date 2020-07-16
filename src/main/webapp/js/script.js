@@ -29,6 +29,19 @@ $(document).ready(function() {
     fetch('/start-save-drive');
 });
 
+
+/** Once the html elements for the images are finalized, this code will be used to download the images in a zip folder */
+// JSZipUtils.getBinaryContent("[imageURL]", function (err, data) {
+//    if(err) {
+//       throw err; // or handle the error
+//    }
+//    var zip = new JSZip();
+//    zip.file("img.png", data, {binary:true});zip.generateAsync({type:"blob"})
+//     .then(function (blob) {
+//         saveAs(blob, "hello.zip");
+//     });
+// });
+
 /** CODE BELOW not incorporated currently. Referenced for jQuery above. */
 
 

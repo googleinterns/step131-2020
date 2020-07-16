@@ -1,26 +1,20 @@
 package com.google.step;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
+import com.google.auth.ServiceAccountSigner.SigningException;
 import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.google.cloud.storage.Blob.BlobSourceOption;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.lang.StringBuilder;
-import com.google.gson.Gson;
-import java.util.Arrays;
-import java.io.BufferedReader;
-import com.google.gson.reflect.TypeToken;
-import java.util.logging.Logger;
-import java.util.concurrent.TimeUnit;
-import com.google.auth.ServiceAccountSigner.SigningException;
 
 /***
     This servlet retrieves binary image data from Cloud for corresponding MapImage instance.

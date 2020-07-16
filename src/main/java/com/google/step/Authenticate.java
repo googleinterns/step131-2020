@@ -1,13 +1,12 @@
 package com.google.step;
 
 import java.io.IOException;
-import java.net.URL;
+import java.net.URISyntaxException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.http.client.utils.URIBuilder;
-import java.net.URISyntaxException;
 
 /***
     This servlet handles the first step of the authentication process with OAuth.

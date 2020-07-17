@@ -30,7 +30,7 @@ $(document).ready(function() {
 });
 
 
-/** Once the html elements for the images are finalized, this code will be used to download the images in a zip folder */
+/** TODO: Once the html elements for the images are finalized, this code will be used to download the images in a zip folder */
 // JSZipUtils.getBinaryContent("[imageURL]", function (err, data) {
 //    if(err) {
 //       throw err; // or handle the error

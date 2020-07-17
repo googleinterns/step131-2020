@@ -1,77 +1,64 @@
 package com.google.step;
 
-import com.google.cloud.storage.Blob.BlobSourceOption;
+import com.google.apphosting.api.DeadlineExceededException;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
 import com.google.cloud.storage.StorageOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.HttpURLConnection;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
-import com.google.api.services.drive.Drive.Files;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.lang.StringBuilder;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import com.google.apphosting.api.DeadlineExceededException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-import java.util.logging.Logger;
 
-/***
-    This servlet stores Static Maps binary image data in Cloud.
-    A POST request gets MapImages to make Static Maps URL requests and store the binary image data in Cloud.
-***/
+/**
+ * This servlet stores Static Maps binary image data in Cloud. A POST request gets MapImages to make
+ * Static Maps URL requests and store the binary image data in Cloud.
+ */
 @WebServlet(
-    name = "SaveToGCS",
-    description = "taskqueue: Save images to GCS",
-    urlPatterns = "/save-images-cloud-job"
-    )
+        name = "SaveToGCS",
+        description = "taskqueue: Save images to GCS",
+        urlPatterns = "/save-images-cloud-job")
 public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private Date date = new Date();
     private String month = String.format("%tm", date);
     private String year = String.format("%TY", date);
-    private final static Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         BufferedReader reader = request.getReader();
         Gson gson = new Gson();
-        ArrayList<MapImage> mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>(){}.getType());
+        ArrayList<MapImage> mapImages =
+                gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
         // There are an equal number of elements in mapImages & requestUrls.
-        for(int i = 0; i < mapImages.size(); i++) {
+        for (int i = 0; i < mapImages.size(); i++) {
             try {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
-            }
-            catch(DeadlineExceededException e) {
+            } catch (DeadlineExceededException e) {
                 // TODO: add error handling
             }
         }
@@ -87,10 +74,9 @@ public class SaveImageCloud extends HttpServlet {
         con.setDoOutput(true);
         String data = sendGson.toJson(mapImages);
         con.setRequestProperty("Content-Length", Integer.toString(data.length()));
-        try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+        try (DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
-        }
-        catch(IOException e) {
+        } catch (IOException e) {
             // TODO: add logging
         }
         // Consume the InputStream
@@ -105,7 +91,8 @@ public class SaveImageCloud extends HttpServlet {
         return bos.toByteArray();
     }
 
-    private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage) throws StorageException {
+    private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
+            throws StorageException {
         Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
         mapImage.setMonth(Integer.parseInt(month));
         mapImage.setYear(Integer.parseInt(year));
@@ -118,10 +105,11 @@ public class SaveImageCloud extends HttpServlet {
         Blob blob = storage.create(blobInfo, imageData);
     }
 
-    private ArrayList<String> generateRequestUrls (ArrayList<MapImage> mapImages) {
+    private ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
         ArrayList<String> requestUrls = new ArrayList<>();
-        for(MapImage mapImage : mapImages) {
-            StringBuilder requestUrl = new StringBuilder("https://maps.googleapis.com/maps/api/staticmap?");
+        for (MapImage mapImage : mapImages) {
+            StringBuilder requestUrl =
+                    new StringBuilder("https://maps.googleapis.com/maps/api/staticmap?");
             requestUrl.append("center=" + mapImage.getLatitude() + "," + mapImage.getLongitude());
             requestUrl.append("&zoom=" + mapImage.getZoom());
             requestUrl.append("&size=640x640");

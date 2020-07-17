@@ -6,6 +6,7 @@ extends:
   - google
 parserOptions:
   ecmaVersion: 11
+ignorePatterns: ["src/main/webapp/js/FileSaver.js", "src/main/webapp/js/jszip-utils.min.js", "src/main/webapp/js/jszip.min.js"]
 rules: {
   'indent': [
       'error', 4, {

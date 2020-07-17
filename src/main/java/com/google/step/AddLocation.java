@@ -11,11 +11,12 @@ public class AddLocation extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         double latitude = Double.parseDouble(request.getParameter("latitude"));
         double longitude = Double.parseDouble(request.getParameter("longitude"));
         String cityName = request.getParameter("cityName");
 
-        //TODO: A new "TrackedLocation" entity should be added as well.
+        // TODO: A new "TrackedLocation" entity should be added as well.
     }
 }

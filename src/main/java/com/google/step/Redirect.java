@@ -19,8 +19,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
- * * This servlet handles the second and third steps of the authentication process, specifically the
- * retrieval of the authorization code and the storage of the access token. *
+ * This servlet handles the second and third steps of the authentication process, specifically the
+ * retrieval of the authorization code and the storage of the access token.
  */
 @WebServlet("/redirect")
 public class Redirect extends HttpServlet {

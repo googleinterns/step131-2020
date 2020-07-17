@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** * This servlet will be used to retrieve images from the shared Google Drive * */
+/** This servlet will be used to upload images to the shared Google Drive */
 @WebServlet(
         name = "SaveDrive",
         description = "taskqueue: Save images to Drive",

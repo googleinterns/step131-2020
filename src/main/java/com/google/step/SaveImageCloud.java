@@ -29,8 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * * This servlet stores Static Maps binary image data in Cloud. A POST request gets MapImages to
- * make Static Maps URL requests and store the binary image data in Cloud. *
+ * This servlet stores Static Maps binary image data in Cloud. A POST request gets MapImages to make
+ * Static Maps URL requests and store the binary image data in Cloud.
  */
 @WebServlet(
         name = "SaveToGCS",

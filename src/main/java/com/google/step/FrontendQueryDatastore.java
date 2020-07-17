@@ -28,9 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
+ * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
  * corresponding to user form request. A POST request gets the parameter values from the form and
- * prepares the MapImages to be sent to QueryCloud.java. *
+ * prepares the MapImages to be sent to QueryCloud.java.
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
@@ -84,8 +84,8 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /**
-     * * Builds a composite filter for the Datastore query. The Composite Filter is constructed
-     * using sub-filters of zooms, dates, and locations based off user-input values from the form. *
+     * Builds a composite filter for the Datastore query. The Composite Filter is constructed using
+     * sub-filters of zooms, dates, and locations based off user-input values from the form.
      */
     private CompositeFilter buildCompositeFilter(
             String zoomStr, String city, String monthStr, String yearStr) {
@@ -164,7 +164,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     // TODO: Incomplete feature.
-    /** * Builds the date filters for the overall Composite Filter. * */
+    /** Builds the date filters for the overall Composite Filter. */
     private Filter buildDateFilters(int monthFrom, int monthTo, int yearFrom, int yearTo) {
         // Allot (and test) for when the range is not uniform (i.e. July 1st 2020 - April 2nd 2021)
         // Maybe look for the year?
@@ -195,8 +195,8 @@ public class FrontendQueryDatastore extends HttpServlet {
      *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
      */
     /**
-     * * Helper function for entitiesToMapImages. Converts each individual entity into a MapImage
-     * object. *
+     * Helper function for entitiesToMapImages. Converts each individual entity into a MapImage
+     * object.
      */
     private MapImage entityToMapImage(Entity entity) {
         double latitude = (double) entity.getProperty("Latitude");

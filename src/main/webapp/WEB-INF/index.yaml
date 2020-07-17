@@ -1,0 +1,7 @@
+indexes:
+- kind: MapImage
+  properties:
+  - name: City Name
+  - name: Zoom
+  - name: Timestamp
+    direction: asc

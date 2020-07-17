@@ -70,18 +70,21 @@ function loadDateRange() {
     let endDate = moment();
 
     function callback(start, end) {
+        $('#testing').attr("p", "Start: " + start.valueOf());
+        $('#testing').attr("p", "End: " + end.valueOf());
         $('#request-form').submit((eventObj) => {
             $('<input />').attr("type", "hidden")
-                .attr("name", "startDateRange")
+                .attr("id", "startDateId")
                 .attr("value", start.valueOf())
-                .appendTo('#form');
+                .attr("name", "startDate")
+                .appendTo('#request-form');
             $('<input />').attr("type", "hidden")
-                .attr("name", "endDateRange")
+                .attr("id", "endDateId")
                 .attr("value", end.valueOf())
-                .appendTo('#form');
-                //TODO: the JQuery.value below is undefined.
-            console.log("startDate: " + $('input[name="startDateRange"]').value);
-            console.log("endDate: " + $('input[name="endDateRange"]').value);
+                .attr("name", "endDate")
+                .appendTo('#request-form');
+            console.log("Form startDate: " + $('#startDateId').val());
+            console.log("Form endDate: " + $('#endDateId').val());
             return true;
         });
     }

@@ -40,6 +40,7 @@ import com.google.apphosting.api.DeadlineExceededException;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 import java.util.logging.Logger;
+import java.time.ZoneId;
 
 /***
     This servlet stores Static Maps binary image data in Cloud.
@@ -111,8 +112,9 @@ public class SaveImageCloud extends HttpServlet {
         mapImage.setYear(Integer.parseInt(year));
         mapImage.setObjectID();
         LocalDateTime time = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        mapImage.setTimeStamp(time.format(formatter));
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        mapImage.setTimeStamp(epoch);
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
         Blob blob = storage.create(blobInfo, imageData);

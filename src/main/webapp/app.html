@@ -10,14 +10,11 @@
     <!-- Date range UI scripts & styling. -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     
     <script src="script.js"></script>
 </head>
 <body>
-    
-    <input type="text" name="dateFilter" value="" />
-    <div id='testing'></div>
 
     <div id="main-container">
  
@@ -26,6 +23,9 @@
         <p>Request a Map Snapshot:</p>
 
         <form id="request-form" action="/frontend-query-datastore" method="POST">
+        <p>Date Range: </p>
+            <input type="text" name="dateFilter" value="" />
+
             <p>Location:</p>
             <select name="city" id="locations"></select>
 
@@ -39,28 +39,6 @@
             <option value="House">House</option>
             </select>
 
-            <!-- TODO: make max volatile to current year. -->
-            <!--
-            <p>Year:</p>
-            <input id="yearInput" type="number" name="year" min="2020" max="2020">
-
-            <p>Month:</p>
-            <select name="month">
-            <option value=""></option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            </select>
-            -->
             <br>
             <input type="submit"/>
         </form>

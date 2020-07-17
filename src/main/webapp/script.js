@@ -1,4 +1,15 @@
 $(document).ready(function() {
+    // This fetch loads the location options for the form through Datastore.
+    fetch("/form-locations").then(response => response.json()).then(locations => {
+        $("#locations").empty();
+        var emptyOption = $('<option></option>').attr("value", "").text("");
+        $("#locations").append(emptyOption);
+        for (var j = 0; j < locations.length; j++) {
+            var option = $('<option></option>').attr("value", locations[j]).text(locations[j]);
+            $("#locations").append(option);
+        }
+    });
+
     fetch("/query-cloud").then(response => response.json()).then(array => {
         // array will be "{}" since a request is made before the form is submitted (on page load).
         // array will not equal "{}" when request is made after form submission.
@@ -8,17 +19,6 @@ $(document).ready(function() {
                 // TODO: create entire image list structure
                 $("#requestedImages").append(`<li><img src="${url}"></li>`);
             }
-        }
-    });
-
-    // This fetch loads the location options for the form through Datastore.
-    fetch("/form-locations").then(response => response.json()).then(locations => {
-        $("#locations").empty();
-        var emptyOption = $('<option></option>').attr("value", "").text("");
-        $("#locations").append(emptyOption);
-        for (var j = 0; j < locations.length; j++) {
-            var option = $('<option></option>').attr("value", locations[j]).text(locations[j]);
-            $("#locations").append(option);
         }
     });
     
@@ -66,25 +66,22 @@ function createListImage(url) {
 }
 
 function loadDateRange() {
-    let startDate = moment().subtract(29, 'days');
+    let startDate = moment().subtract(1, 'month');
     let endDate = moment();
 
     function callback(start, end) {
-        $('#testing').attr("p", "Start: " + start.valueOf());
-        $('#testing').attr("p", "End: " + end.valueOf());
         $('#request-form').submit((eventObj) => {
+            // Add date range as hidden values to form.
             $('<input />').attr("type", "hidden")
                 .attr("id", "startDateId")
-                .attr("value", start.valueOf())
+                .attr("value", start.unix())
                 .attr("name", "startDate")
                 .appendTo('#request-form');
             $('<input />').attr("type", "hidden")
                 .attr("id", "endDateId")
-                .attr("value", end.valueOf())
+                .attr("value", end.unix())
                 .attr("name", "endDate")
                 .appendTo('#request-form');
-            console.log("Form startDate: " + $('#startDateId').val());
-            console.log("Form endDate: " + $('#endDateId').val());
             return true;
         });
     }
@@ -105,6 +102,4 @@ function loadDateRange() {
         "endDate": endDate,
         "minDate": "07/01/2020"
     }, callback);
-
-    //callback(start, end);
 }

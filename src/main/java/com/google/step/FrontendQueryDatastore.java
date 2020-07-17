@@ -64,9 +64,7 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Build the query for Datastore.
         // Sort order MUST match same property as inequality filter.
-        Query query = new Query("MapImage")
-            .setFilter(compositeFilter)
-            .addSort("Timestamp", SortDirection.ASCENDING);
+        Query query = new Query("MapImage").setFilter(compositeFilter);
 
         // Add all the mapEntities that matched the filter
         PreparedQuery resultList = datastore.prepare(query);
@@ -95,14 +93,15 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /***
-        Builds a composite filter for the Datastore query. The Composite Filter is constructed 
-        using sub-filters of zooms, dates, and locations based off user-input values from the form.
+        Builds a composite filter for the Datastore query. The Composite Filter is constructed by
+        first checking for empty values from the form, then using sub-filters of zooms, dates, 
+        and locations based off user-input values from the form.
     ***/
     private CompositeFilter buildCompositeFilter(String zoomStr, String city, String startDateStr, String endDateStr) {
-        ArrayList<Filter> filters = new ArrayList<>();
-        // Check for empty values from the form and build filters for user-input values.
         // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
-        // Rearranging these blocks of code may cause DatastoreNeedIndexException.
+        // For complex queries like these, an index must be made and deployed prior to building the query.
+        // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.
+        ArrayList<Filter> filters = new ArrayList<>();
         if (!city.equals("")) {
             filters.add(FilterOperator.EQUAL.of("City Name", city));
         }
@@ -134,8 +133,6 @@ public class FrontendQueryDatastore extends HttpServlet {
             LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
         }
         try {
-            System.out.println("startDateStr: " + startDateStr);
-            System.out.println("endDateStr: " + endDateStr);
             long startDateLong = Long.parseLong(startDateStr);
             long endDateLong = Long.parseLong(endDateStr);
             filters.add(buildDateFilters(startDateLong, endDateLong));
@@ -148,13 +145,14 @@ public class FrontendQueryDatastore extends HttpServlet {
         if (filters.size() > 1) {
             compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         } else if(filters.size() == 1) {
-            // TODO: 2 subfilters are required to construct a Composite Filter. Find a work around.
-            // That todo is probably wrong. Error only appears on dev server.
-            compositeFilter = new CompositeFilter(CompositeFilterOperator.OR, filters);
+            // Clone the filter to get around needing 2 sub-filters to construct a composite filter.
+            filters.add(filters.get(0));
+            compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         } else {
-            // Load all MapImages from Datastore b/c all year properties are >= 2020
-            compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(
-                FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", 2020)));
+            // Load all MapImages from Datastore b/c all year properties are >= 2020.
+            filters.add(FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", 2020));
+            filters.add(FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", 2020));
+            compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         }
         return compositeFilter;
     }
@@ -170,25 +168,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
     }
 
-    // TODO: Incomplete feature.
     /***
         Builds the date filters for the overall Composite Filter.
     ***/
     private Filter buildDateFilters(long startDateLong, long endDateLong) {
-        // Allot (and test) for when the range is not uniform (i.e. July 1st 2020 - April 2nd 2021)
-        // Maybe look for the year?
-       /* Calendar startDate = new Calendar.Builder().setInstant(startDateLong).build();
-        Calendar endDate = new Calendar.Builder().setInstant(endDateLong).build();*/
-
         return new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(
             FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
             FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
-
-/*        return new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(
-            FilterOperator.GREATER_THAN_OR_EQUAL.of("Month", startDate.get(Calendar.MONTH)),
-            FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", startDate.get(Calendar.YEAR)),
-            FilterOperator.LESS_THAN_OR_EQUAL.of("Month", endDate.get(Calendar.MONTH)),
-            FilterOperator.LESS_THAN_OR_EQUAL.of("Year", endDate.get(Calendar.YEAR))));*/
     }
 
     /***

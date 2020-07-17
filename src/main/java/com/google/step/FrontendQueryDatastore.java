@@ -63,7 +63,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         CompositeFilter compositeFilter = buildCompositeFilter(zoomStr, city, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        // Sort order MUST match same property as inequality filter.
         Query query = new Query("MapImage").setFilter(compositeFilter);
 
         // Add all the mapEntities that matched the filter

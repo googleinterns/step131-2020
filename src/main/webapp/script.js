@@ -1,3 +1,17 @@
+// This fetch loads the location options for the form through Datastore.
+fetch('/form-locations').then((response) => response.json())
+    .then((locations) => {
+        $('#locations').empty();
+        const emptyOption = $('<option></option>').attr('value', '')
+            .text('');
+        $('#locations').append(emptyOption);
+        for (let j = 0; j < locations.length; j++) {
+            const option = $('<option></option>')
+                .attr('value', locations[j]).text(locations[j]);
+            $('#locations').append(option);
+        }
+    });
+
 $(document).ready(function() {
     fetch('/query-cloud').then((response) => response.json()).then((array) => {
         // array '{}' on page load: request made before form submission
@@ -10,20 +24,6 @@ $(document).ready(function() {
             }
         }
     });
-
-    // This fetch loads the location options for the form through Datastore.
-    fetch('/form-locations').then((response) => response.json())
-        .then((locations) => {
-            $('#locations').empty();
-            const emptyOption = $('<option></option>').attr('value', '')
-                .text('');
-            $('#locations').append(emptyOption);
-            for (let j = 0; j < locations.length; j++) {
-                const option = $('<option></option>')
-                    .attr('value', locations[j]).text(locations[j]);
-                $('#locations').append(option);
-            }
-        });
 
     // Upload files any files to Drive that need to be uploaded
     fetch('/start-save-drive');

@@ -6,36 +6,28 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
-import java.io.IOException;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.DataOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.URL;
-import java.net.HttpURLConnection;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.QueueFactory;
-import com.google.appengine.api.taskqueue.TaskOptions;
 
-/*** 
-    This servlet retrieves the tracked metadata (location and coordinates) from Datastore.
-    This metadata along with a range of zoom levels is used to initiate new MapImage instances representing new map snapshots.
-    The MapImage instances are sent to SaveImageCloud.java
-    A GET request gets TrackedLocations to instantiate new MapImages.
-***/
+/**
+ * * This servlet retrieves the tracked metadata (location and coordinates) from Datastore. This
+ * metadata along with a range of zoom levels is used to initiate new MapImage instances
+ * representing new map snapshots. The MapImage instances are sent to SaveImageCloud.java A GET
+ * request gets TrackedLocations to instantiate new MapImages. *
+ */
 @WebServlet(
-    name = "BackendQueryDatastore",
-    description = "taskqueue: Get MapImage data from Datastore",
-    urlPatterns = "/backend-query-datastore"
-    )
+        name = "BackendQueryDatastore",
+        description = "taskqueue: Get MapImage data from Datastore",
+        urlPatterns = "/backend-query-datastore")
 public class BackendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
 
@@ -63,9 +55,10 @@ public class BackendQueryDatastore extends HttpServlet {
         Gson gson = new Gson();
         String data = gson.toJson(mapImages);
         Queue queue = QueueFactory.getDefaultQueue();
-        TaskOptions options = TaskOptions.Builder.withUrl("/save-images-cloud-job")
-            .method(TaskOptions.Method.POST)
-            .payload(data.getBytes(), "application/json");
+        TaskOptions options =
+                TaskOptions.Builder.withUrl("/save-images-cloud-job")
+                        .method(TaskOptions.Method.POST)
+                        .payload(data.getBytes(), "application/json");
         queue.add(options);
     }
 }

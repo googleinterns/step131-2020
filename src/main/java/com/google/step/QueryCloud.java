@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * * This servlet retrieves binary image data from Cloud for corresponding MapImage instance. A POST
+ * This servlet retrieves binary image data from Cloud for corresponding MapImage instance. A POST
  * request gets image data to convert to a URL then sets the 'url' attribute of its MapImage
- * instance. A GET request writes the POST-modified MapImage ArrayList to write on the servlet. *
+ * instance. A GET request writes the POST-modified MapImage ArrayList to write on the servlet.
  */
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {

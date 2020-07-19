@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-/** ****** This servlet is used to push the StartDrive task in the TaskQueue ****** */
+/** This servlet is used to push the StartDrive task in the TaskQueue */
 @WebServlet(
         name = "StartSaveDrive",
         description = "taskqueue: Set up SaveDrive.java to run in the background",

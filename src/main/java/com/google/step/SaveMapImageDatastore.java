@@ -14,9 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * * This servlet retrieves MapImages after many attributes are set in SaveImageCloud.java to be
+ * This servlet retrieves MapImages after many attributes are set in SaveImageCloud.java to be
  * stored in Datastore. A POST request gets the MapImage ArrayList to store each MapImage instance
- * in Datastore. *
+ * in Datastore.
  */
 @WebServlet("/save-mapimage-datastore")
 public class SaveMapImageDatastore extends HttpServlet {

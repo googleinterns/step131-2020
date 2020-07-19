@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.client.utils.URIBuilder;
 
 /**
- * * This servlet handles the first step of the authentication process with OAuth. When the user
+ * This servlet handles the first step of the authentication process with OAuth. When the user
  * visits the home page they are immediately sent here to begin the authentication and redirection
- * process. *
+ * process.
  */
 @WebServlet("/authenticate")
 public class Authenticate extends HttpServlet {

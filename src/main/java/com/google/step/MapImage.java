@@ -1,6 +1,5 @@
 package com.google.step;
 
-
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
     /** Snapshot's longitude coordinate. */

@@ -54,7 +54,7 @@ public class FrontendQueryDatastore extends HttpServlet {
             throws IOException {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-        String zoomStr = request.getParameter("zoomLevel");
+        ArrayList<String> zoomStrings = request.getParameter("zoom-level");
         String city = request.getParameter("city");
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
@@ -96,7 +96,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         first checking for empty values from the form, then using sub-filters of zooms, dates, 
         and locations based off user-input values from the form.
     ***/
-    private CompositeFilter buildCompositeFilter(String zoomStr, String city, String startDateStr, String endDateStr) {
+    private CompositeFilter buildCompositeFilter(ArrayList<String> zoomStrings, String city, String startDateStr, String endDateStr) {
         // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
         // For complex queries like these, an index must be made and deployed prior to building the query.
         // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.
@@ -107,7 +107,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             // Zoom ranges are based on documented Zoom Bands.
             // Global zoom level (0-3) is not tracked.
-            switch (zoomStr) {
+            /*switch (zoomStr) {
                     // Continental is zoom levels 4 - 6, but zoom level 4 is not tracked.
                 case "Continental":
                     filters.add(buildZoomFilters(5, 6));
@@ -127,7 +127,8 @@ public class FrontendQueryDatastore extends HttpServlet {
                     break;
                 default:
                     throw new IllegalArgumentException("Zoom not specified");
-            }
+            }*/
+            buildZoomFilters(zoomStrings);
         } catch (IllegalArgumentException e) {
             LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
         }
@@ -156,13 +157,27 @@ public class FrontendQueryDatastore extends HttpServlet {
         return compositeFilter;
     }
 
+    private Filter buildIndividualZoomFilter(int zoom) {
+        return FilterOperator.EQUAL.of("Zoom", zoom);
+    }
+
     /** * Builds the zoom filters for the overall Composite Filter. * */
-    private Filter buildZoomFilters(int startingZoom, int endingZoom) {
+    private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
-        for (int zoom = startingZoom; zoom <= endingZoom; zoom++) {
-            zoomFilters.add(FilterOperator.EQUAL.of("Zoom", zoom));
+        for(int i = 0; i < zoomStrings.size(); i++) {
+            try{
+                int zoom = Integer.parseInt(zoomStrings.at(i));
+                zoomFilters.add(FilterOperator.EQUAL.of("Zoom", zoom));
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
+            }
         }
         return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
+        /*for (int zoom = startingZoom; zoom <= endingZoom; zoom++) {
+            zoomFilters.add(FilterOperator.EQUAL.of("Zoom", zoom));
+        }
+        return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);*/
+
     }
 
     /***

@@ -9,7 +9,7 @@ $(document).ready(function() {
                     .attr('value', locations[j]).text(locations[j]);
                 $('#locations').append(option);
             }
-            document.getElementById("orange").selected = true;
+            document.getElementById("#locations").options[1] = true;
             $('#locations').selectpicker('refresh');
         });
     

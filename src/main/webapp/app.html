@@ -23,8 +23,9 @@
         <p>Disclaimer: Snapshots Recorded Since 07/2020</p>
 
         <form id="request-form" action="/frontend-query-datastore" method="POST">
-            <p>Date Range: </p>
-            <input type="text" name="dateFilter" value="" />
+            <label>Date Range: 
+            <input type="text" name="dateFilter" value=""/>
+            </label>
 
             <label>Location:
             <select id="locations" class="selectpicker show-tick" name="city" data-live-search="true" data-actions-box="true" data-selected-text-format="count" data-style="btn-info" multiple></select>

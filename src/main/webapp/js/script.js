@@ -1,4 +1,13 @@
 $(document).ready(function() {
+    // Attempted code for titles within selectors
+    // var div = document.createElement("div");
+    // div.className = 'dropdown-title';
+    // div.attr('style','font-size:11px');
+    // div.attr('style','text-transform: uppercase');
+    // div.text('Zoom Level');
+    // $('.filter-option-inner').append(div);
+    // $('#zoom').selectpicker('refresh');
+
     // This fetch loads the location options for the form through Datastore.
     fetch('/form-locations').then((response) => response.json())
         .then((locations) => {
@@ -9,8 +18,8 @@ $(document).ready(function() {
                     .attr('value', locations[j]).text(locations[j]);
                 $('#locations').append(option);
             }
-            document.getElementById("#locations").options[1] = true;
-            $('#locations').selectpicker('refresh');
+            $('#locations').val(locations[0]);
+            $('.selectpicker').selectpicker('refresh');
         });
     
     fetch('/query-cloud').then((response) => response.json()).then((array) => {

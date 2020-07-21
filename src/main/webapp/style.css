@@ -49,3 +49,7 @@ cursor: pointer;
     align-items: center;
     grid-auto-flow: row;
 } */
+
+#main-container {
+    padding:20px;
+}

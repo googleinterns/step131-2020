@@ -45,7 +45,7 @@ function loadDateRange() {
     const startDate = moment().subtract(1, 'month');
     const endDate = moment();
 
-    /** 
+    /**
     * Helper date function.
     * @param {number} start begining of date range.
     * @param {number} end end of date range.

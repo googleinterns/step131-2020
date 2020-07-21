@@ -42,7 +42,7 @@ public class SaveMapImageDatastore extends HttpServlet {
             mapImageEntity.setProperty("Zoom", mapImage.getZoom());
             mapImageEntity.setProperty("Month", mapImage.getMonth());
             mapImageEntity.setProperty("Year", mapImage.getYear());
-            mapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
+            mapImageEntity.setProperty("Timestamp", mapImage.getTimeStamp());
 
             Entity driveMapImageEntity = new Entity("DriveMapImage", mapImage.getObjectID());
             driveMapImageEntity.setProperty("Longitude", mapImage.getLongitude());

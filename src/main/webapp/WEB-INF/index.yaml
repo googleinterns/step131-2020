@@ -1,0 +1,33 @@
+# An index must be made and deployed before preforming a complex query.
+# Complex queries are queries on more than one property.
+# A index can be deployed by performing the command below.
+# gcloud datastore indexes create ./src/main/webapp/WEB-INF/index.yaml
+# Preforming a query without previously deploying an index will cause a DatastoreNeedIndexException.
+# See link below for more information on constructing indexes.
+# https://cloud.google.com/appengine/docs/standard/java/configuring-datastore-indexes-with-index-yaml
+indexes:
+
+- kind: MapImage
+  properties:
+  - name: City Name
+  - name: Zoom
+  - name: Timestamp
+    direction: asc
+
+- kind: MapImage
+  properties:
+  - name: City Name
+  - name: Timestamp
+    direction: asc
+
+- kind: MapImage
+  properties:
+  -  name: City Name
+  -  name: Zoom
+     direction: asc
+
+- kind: MapImage
+  properties:
+  - name: Zoom
+  - name: Timestamp
+    direction: asc

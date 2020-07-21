@@ -2,14 +2,13 @@
 fetch('/form-locations').then((response) => response.json())
     .then((locations) => {
         $('#locations').empty();
-        const emptyOption = $('<option></option>').attr('value', '')
-            .text('');
-        $('#locations').append(emptyOption);
         for (let j = 0; j < locations.length; j++) {
+            console.log(locations[j]);
             const option = $('<option></option>')
                 .attr('value', locations[j]).text(locations[j]);
             $('#locations').append(option);
         }
+        $('#locations').selectpicker('refresh');
     });
 
 $(document).ready(function() {
@@ -21,6 +20,14 @@ $(document).ready(function() {
                 const url = array[i].url;
                 // TODO: create entire image list structure
                 $('#requested-images').append(`<li><img src='${url}'></li>`);
+
+
+                var div = document.createElement("div");
+                div.id = "divider"
+                var aTag = document.createElement("a");
+                document.getElementById("main")
+
+                document.getElementById("main").appendChild(div);
             }
         }
     });

@@ -1,4 +1,4 @@
-#request-form {
+/* #request-form {
 font-family: sans-serif;
 font-size: 12.8px;
 padding: 16px;
@@ -6,7 +6,7 @@ border: 2px solid #ccc;
 box-sizing: border-box;
 }
 
-#request-form label {
+/* #request-form label {
 padding: 0;
 font-weight: bold;
 text-align: left;
@@ -20,13 +20,13 @@ border: 1px solid #ccc;
 font-family: sans-serif;
 font-size: 0.9em;
 padding: 0.3em;
-}
+} */
 
-#request-form input[type="checkbox"] {
+/* #request-form input[type="checkbox"] {
 margin-left: 40%;
-}
+} */
 
-#request-form input[type="submit"] {
+/* #request-form input[type="submit"] {
 padding: 5px 20px;
 border-radius: 0.5em;
 background: #eee;
@@ -38,4 +38,14 @@ margin-top: .5em;
 #request-form input[type="submit"]:hover {
 background: #ccc;
 cursor: pointer;
-}
+} */
+
+/* .grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-rows: 25% 100px auto;
+    grid-gap: 15px;
+    justify-items: center;
+    align-items: center;
+    grid-auto-flow: row;
+} */

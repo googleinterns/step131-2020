@@ -45,9 +45,10 @@ function loadDateRange() {
     const startDate = moment().subtract(1, 'month');
     const endDate = moment();
 
-    /** Helper date function.
-    *   @param start begining of date range
-    *   @param end end of date range
+    /** 
+    * Helper date function.
+    * @param {number} start begining of date range.
+    * @param {number} end end of date range.
     */
     function callback(start, end) {
         $('#request-form').submit((eventObj) => {
@@ -74,18 +75,18 @@ function loadDateRange() {
             '6 months ago': [moment().subtract(6, 'month'), moment()],
             'A year ago': [moment().subtract(1, 'year'), moment()],
             '18 months ago': [moment().subtract(18, 'month'), moment()],
-            '2 years ago': [moment().subtract(2, 'year'), moment()]
+            '2 years ago': [moment().subtract(2, 'year'), moment()],
         },
         'linkedCalendars': false,
         'alwaysShowCalendars': true,
         'startDate': startDate,
         'endDate': endDate,
-        'minDate': '07/01/2020'
+        'minDate': '07/01/2020',
     }, callback);
 }
 
-/** TODO: Once the html elements for the images are finalized, this code 
-*   will be used to download the images in a zip folder 
+/** TODO: Once the html elements for the images are finalized, this code
+*   will be used to download the images in a zip folder
 */
 // JSZipUtils.getBinaryContent('[imageURL]', function (err, data) {
 //    if(err) {

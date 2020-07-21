@@ -54,7 +54,7 @@ public class FrontendQueryDatastore extends HttpServlet {
             throws IOException {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-        String zoomStr = request.getParameter("zoomLevel");
+        String zoomStr = request.getParameter("zoom-level");
         String city = request.getParameter("city");
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");

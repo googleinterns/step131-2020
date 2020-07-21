@@ -30,13 +30,6 @@ $(document).ready(function() {
                 const url = array[i].url;
                 // TODO: create entire image list structure
                 $('#requested-images').append(`<li><img src='${url}'></li>`);
-
-                var div = document.createElement("div");
-                div.id = "divider"
-                var aTag = document.createElement("a");
-                document.getElementById("main")
-
-                document.getElementById("main").appendChild(div);
             }
         }
     });

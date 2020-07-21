@@ -13,7 +13,6 @@ $(document).ready(function() {
         .then((locations) => {
             $('#locations').empty();
             for (let j = 0; j < locations.length; j++) {
-                console.log(locations[j]);
                 const option = $('<option></option>')
                     .attr('value', locations[j]).text(locations[j]);
                 $('#locations').append(option);

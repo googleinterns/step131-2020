@@ -63,7 +63,7 @@ function loadDateRange() {
         });
     }
 
-    $('input[name='dateFilter']').daterangepicker({
+    $('input[name="dateFilter"]').daterangepicker({
         'showDropdowns': true,
         ranges: {
             'A month ago': [moment().subtract(1, 'month'), moment()],

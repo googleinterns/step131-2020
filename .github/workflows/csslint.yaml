@@ -1,0 +1,15 @@
+name: CSS Presubmit
+
+on: [pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install npm packages
+        run: npm install
+      - name: Lint
+        # Run StyleLint on diffed CSS files. Do not run if there are no diffs.
+        run: git diff --diff-filter=ACM --name-only origin/master HEAD -- . ':!node_modules' | grep -E "(.*)\.(css|htm|html)$" | xargs --no-run-if-empty npx stylelint

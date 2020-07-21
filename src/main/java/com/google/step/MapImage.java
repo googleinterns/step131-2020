@@ -1,10 +1,6 @@
 package com.google.step;
 
-import java.util.Date;
-
-/**
- * Class representing a map snapshot image and its metadata.
- */
+/** Class representing a map snapshot image and its metadata. */
 public class MapImage {
     /** Snapshot's longitude coordinate. */
     private double longitude;
@@ -27,7 +23,9 @@ public class MapImage {
     /** Exact time snapshot was took. */
     private long timeStamp;
 
-    /** Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name. */
+    /**
+     * Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name.
+     */
     private String objectID;
 
     /** URL given by Cloud to display the image. */
@@ -43,24 +41,23 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
-    /** Overload the constructor for faster loading & querying from Datastore. **/
+    /** Overload the constructor for faster loading & querying from Datastore. * */
     public MapImage(double latitude, double longitude, int zoom) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.zoom = zoom;
     }
 
-    /** 
-    * Sets object's ID based off of attributes: year, month, name of city, and zoom level in this order.
-    */
+    /**
+     * Sets object's ID based off of attributes: year, month, name of city, and zoom level in this
+     * order.
+     */
     public void setObjectID() {
         String city = cityName.replaceAll(" ", "_").replaceAll(",", "_");
-        objectID = (year + "/" + month  + "/" + city + "/" + zoom + "x.png");
+        objectID = (year + "/" + month + "/" + city + "/" + zoom + "x.png");
     }
 
-    /** 
-    * Sets image's URL created by Cloud.
-    */
+    /** Sets image's URL created by Cloud. */
     public void setURL(String gcsURL) {
         url = gcsURL;
     }
@@ -88,6 +85,7 @@ public class MapImage {
     public double getLatitude() {
         return latitude;
     }
+
     public String getCityName() {
         return cityName;
     }
@@ -102,7 +100,7 @@ public class MapImage {
 
     public int getYear() {
         return year;
-    }  
+    }
 
     public long getTimeStamp() {
         return timeStamp;
@@ -114,5 +112,5 @@ public class MapImage {
 
     public String getURL() {
         return url;
-    }     
+    }
 }

@@ -1,33 +1,28 @@
 package com.google.step;
 
+import static java.lang.Math.toIntExact;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.CompositeFilter;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 
 import java.io.IOException;
 import com.google.gson.Gson;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.DataOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.URL;
+import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.List;
-import java.util.Arrays;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.Date;
 import java.time.ZoneOffset;
@@ -37,27 +32,32 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import static java.lang.Math.toIntExact;
+import java.util.logging.Logger;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-
-/***
-    This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore 
-    corresponding to user form request. A POST request gets the parameter values from the form 
-    and prepares the MapImages to be sent to QueryCloud.java.
-***/
+/**
+ * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
+ * corresponding to user form request. A POST request gets the parameter values from the form and
+ * prepares the MapImages to be sent to QueryCloud.java.
+ */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
 
-    /** Get form parameters and query Datastore to get objectIDs based on those parameters*/
+    /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
         String zoomStr = request.getParameter("zoomLevel");
         String city = request.getParameter("city");
         String startDateStr = request.getParameter("startDate");
-        String endDateStr = request.getParameter("endDate");  
+        String endDateStr = request.getParameter("endDate");
 
         // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter = buildCompositeFilter(zoomStr, city, startDateStr, endDateStr);
@@ -84,7 +84,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         con.setDoInput(true);
         con.setDoOutput(true);
         String data = gson.toJson(mapImages);
-        try(DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
+        try (DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
         con.getInputStream().close();
@@ -107,8 +107,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             // Zoom ranges are based on documented Zoom Bands.
             // Global zoom level (0-3) is not tracked.
-            switch(zoomStr) {
-                // Continental is zoom levels 4 - 6, but zoom level 4 is not tracked.
+            switch (zoomStr) {
+                    // Continental is zoom levels 4 - 6, but zoom level 4 is not tracked.
                 case "Continental":
                     filters.add(buildZoomFilters(5, 6));
                     break;
@@ -121,7 +121,7 @@ public class FrontendQueryDatastore extends HttpServlet {
                 case "Sublocal":
                     filters.add(buildZoomFilters(15, 16));
                     break;
-                // House is zoom levels 17 - 20, but zoom levels 19-20 are not tracked.
+                    // House is zoom levels 17 - 20, but zoom levels 19-20 are not tracked.
                 case "House":
                     filters.add(buildZoomFilters(17, 18));
                     break;
@@ -156,12 +156,10 @@ public class FrontendQueryDatastore extends HttpServlet {
         return compositeFilter;
     }
 
-    /***
-        Builds the zoom filters for the overall Composite Filter.
-    ***/
+    /** * Builds the zoom filters for the overall Composite Filter. * */
     private Filter buildZoomFilters(int startingZoom, int endingZoom) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
-        for(int zoom = startingZoom; zoom <= endingZoom; zoom++) {
+        for (int zoom = startingZoom; zoom <= endingZoom; zoom++) {
             zoomFilters.add(FilterOperator.EQUAL.of("Zoom", zoom));
         }
         return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
@@ -176,9 +174,10 @@ public class FrontendQueryDatastore extends HttpServlet {
             FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
     }
 
-    /***
-        Converts the entities returned from the Datastore query into MapImage objects for us to use.
-    ***/
+    /**
+     * * Converts the entities returned from the Datastore query into MapImage objects for us to
+     * use. *
+     */
     private ArrayList<MapImage> entitiesToMapImages(PreparedQuery resultList) {
         ArrayList<MapImage> resultMapImages = new ArrayList<>();
         for (Entity entity : resultList.asIterable()) {
@@ -188,15 +187,15 @@ public class FrontendQueryDatastore extends HttpServlet {
         return resultMapImages;
     }
 
-    /* 
-    *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-    *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-    */
-    /***
-        Helper function for entitiesToMapImages.
-        Converts each individual entity into a MapImage object.
-    ***/
-    private MapImage entityToMapImage(Entity entity) { 
+    /*
+     *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
+     *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
+     */
+    /**
+     * Helper function for entitiesToMapImages. Converts each individual entity into a MapImage
+     * object.
+     */
+    private MapImage entityToMapImage(Entity entity) {
         double latitude = (double) entity.getProperty("Latitude");
         double longitude = (double) entity.getProperty("Longitude");
         long zoom = (long) entity.getProperty("Zoom");

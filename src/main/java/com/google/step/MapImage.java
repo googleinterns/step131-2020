@@ -21,7 +21,7 @@ public class MapImage {
     private int year;
 
     /** Exact time snapshot was took. */
-    private String timeStamp;
+    private long timeStamp;
 
     /**
      * Represents attributes of a MapImage unique instance (New_York_5x_06_2020.png) and is a name.
@@ -29,16 +29,9 @@ public class MapImage {
     private String objectID;
 
     /** URL given by Cloud to display the image. */
-    private String url;
+    private String url; 
 
-    public MapImage(
-            double longitude,
-            double latitude,
-            String cityName,
-            int zoom,
-            int month,
-            int year,
-            String timeStamp) {
+    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, long timeStamp) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.cityName = cityName;
@@ -81,7 +74,7 @@ public class MapImage {
         this.cityName = cityName;
     }
 
-    public void setTimeStamp(String timeStamp) {
+    public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 
@@ -109,7 +102,7 @@ public class MapImage {
         return year;
     }
 
-    public String getTimeStamp() {
+    public long getTimeStamp() {
         return timeStamp;
     }
 

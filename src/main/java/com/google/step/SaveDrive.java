@@ -112,7 +112,7 @@ public class SaveDrive extends HttpServlet {
         String cityName = entity.getString("City Name");
         int month = (int) entity.getLong("Month");
         int year = (int) entity.getLong("Year");
-        String timeStamp = entity.getString("Time Stamp");
+        long timeStamp = entity.getLong("Time Stamp");
 
         MapImage mapImage =
                 new MapImage(longitude, latitude, cityName, zoom, month, year, timeStamp);

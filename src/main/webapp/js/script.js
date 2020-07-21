@@ -29,7 +29,7 @@ $(document).ready(function() {
             for (let i = 0; i < array.length; i++) {
                 const url = array[i].url;
                 // TODO: create entire image list structure
-                $('#requested-images').append(`<li><img src='${url}'></li>`);            
+                $('#requested-images').append(`<li><img src='${url}'></li>`);
             }
         }
     });
@@ -45,7 +45,10 @@ function loadDateRange() {
     const startDate = moment().subtract(1, 'month');
     const endDate = moment();
 
-    /** Helper date function. */
+    /** Helper date function.
+    *   @param start begining of date range
+    *   @param end end of date range
+    */
     function callback(start, end) {
         $('#request-form').submit((eventObj) => {
             // Add date range as hidden values to form.
@@ -65,7 +68,7 @@ function loadDateRange() {
 
     $('input[name="dateFilter"]').daterangepicker({
         'showDropdowns': true,
-        ranges: {
+        'ranges': {
             'A month ago': [moment().subtract(1, 'month'), moment()],
             '3 months ago': [moment().subtract(3, 'month'), moment()],
             '6 months ago': [moment().subtract(6, 'month'), moment()],

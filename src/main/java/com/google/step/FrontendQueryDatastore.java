@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 
 import java.io.IOException;
 import com.google.gson.Gson;
@@ -28,6 +29,13 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.Date;
+import java.time.ZoneOffset;
+import java.util.Calendar;
+import java.util.Calendar.Builder;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import static java.lang.Math.toIntExact;
 
 
@@ -48,24 +56,23 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         String zoomStr = request.getParameter("zoomLevel");
         String city = request.getParameter("city");
-        String monthStr = request.getParameter("month");
-        String yearStr = request.getParameter("yearInput");  
+        String startDateStr = request.getParameter("startDate");
+        String endDateStr = request.getParameter("endDate");  
 
         // Add the appropriate filters according to the form input.
-        CompositeFilter compositeFilter = buildCompositeFilter(zoomStr, city, monthStr, yearStr);
+        CompositeFilter compositeFilter = buildCompositeFilter(zoomStr, city, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        Query query = new Query("MapImage")
-            .setFilter(compositeFilter)
-            .addSort("Zoom", SortDirection.ASCENDING);
+        // Sort order MUST match same property as inequality filter.
+        Query query = new Query("MapImage").setFilter(compositeFilter);
 
         // Add all the mapEntities that matched the filter
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
             mapImages = entitiesToMapImages(resultList);
-        } catch (ClassCastException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
+        } catch (DatastoreNeedIndexException e) {
+            LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }
 
         // Send the MapImage metadata to QueryCloud.java
@@ -86,12 +93,18 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /***
-        Builds a composite filter for the Datastore query. The Composite Filter is constructed 
-        using sub-filters of zooms, dates, and locations based off user-input values from the form.
+        Builds a composite filter for the Datastore query. The Composite Filter is constructed by
+        first checking for empty values from the form, then using sub-filters of zooms, dates, 
+        and locations based off user-input values from the form.
     ***/
-    private CompositeFilter buildCompositeFilter(String zoomStr, String city, String monthStr, String yearStr) {
+    private CompositeFilter buildCompositeFilter(String zoomStr, String city, String startDateStr, String endDateStr) {
+        // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
+        // For complex queries like these, an index must be made and deployed prior to building the query.
+        // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.
         ArrayList<Filter> filters = new ArrayList<>();
-        // Check for empty values from the form and build filters for user-input values.
+        if (!city.equals("")) {
+            filters.add(FilterOperator.EQUAL.of("City Name", city));
+        }
         try {
             // Zoom ranges are based on documented Zoom Bands.
             // Global zoom level (0-3) is not tracked.
@@ -117,38 +130,29 @@ public class FrontendQueryDatastore extends HttpServlet {
                     throw new IllegalArgumentException("Zoom not specified");
             }
         } catch (IllegalArgumentException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
+            LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
         }
         try {
-            int month = Integer.parseInt(monthStr);
-            filters.add(FilterOperator.EQUAL.of("Month", month));
+            long startDateLong = Long.parseLong(startDateStr);
+            long endDateLong = Long.parseLong(endDateStr);
+            filters.add(buildDateFilters(startDateLong, endDateLong));
         } catch (NumberFormatException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
-        }
-        try {
-            int year = Integer.parseInt(yearStr);
-            filters.add(FilterOperator.EQUAL.of("Year", year));
-        } catch (NumberFormatException e) {
-           LOGGER.log(Level.WARNING, e.getMessage());
-        }
-        try {
-            // TODO: Add hotel date range UI so buildDateFilters can properly work. 
-            // filters.add(buildDateFilters(0, 0, 0, 0));
-        } catch (ClassCastException e) {
-            LOGGER.log(Level.WARNING, e.getMessage());
-        }
-        if (!city.equals("")) {
-            filters.add(FilterOperator.EQUAL.of("City Name", city));
+            LOGGER.log(Level.WARNING, "Building Date Filters: " + e.getMessage());
         }
 
         // Construct the CompositeFilter.
         CompositeFilter compositeFilter = null;
-        if (filters.size() >= 1) {
+        if (filters.size() > 1) {
+            compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
+        } else if(filters.size() == 1) {
+            // Clone the filter to get around needing 2 sub-filters to construct a composite filter.
+            filters.add(filters.get(0));
             compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         } else {
-            // Load all MapImages from Datastore b/c all year properties are >= 2020
-            compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(
-                FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", 2020)));
+            // Load all MapImages from Datastore b/c all year properties are >= 2020.
+            filters.add(FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", 2020));
+            filters.add(FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", 2020));
+            compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         }
         return compositeFilter;
     }
@@ -164,18 +168,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
     }
 
-    // TODO: Incomplete feature.
     /***
         Builds the date filters for the overall Composite Filter.
     ***/
-    private Filter buildDateFilters(int monthFrom, int monthTo, int yearFrom, int yearTo) {
-        // Allot (and test) for when the range is not uniform (i.e. July 1st 2020 - April 2nd 2021)
-        // Maybe look for the year? 
+    private Filter buildDateFilters(long startDateLong, long endDateLong) {
         return new CompositeFilter(CompositeFilterOperator.AND, Arrays.asList(
-            FilterOperator.GREATER_THAN_OR_EQUAL.of("Month", monthFrom),
-            FilterOperator.GREATER_THAN_OR_EQUAL.of("Year", yearFrom),
-            FilterOperator.LESS_THAN_OR_EQUAL.of("Month", monthTo),
-            FilterOperator.LESS_THAN_OR_EQUAL.of("Year", yearTo)));
+            FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
+            FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
     }
 
     /***
@@ -205,7 +204,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         String cityName = (String) entity.getProperty("City Name");
         long month = (long) entity.getProperty("Month");
         long year = (long) entity.getProperty("Year");
-        String timeStamp = (String) entity.getProperty("Time Stamp");
+        Long timeStamp = (long) entity.getProperty("Timestamp");
         MapImage mapImage = new MapImage(longitude, latitude, cityName, 
             toIntExact(zoom), toIntExact(month), toIntExact(year), timeStamp);
         mapImage.setObjectID();

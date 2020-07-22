@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "bootstrap-select": "^1.13.18"
+  },
   "devDependencies": {
     "eslint": "^7.4.0",
     "eslint-config-google": "^0.14.0",

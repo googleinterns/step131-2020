@@ -37,6 +37,7 @@ public final class BackendQueryDatastoreTest {
 
     @Before
     public void setUp() {
+        //TODO: might have to run the datastore emulator from cmd before running tests.
         helper.setUp();
         backendQueryDatastore = new BackendQueryDatastore();
     }

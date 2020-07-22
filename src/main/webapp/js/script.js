@@ -6,22 +6,23 @@ $(document).ready(function() {
     loadLocations();
     loadDateRange();
 
-    $("#request-form").submit(function(event) {
+    $('#request-form').submit(function(event) {
         event.preventDefault();
-        let formData = $("#request-form").serialize();
-        let formHeaders = new Headers();
+        const formData = $('#request-form').serialize();
+        const formHeaders = new Headers();
         formHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
-        let request = new Request('/frontend-query-datastore', { method: 'POST', headers: formHeaders, body: formData });
+        const request = new Request('/frontend-query-datastore',
+            {
+                method: 'POST',
+                headers: formHeaders,
+                body: formData
+            });
         fetch(request).then((response) => response.json()).then((array) => {
             clearImages();
-            // array '{}' on page load: request made before form submission
-            // array not '{}' when request is made after form submission.
-            if (array !== '{}') {
-                for (let i = 0; i < array.length; i++) {
-                    const url = array[i].url;
-                    // TODO: create entire image list structure
-                    $('#requested-images').append(`<li><img src='${url}'></li>`);
-                }
+            for (let i = 0; i < array.length; i++) {
+                const url = array[i].url;
+                // TODO: create entire image list structure
+                $('#requested-images').append(`<li><img src='${url}'></li>`);
             }
         });
     });

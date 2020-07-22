@@ -85,7 +85,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String responseData = reader.lines().collect(Collectors.joining(""));
         response.setContentType("application/json");
-        response.getWriter().println(responseData);
+        // Send the image data if there are any images to send, otherwise send empty array
+        response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
 
     /**

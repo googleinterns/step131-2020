@@ -3,7 +3,7 @@
 }
 
 #title {
-    color: #17a2b8;
+  color: #17a2b8;
 }
 
 .dropdown-title {
@@ -12,10 +12,10 @@
 }
 
 #date-filter-label, .dropdown {
-    margin-right: 3px;
+  margin-right: 3px;
 }
 
 #submit-btn {
-    height: 62px;
-    text-transform: uppercase;
+  height: 62px;
+  text-transform: uppercase;
 }

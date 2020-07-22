@@ -29,9 +29,16 @@ public class MapImage {
     private String objectID;
 
     /** URL given by Cloud to display the image. */
-    private String url; 
+    private String url;
 
-    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, long timeStamp) {
+    public MapImage(
+            double longitude,
+            double latitude,
+            String cityName,
+            int zoom,
+            int month,
+            int year,
+            long timeStamp) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.cityName = cityName;

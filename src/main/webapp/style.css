@@ -11,7 +11,8 @@
   text-transform: uppercase;
 }
 
-#date-filter-label, .dropdown {
+#date-filter-label,
+.dropdown {
   margin-right: 3px;
 }
 

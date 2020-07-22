@@ -15,7 +15,7 @@ $(document).ready(function() {
             {
                 method: 'POST',
                 headers: formHeaders,
-                body: formData
+                body: formData,
             });
         fetch(request).then((response) => response.json()).then((array) => {
             clearImages();

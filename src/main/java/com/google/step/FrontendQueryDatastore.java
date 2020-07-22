@@ -24,14 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
-import java.util.Date;
-import java.time.ZoneOffset;
-import java.util.Calendar;
-import java.util.Calendar.Builder;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import static java.lang.Math.toIntExact;
 import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -60,7 +52,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         String endDateStr = request.getParameter("endDate");
 
         // Add the appropriate filters according to the form input.
-        CompositeFilter compositeFilter = buildCompositeFilter(zoomStr, city, startDateStr, endDateStr);
+        CompositeFilter compositeFilter = 
+            buildCompositeFilter(zoomStr, city, startDateStr, endDateStr);
 
         // Build the query for Datastore.
         Query query = new Query("MapImage").setFilter(compositeFilter);
@@ -91,12 +84,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         response.sendRedirect("/app.html");
     }
 
-    /***
-        Builds a composite filter for the Datastore query. The Composite Filter is constructed by
-        first checking for empty values from the form, then using sub-filters of zooms, dates, 
-        and locations based off user-input values from the form.
-    ***/
-    private CompositeFilter buildCompositeFilter(String zoomStr, String city, String startDateStr, String endDateStr) {
+    /**
+    * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by
+    * first checking for empty values from the form, then using sub-filters of zooms, dates, and
+    * locations based off user-input values from the form. *
+    */
+    private CompositeFilter buildCompositeFilter(
+        String zoomStr, String city, String startDateStr, String endDateStr) {
         // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
         // For complex queries like these, an index must be made and deployed prior to building the query.
         // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.

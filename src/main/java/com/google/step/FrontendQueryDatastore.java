@@ -2,6 +2,7 @@ package com.google.step;
 
 import static java.lang.Math.toIntExact;
 
+import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -11,7 +12,6 @@ import com.google.appengine.api.datastore.Query.CompositeFilter;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
-import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 
 import com.google.gson.Gson;
 import java.io.DataOutputStream;
@@ -50,7 +50,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         String endDateStr = request.getParameter("endDate");
 
         // Add the appropriate filters according to the form input.
-        CompositeFilter compositeFilter = 
+        CompositeFilter compositeFilter =
                 buildCompositeFilter(zoomStr, city, startDateStr, endDateStr);
 
         // Build the query for Datastore.
@@ -82,7 +82,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         response.sendRedirect("/app.html");
     }
 
-     /**
+      /**
      * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by
      * first checking for empty values from the form, then using sub-filters of zooms, dates, and
      * locations based off user-input values from the form. *
@@ -160,10 +160,10 @@ public class FrontendQueryDatastore extends HttpServlet {
     /** * Builds the date filters for the overall Composite Filter. * */
     private Filter buildDateFilters(long startDateLong, long endDateLong) {
         return new CompositeFilter(
-            CompositeFilterOperator.AND,
-            Arrays.asList(
-                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
-                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
+                CompositeFilterOperator.AND,
+                Arrays.asList(
+                    FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
+                    FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
     }
 
     /**
@@ -197,13 +197,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         Long timeStamp = (long) entity.getProperty("Timestamp");
         MapImage mapImage =
                 new MapImage(
-                    longitude,
-                    latitude,
-                    cityName, 
-                    toIntExact(zoom),
-                    toIntExact(month),
-                    toIntExact(year),
-                    timeStamp);
+                        longitude,
+                        latitude,
+                        cityName, 
+                        toIntExact(zoom),
+                        toIntExact(month),
+                        toIntExact(year),
+                        timeStamp);
         mapImage.setObjectID();
         return mapImage;
     }

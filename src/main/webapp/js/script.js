@@ -1,6 +1,8 @@
 $(document).ready(function() {
-    $("#locations + button").children(".filter-option").prepend('<span class="dropdown-title">Locations</span>'); 
-    $("#zoom + button").children(".filter-option").prepend('<span class="dropdown-title">Zoom Level</span>');
+    $('#locations + button').children('.filter-option')
+        .prepend('<span class="dropdown-title">Locations</span>');
+    $('#zoom + button').children('.filter-option')
+        .prepend('<span class="dropdown-title">Zoom Level</span>');
     loadLocations();
     loadDateRange();
 
@@ -12,7 +14,7 @@ $(document).ready(function() {
             for (let i = 0; i < array.length; i++) {
                 const url = array[i].url;
                 // TODO: create entire image list structure
-                $('#requested-images').append(`<li><img src='${url}'></li>`);                
+                $('#requested-images').append(`<li><img src='${url}'></li>`);
             }
         }
     });
@@ -84,7 +86,7 @@ function loadDateRange() {
 
 /** Removes any current description and image li elements on the page. */
 async function clearImages() {
-    var list = document.getElementById('requested-images');
+    const list = document.getElementById('requested-images');
     // As long as <ul> has a child node, remove it
     while (list.hasChildNodes()) {
         list.removeChild(list.firstChild);

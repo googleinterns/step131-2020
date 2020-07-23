@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
+    // This timestamp marks the date that cron started to run sub-daily instead of weekly.
+    private final long CRON_EPOCH = 1595546505;
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override

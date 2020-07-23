@@ -13,8 +13,11 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -77,8 +81,12 @@ public class FrontendQueryDatastore extends HttpServlet {
         try (DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         }
-        con.getInputStream().close();
-        response.sendRedirect("/app.html");
+        InputStream is = con.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        String responseData = reader.lines().collect(Collectors.joining(""));
+        response.setContentType("application/json");
+        // Send the image data if there are any images to send, otherwise send empty array
+        response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
 
     /**

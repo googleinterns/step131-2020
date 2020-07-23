@@ -13,10 +13,21 @@ public class AddLocation extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        double latitude = Double.parseDouble(request.getParameter("latitude"));
-        double longitude = Double.parseDouble(request.getParameter("longitude"));
-        String cityName = request.getParameter("cityName");
+        // Get form parameters.
+        String formLatitude = request.getParameter("latitude");
+        String formLongitude = request.getParameter("longitude");
+        String formLocationName = request.getParameter("locationName");
 
-        // TODO: A new "TrackedLocation" entity should be added as well.
+        // See if form was filled out
+        if(!isFormEmpty(formLatitude, formLongitude, formLocationName)) {
+            // TODO: A new "TrackedLocation" entity should be added as well.
+        }
+    }
+
+    /** Helper function to check for empty values from form. **/
+    private Boolean isFormEmpty(String formLatitude, String formLongitude, String formLocationName) {
+        return (formLatitude.equals("") && 
+                formLongitude.equals("") &&
+                formLocationName.equals(""));
     }
 }

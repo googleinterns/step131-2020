@@ -3,8 +3,10 @@
 # A index can be deployed by performing the command below.
 # gcloud datastore indexes create ./src/main/webapp/WEB-INF/index.yaml
 # Preforming a query without previously deploying an index will cause a DatastoreNeedIndexException.
-# See link below for more information on constructing indexes.
+# See links below for more information on constructing indexes and query restrictions.
 # https://cloud.google.com/appengine/docs/standard/java/configuring-datastore-indexes-with-index-yaml
+# https://cloud.google.com/datastore/docs/concepts/queries#restrictions_on_queries
+
 indexes:
 
 - kind: MapImage

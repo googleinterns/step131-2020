@@ -20,3 +20,56 @@
   height: 62px;
   text-transform: uppercase;
 }
+
+#map {
+  border: thin solid black;
+  height: 400px;
+  width: 400px;
+  display: inline-block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-gap: 1em;
+}
+
+.tile {
+  position: relative;
+  width: 100%;
+  border: 1px solid black;
+  display: grid; /* an inner grid */
+}
+
+.tile a {
+  grid-row: 1; /* place in first row */
+  grid-column: 1;  /* place in first column */
+  cursor: pointer;
+}
+
+.tile img {
+  object-fit: cover;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.tile h4 {
+  margin: 0;
+  color: aliceblue;
+  background-color: #000;
+  padding: 10px 14px;
+  opacity: .8;
+  grid-row: 1; /* place in first row */
+  grid-column: 1;  /* place in first column */
+  align-self: flex-start; /* take auto-width */
+}
+
+.tile:hover {
+  border: 1px solid #0066FF;
+  opacity: .55;
+}

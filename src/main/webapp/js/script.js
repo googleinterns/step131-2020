@@ -60,16 +60,44 @@ function loadDateRange() {
     function callback(start, end) {
         $('#request-form').submit((eventObj) => {
             // Add date range as hidden values to form.
-            $('<input />').attr('type', 'hidden')
+            /*$('<input />').attr('type', 'hidden')
                 .attr('id', 'startDateId')
                 .attr('value', start.unix())
                 .attr('name', 'startDate')
-                .appendTo('#request-form');
-            $('<input />').attr('type', 'hidden')
+                .appendTo('#request-form'); */
+            $("<input>").attr({ 
+                name: "startDate", 
+                id: "startDate", 
+                type: "hidden", 
+                value: startDate
+            }).appendTo("request-form"); 
+            console.log("Start Date: " + startDate);
+            console.log("Form Start Date: " + $('request-form[name=startDate]'));
+            /*$('<input />').attr('type', 'hidden')
                 .attr('id', 'endDateId')
                 .attr('value', end.unix())
                 .attr('name', 'endDate')
-                .appendTo('#request-form');
+                .appendTo('#request-form'); */
+            $("<input>").attr({ 
+                name: "endDate", 
+                id: "endDate", 
+                type: "hidden", 
+                value: endDate
+            }).appendTo("request-form"); 
+            console.log("End Date: " + endDate);
+            console.log("Form End Date: " + $('request-form[name=endDate]'));
+            /*$('<input />').attr('type', 'hidden')
+                .attr('id', 'hasDate')
+                .attr('value', 'true')
+                .attr('name', 'hasDate')
+                .appendTo('#request-form');*/
+            $("<input>").attr({ 
+                name: "hasDate", 
+                id: "hasDate", 
+                type: "hidden", 
+                value: true
+            }).appendTo("request-form");
+            console.log("Form Has Date: " + $('request-form[name=hasDate]'));
             return true;
         });
     }

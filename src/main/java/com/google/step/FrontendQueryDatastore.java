@@ -61,8 +61,17 @@ public class FrontendQueryDatastore extends HttpServlet {
         } catch (NullPointerException e) {
             LOGGER.log(Level.WARNING, "Getting City parameters: City array is empty.");
         }
+        //TODO: Not getting request parameters from form.
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
+
+        System.out.println("Request hasDate: "+ request.getParameter("hasDate"));
+        
+        boolean hasDate = Boolean.parseBoolean(request.getParameter("hasDate"));
+
+        System.out.println("Start Date: " + startDateStr);
+        System.out.println("End Date: " + endDateStr);
+        System.out.println("Has Date???: " + hasDate); 
 
         // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter =
@@ -126,7 +135,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             long startDateLong = Long.parseLong(startDateStr);
             long endDateLong = Long.parseLong(endDateStr);
-            filters.add(buildDateFilters(startDateLong, endDateLong));
+            filters.add(buildDateFilter(startDateLong, endDateLong));
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Building Date Filters: " + e.getMessage());
         }
@@ -194,7 +203,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** * Builds the date filters for the overall Composite Filter. * */
-    private Filter buildDateFilters(long startDateLong, long endDateLong) {
+    private Filter buildDateFilter(long startDateLong, long endDateLong) {
         return new CompositeFilter(
                 CompositeFilterOperator.AND,
                 Arrays.asList(

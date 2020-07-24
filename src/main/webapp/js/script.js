@@ -18,11 +18,28 @@ $(document).ready(function() {
                 body: formData,
             });
         fetch(request).then((response) => response.json()).then((array) => {
-            clearImages();
+            $('#requested-images').empty();
             for (let i = 0; i < array.length; i++) {
                 const url = array[i].url;
-                // TODO: create entire image list structure
-                $('#requested-images').append(`<li><img src='${url}'></li>`);
+
+                var div = document.createElement('div');
+                div.className = 'tile';
+                div.id = 'Item' + i;
+
+                var atag = document.createElement('a');
+                atag.id = 'a' + i;
+                $("a" + i).attr("href", "#");
+
+                var image = document.createElement('img');
+                image.id = 'Image' + i;
+                image.src = url;
+ 
+                h4 = document.createElement("h4");
+                h4.textContent = array[i].cityName + ' on ' + array[i].month + '/' + array[i].year + ' zoom level ' + array[i].zoom;
+                atag.appendChild(image);
+                div.appendChild(atag);                
+                div.appendChild(h4);
+                $("#requested-images").append(div);
             }
         });
     });
@@ -30,6 +47,33 @@ $(document).ready(function() {
     // Upload files any files to Drive that need to be uploaded
     fetch('/start-save-drive');
 });
+
+window.map = undefined;      // global variable
+
+/** Makes a map and adds it to the page. */
+function createMap() {
+    window.map = new google.maps.Map(document.getElementById('map'), {center: {lat: 35.9128, lng: 100.3821}, zoom: 5});
+}
+
+function updateLocation() {
+    var values = $('#locations').val();
+        for (let j = 0; j < values.length; j++) {
+            console.log(values[j]);
+        }
+    var lastSelected = values[values.length - 1];
+    var coords = lastSelected.split(' ');
+    const center = new google.maps.LatLng(parseFloat(coords[0]), parseFloat(coords[1]));
+    window.map.panTo(center);
+}
+
+function updateZoom() {
+    var values = $('#zoom').val();
+    for (let j = 0; j < values.length; j++) {
+            console.log(values[j]);
+    }
+    var lastSelected = values[values.length - 1];
+    (window.map).setZoom(parseInt(lastSelected));
+}
 
 /** Loads the location options for the form through Datastore. */
 function loadLocations() {

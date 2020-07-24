@@ -20,7 +20,7 @@ public class MapImage {
     /** Year snapshot was took. */
     private int year;
 
-    /** Exact time snapshot was took. */
+    /** Exact time snapshot was took from Unix Epoch in seconds. */
     private long timeStamp;
 
     /**

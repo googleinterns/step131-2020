@@ -40,6 +40,8 @@ public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private Date date = new Date();
+    // TODO: Delete FAKE_CRON_MONTH by Aug 1.
+    private final int FAKE_CRON_MONTH = 13;
     private String month = String.format("%tm", date);
     private String year = String.format("%TY", date);
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
@@ -59,7 +61,7 @@ public class SaveImageCloud extends HttpServlet {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
             } catch (DeadlineExceededException e) {
-                // TODO: add error handling
+                LOGGER.log(Level.SEVERE, e.getMessage());
             }
         }
 
@@ -94,12 +96,14 @@ public class SaveImageCloud extends HttpServlet {
     private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
             throws StorageException {
         Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        mapImage.setMonth(Integer.parseInt(month));
+        // TODO: Revert mapImage.setMonth() code to below before Aug 1.
+        // mapImage.setMonth(Integer.parseInt(month));
+        mapImage.setMonth(FAKE_CRON_MONTH);
         mapImage.setYear(Integer.parseInt(year));
         mapImage.setObjectID();
         LocalDateTime time = LocalDateTime.now();
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         mapImage.setTimeStamp(epoch);
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();

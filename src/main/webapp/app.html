@@ -27,7 +27,9 @@
 
                 <select id="locations" class="selectpicker show-tick" name="city" data-live-search="true" data-actions-box="true" data-selected-text-format="count" data-style="btn-info" multiple></select>
 
+                <!-- Zoom ranges are based on documented Zoom Bands. -->
                 <select id="zoom" class="selectpicker show-tick" name="zoom-level" data-live-search="true" data-actions-box="true" data-selected-text-format="count" data-style="btn-info" multiple>
+                    <!-- Global zoom level (0-3) and Continental zoom 4 are not tracked. -->
                     <optgroup label="Continental">
                         <option value="5" selected>5</option>
                         <option value="6">6</option>
@@ -48,6 +50,7 @@
                         <option value="15">15</option>
                         <option value="16">16</option>
                     </optgroup>
+                    <!--House is zoom levels 17 - 20, but zoom levels 19-20 are not tracked. -->
                     <optgroup label="House">
                         <option value="17">17</option>
                         <option value="18">18</option>

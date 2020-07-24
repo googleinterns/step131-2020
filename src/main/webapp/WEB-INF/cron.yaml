@@ -1,6 +1,7 @@
 # Retries up to five times by default.
 # Intervals between retries are 4hrs, 8hrs, 16h, 32h, 64h. Retries must happen within a week.
 # Old schedule was: 1 of month 00:00
+# Old timezone was: America/Seattle
 ---
 cron:
 - description: "monthly map snapshots"

@@ -61,7 +61,7 @@ public class SaveImageCloud extends HttpServlet {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
             } catch (DeadlineExceededException e) {
-                // TODO: add error handling
+                LOGGER.log(Level.SEVERE, e.getMessage());
             }
         }
 

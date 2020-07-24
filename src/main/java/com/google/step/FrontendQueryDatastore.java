@@ -148,6 +148,8 @@ public class FrontendQueryDatastore extends HttpServlet {
             // NOTE: Sometimes all the images won't load the first time, but will the second time.
             compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         }
+        System.out.println("Filters Size: " + filters.size());
+        System.out.println("Filters: " + filters.toString());
         return compositeFilter;
     }
 
@@ -248,6 +250,7 @@ public class FrontendQueryDatastore extends HttpServlet {
                         toIntExact(year),
                         timeStamp);
         mapImage.setObjectID();
+        System.out.println("ObjectID: " + mapImage.getObjectID());
         return mapImage;
     }
 }

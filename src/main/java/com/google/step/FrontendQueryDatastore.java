@@ -50,12 +50,12 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             zoomStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("zoom-level")));
         } catch (NullPointerException e) {
-            LOGGER.log(Level.WARNING, "Getting Zoom parameters: Zoom array is empty.");
+            LOGGER.log(Level.FINE, "Getting Zoom parameters: Zoom array is empty.");
         }
         try {
             cityStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("city")));
         } catch (NullPointerException e) {
-            LOGGER.log(Level.WARNING, "Getting City parameters: City array is empty.");
+            LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
         }
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");

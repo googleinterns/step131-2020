@@ -40,7 +40,9 @@ public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private Date date = new Date();
-    private String month = String.format("%tm", date);
+    // Previous code for month was: String.format("%tm", date);
+    // TODO: Revert month code to above before Aug 1.
+    private String month = "13";
     private String year = String.format("%TY", date);
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
@@ -99,7 +101,7 @@ public class SaveImageCloud extends HttpServlet {
         mapImage.setObjectID();
         LocalDateTime time = LocalDateTime.now();
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         mapImage.setTimeStamp(epoch);
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();

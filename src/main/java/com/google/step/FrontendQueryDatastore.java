@@ -45,8 +45,18 @@ public class FrontendQueryDatastore extends HttpServlet {
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
         // Get parameters from form.
-        ArrayList<String> zoomStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("zoom-level")));
-        ArrayList<String> cityStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("city")));
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        if(request.getParameterValues("zoom-level") != null) {
+            zoomStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("zoom-level")));
+        } else {
+            LOGGER.log(Level.FINE, "Getting Zoom parameters: Zoom array is empty.");
+        }
+        ArrayList<String> cityStrings = new ArrayList<>();
+        if(request.getParameterValues("city") != null) {
+            cityStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("city")));
+        } else {
+            LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
+        }
         String startDateStr = request.getParameter("startDate");
         String endDateStr = request.getParameter("endDate");
 

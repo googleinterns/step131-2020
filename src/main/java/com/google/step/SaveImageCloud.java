@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;

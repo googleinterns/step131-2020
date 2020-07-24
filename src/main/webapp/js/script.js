@@ -85,19 +85,18 @@ function loadDateRange() {
                 value: endDate
             }).appendTo("request-form"); 
             console.log("End Date: " + endDate);
-            console.log("Form End Date: " + $('request-form[name=endDate]'));
             /*$('<input />').attr('type', 'hidden')
-                .attr('id', 'hasDate')
-                .attr('value', 'true')
-                .attr('name', 'hasDate')
-                .appendTo('#request-form');*/
+                .attr('id', 'endDateId')
+                .attr('value', end.unix())
+                .attr('name', 'endDate')
+                .appendTo('#request-form'); */
             $("<input>").attr({ 
-                name: "hasDate", 
-                id: "hasDate", 
+                name: "endDate", 
+                id: "endDate", 
                 type: "hidden", 
-                value: true
-            }).appendTo("request-form");
-            console.log("Form Has Date: " + $('request-form[name=hasDate]'));
+                value: endDate
+            }).appendTo("request-form"); 
+            console.log("Form End Date: " + $('request-form[name=endDate]'));
             return true;
         });
     }

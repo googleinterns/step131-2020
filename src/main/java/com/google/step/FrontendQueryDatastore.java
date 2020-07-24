@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.StringBuilder;
+import java.time.LocalDateTime;
 
 /**
  * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
@@ -41,6 +42,7 @@ import java.lang.StringBuilder;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
+    boolean hasDate = false;
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
@@ -66,8 +68,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         String endDateStr = request.getParameter("endDate");
 
         System.out.println("Request hasDate: "+ request.getParameter("hasDate"));
-        
-        boolean hasDate = Boolean.parseBoolean(request.getParameter("hasDate"));
+        hasDate = Boolean.parseBoolean(request.getParameter("hasDate"));
 
         System.out.println("Start Date: " + startDateStr);
         System.out.println("End Date: " + endDateStr);
@@ -78,7 +79,15 @@ public class FrontendQueryDatastore extends HttpServlet {
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        Query query = new Query("MapImage").setFilter(compositeFilter);
+        if(hasDate) {
+            // Sort by date so later merge sort is still grouped by date.
+            Query query = new Query("MapImage")
+                .setFilter(compositeFilter)
+                .addSort("Timestamp", SortDirection.ASCENDING);
+        } else {
+            // Datastore cannot preform a sort order b/c there are no inequality filters.
+            Query query = new Query("MapImage").setFilter(compositeFilter);
+        }
 
         // Add all the mapEntities that matched the filter
         PreparedQuery resultList = datastore.prepare(query);
@@ -88,6 +97,9 @@ public class FrontendQueryDatastore extends HttpServlet {
         } catch (DatastoreNeedIndexException e) {
             LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }
+
+        // Sort all the mapImages.
+        sortMapImages(mapImages);
 
         // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
@@ -251,5 +263,10 @@ public class FrontendQueryDatastore extends HttpServlet {
                         timeStamp);
         mapImage.setObjectID();
         return mapImage;
+    }
+
+    private sortMapImages(ArrayList<MapImages> mapImages) {
+        // Sort by merge sort based on Zoom.
+        // Maybe be able to see if the 0 filter mapImages come through.
     }
 }

@@ -167,15 +167,11 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** * Builds the zoom filters for the overall Composite Filter. * */
-    private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
+    private Filter buildZoomFilters(ArrayList<String> zoomStrings) throws IllegalArgumentException {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
-            try{
-                int zoom = Integer.parseInt(zoomStrings.get(i));
-                zoomFilters.add(buildIndividualZoomFilter(zoom));
-            } catch (NumberFormatException e) {
-                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
-            }
+            int zoom = Integer.parseInt(zoomStrings.get(i));
+            zoomFilters.add(buildIndividualZoomFilter(zoom));
         }
         if (zoomFilters.size() > 1) {
             return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);

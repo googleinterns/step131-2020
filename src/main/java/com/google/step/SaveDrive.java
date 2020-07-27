@@ -58,7 +58,7 @@ public class SaveDrive extends HttpServlet {
             Query<Entity> query = Query.newEntityQueryBuilder().setKind("DriveMapImage").build();
             // Get objects from Datastore
             QueryResults<Entity> resultList = datastore.run(query);
-            ArrayList<MapImage> mapImages = entitiesToMapImages(resultList);
+            ArrayList<MapImage> mapImages = HelperMethods.entitiesToMapImages(resultList);
             for (MapImage image : mapImages) {
                 try {
                     long timeRemaining = ApiProxy.getCurrentEnvironment().getRemainingMillis();
@@ -90,34 +90,6 @@ public class SaveDrive extends HttpServlet {
                 }
             }
         }
-    }
-
-    private ArrayList<MapImage> entitiesToMapImages(QueryResults<Entity> resultList) {
-        ArrayList<MapImage> resultMapImages = new ArrayList<>();
-        while (resultList.hasNext()) { // While we still have data
-            resultMapImages.add(
-                    entityToMapImage(resultList.next())); // Add the MapImage to the List
-        }
-        return resultMapImages;
-    }
-
-    /*
-     *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-     *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-     */
-    private MapImage entityToMapImage(Entity entity) {
-        double latitude = entity.getDouble("Latitude");
-        double longitude = entity.getDouble("Longitude");
-        String cityName = entity.getString("City Name");
-        int zoom = (int) entity.getLong("Zoom");
-        int month = (int) entity.getLong("Month");
-        int year = (int) entity.getLong("Year");
-        long timeStamp = entity.getLong("Time Stamp");
-
-        MapImage mapImage =
-                new MapImage(longitude, latitude, cityName, zoom, month, year, timeStamp);
-        mapImage.setObjectID();
-        return mapImage;
     }
 
     private URL getFileURL(Storage storage, String objectID) {

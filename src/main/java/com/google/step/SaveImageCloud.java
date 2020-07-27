@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,15 +40,14 @@ import javax.servlet.http.HttpServletResponse;
 public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
-    private Date date = new Date();
-    private String month = String.format("%tm", date);
-    private String year = String.format("%TY", date);
+    private Date date = null;
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         BufferedReader reader = request.getReader();
+        date = new Date();
         Gson gson = new Gson();
         ArrayList<MapImage> mapImages =
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
@@ -57,9 +56,11 @@ public class SaveImageCloud extends HttpServlet {
         // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {
+                MapImage mapImage = mapImages.get(i);
                 byte[] imageData = getImageData(requestUrls.get(i));
-                saveImageToCloudStorage(imageData, mapImages.get(i));
-            } catch (DeadlineExceededException e) {
+                updateMetadata(mapImage, date);
+                saveImageToCloudStorage(imageData, mapImage);
+            } catch (DeadlineExceededException | IOException | StorageException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
                 throw e;
             }
@@ -93,9 +94,9 @@ public class SaveImageCloud extends HttpServlet {
         return bos.toByteArray();
     }
 
-    private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
-            throws StorageException {
-        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+    private void updateMetadata(MapImage mapImage, Date date) {
+        String month = String.format("%tm", date);
+        String year = String.format("%TY", date);
         // TODO: Revert mapImage.setMonth() code to below before Aug 1.
         // mapImage.setMonth(Integer.parseInt(month));
         mapImage.setMonth(MapImage.FAKE_CRON_MONTH);
@@ -105,9 +106,15 @@ public class SaveImageCloud extends HttpServlet {
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
         long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         mapImage.setTimeStamp(epoch);
+    }
+
+    private Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
+            throws StorageException {
+        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
         Blob blob = storage.create(blobInfo, imageData);
+        return blob;
     }
 
     private ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {

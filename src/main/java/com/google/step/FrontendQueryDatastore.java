@@ -182,9 +182,10 @@ public class FrontendQueryDatastore extends HttpServlet {
         for (Entity entity : resultList.asIterable()) {
             MapImage mapImage = entityToMapImage(entity);
             // Check for timestamps older than the CRON_EPOCH to prevent duplicates from displaying.
-            // This will cause August mapImages not to display, but this code will be taken out before Aug 1.
+            // This will cause August mapImages not to display, but this code will be taken out
+            // before Aug 1.
             // TODO: Remove this if statement before Aug 1.
-            if(mapImage.getMonth() != MapImage.FAKE_CRON_MONTH) {
+            if (mapImage.getMonth() != MapImage.FAKE_CRON_MONTH) {
                 resultMapImages.add(mapImage);
             }
         }

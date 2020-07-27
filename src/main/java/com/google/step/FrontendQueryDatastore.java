@@ -89,7 +89,7 @@ public class FrontendQueryDatastore extends HttpServlet {
             Query query = new Query("MapImage").setFilter(compositeFilter);
         }
 
-        // Add all the mapEntities that matched the filter
+        // Add all the mapEntities that matched the filter.
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
@@ -266,7 +266,10 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     private sortMapImages(ArrayList<MapImages> mapImages) {
-        // Sort by merge sort based on Zoom.
+        // Sort by merge sort based on Zoom since all entities have zoom.
         // Maybe be able to see if the 0 filter mapImages come through.
+        mergeSortRecursive();
+        System.out.println(mapImages.toString());
+        return mapImages;
     }
 }

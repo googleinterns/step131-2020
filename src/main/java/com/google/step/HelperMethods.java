@@ -1,7 +1,11 @@
 package com.google.step;
 
+import static java.lang.Math.toIntExact;
+
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.QueryResults;
 import java.util.ArrayList;
 
 public class HelperMethods {

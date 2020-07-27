@@ -54,13 +54,14 @@ public class SaveImageCloud extends HttpServlet {
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
-        // There are an equal number of elements in mapImages & requestUrls.
+        // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
             } catch (DeadlineExceededException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
+                throw e;
             }
         }
 

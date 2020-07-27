@@ -40,8 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-    // Sub-daily cron job uses month "13" as a sentinel to prevent duplicate MapImages from displaying.
-    private final int FAKE_CRON_MONTH = 13;
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
@@ -186,7 +184,7 @@ public class FrontendQueryDatastore extends HttpServlet {
             // Check for timestamps older than the CRON_EPOCH to prevent duplicates from displaying.
             // This will cause August mapImages not to display, but this code will be taken out before Aug 1.
             // TODO: Remove this if statement before Aug 1.
-            if(mapImage.getMonth() != FAKE_CRON_MONTH) {
+            if(mapImage.getMonth() != MapImage.FAKE_CRON_MONTH) {
                 resultMapImages.add(mapImage);
             }
         }

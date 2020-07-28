@@ -1,5 +1,6 @@
 package com.google.step;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Assert;
@@ -7,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.util.Date;
 
 @RunWith(JUnit4.class)
 public final class SaveImageCloudTest {
@@ -38,8 +38,12 @@ public final class SaveImageCloudTest {
     public void nonNullImageData() {
         String url =
                 "https://maps.googleapis.com/maps/api/staticmap?center=59.3248943,18.0688734&zoom=6&size=640x640&scale=2&key=AIzaSyA75DbMo0voP63IzAQykD1xXhPEI8_F984";
-        byte[] imageData = saveCloud.getImageData(url);
-        assert imageData != null : "Expected non-null image data";
+        try {
+            byte[] imageData = saveCloud.getImageData(url);
+            assert true;
+        } catch (IOException e) {
+            assert false : e.getMessage();
+        }
     }
 
     @Test

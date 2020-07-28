@@ -86,7 +86,7 @@ public class SaveImageCloud extends HttpServlet {
         con.getInputStream().close();
     }
 
-    public byte[] getImageData(String requestURL) {
+    public byte[] getImageData(String requestURL) throws IOException {
         try {
             URL url = new URL(requestURL);
             BufferedImage image = ImageIO.read(url);
@@ -95,7 +95,7 @@ public class SaveImageCloud extends HttpServlet {
             return bos.toByteArray();
         } catch (IOException e) {
             LOGGER.severe(e.getMessage());
-            return null;
+            throw e;
         }
     }
 
@@ -113,7 +113,8 @@ public class SaveImageCloud extends HttpServlet {
         mapImage.setTimeStamp(epoch);
     }
 
-    public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage) {
+    public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
+            throws StorageException {
         try {
             Storage storage =
                     StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
@@ -123,7 +124,7 @@ public class SaveImageCloud extends HttpServlet {
             return blob;
         } catch (StorageException e) {
             LOGGER.severe(e.getMessage());
-            return null;
+            throw e;
         }
     }
 

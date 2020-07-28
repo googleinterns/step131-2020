@@ -32,15 +32,15 @@ public class MapImage {
     private String url;
 
     public MapImage(
-            double longitude,
             double latitude,
+            double longitude,
             String cityName,
             int zoom,
             int month,
             int year,
             long timeStamp) {
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         this.cityName = cityName;
         this.zoom = zoom;
         this.month = month;

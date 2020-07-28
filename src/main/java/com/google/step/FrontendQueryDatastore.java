@@ -242,8 +242,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         Long timeStamp = (long) entity.getProperty("Timestamp");
         MapImage mapImage =
                 new MapImage(
-                        longitude,
                         latitude,
+                        longitude,
                         cityName,
                         toIntExact(zoom),
                         toIntExact(month),

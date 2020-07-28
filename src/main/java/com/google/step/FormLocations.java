@@ -36,8 +36,6 @@ public class FormLocations extends HttpServlet {
             double latitude = (double) entity.getProperty("latitude");
             double longitude = (double) entity.getProperty("longitude");
 
-            MapImage trackedLocation = new MapImage(location, latitude, longitude);
-            formLocationOptions.add(trackedLocation);
         }
 
         Gson gson = new Gson();

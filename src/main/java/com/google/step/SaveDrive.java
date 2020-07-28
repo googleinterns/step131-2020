@@ -115,7 +115,7 @@ public class SaveDrive extends HttpServlet {
         long timeStamp = entity.getLong("Time Stamp");
 
         MapImage mapImage =
-                new MapImage(longitude, latitude, cityName, zoom, month, year, timeStamp);
+                new MapImage(latitude, longitude, cityName, zoom, month, year, timeStamp);
         mapImage.setObjectID();
         return mapImage;
     }

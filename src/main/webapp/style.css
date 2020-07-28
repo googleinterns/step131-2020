@@ -63,13 +63,13 @@
   color: aliceblue;
   background-color: #000;
   padding: 10px 14px;
-  opacity: .8;
+  opacity: 0.8;
   grid-row: 1; /* place in first row */
   grid-column: 1;  /* place in first column */
   align-self: flex-start; /* take auto-width */
 }
 
 .tile:hover {
-  border: 1px solid #0066FF;
-  opacity: .55;
+  border: 1px solid #0066ff;
+  opacity: 0.55;
 }

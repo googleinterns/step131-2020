@@ -19,22 +19,23 @@ $(document).ready(function() {
                 const url = array[i].url;
                 console.log(i + 'URL is ' + url);
 
-                var div = document.createElement('div');
+                let div = document.createElement('div');
                 div.className = 'tile';
                 div.id = 'Item' + i;
 
-                var atag = document.createElement('a');
+                let atag = document.createElement('a');
                 atag.id = 'a' + i;
                 $('a' + i).attr('href', '#');
 
-                var image = document.createElement('img');
+                let image = document.createElement('img');
                 image.id = 'Image' + i;
                 image.src = url;
- 
+
                 h4 = document.createElement('h4');
-                h4.textContent = array[i].cityName + ' on ' + array[i].month + '/' + array[i].year + ' zoom level ' + array[i].zoom;
+                h4.textContent = array[i].cityName + ' on ' + array[i].month
+                    + '/' + array[i].year + ' zoom level ' + array[i].zoom;
                 atag.appendChild(image);
-                div.appendChild(atag);                
+                div.appendChild(atag);
                 div.appendChild(h4);
                 $('#requested-images').append(div);
             }
@@ -45,19 +46,21 @@ $(document).ready(function() {
     fetch('/start-save-drive');
 });
 
-window.map = undefined;      // global variable
+window.map = undefined;
 
 /** Makes a map and adds it to the page. */
 function createMap() {
-    window.map = new google.maps.Map(document.getElementById('map'), {center: {lat: 35.9128, lng: -100.3821}, zoom: 5});
+    window.map = new google.maps.Map(document.getElementById('map'),
+        {center: {lat: 35.9128, lng: -100.3821}, zoom: 5});
 }
 
-var locOrderSet = new Set();
+let locOrderSet = new Set();
+/** Update preview location to most recently selected location in form. */
 function updateLocation() {
-    var option;
-    var locArray = []
-    var locations = document.getElementById('locations');
-    for (var i = 0; i < locations.length; i++) {
+    let option;
+    let locArray = [];
+    let locations = document.getElementById('locations');
+    for (let i = 0; i < locations.length; i++) {
         option = locations.options[i];
         if (option.selected) {
             locArray.push(option.getAttribute('coords'));
@@ -66,44 +69,46 @@ function updateLocation() {
     if (locArray.length == 0) {
         (window.map).panTo(new google.maps.LatLng(35.9128, -100.3821));
     } else {
-        var locSet = new Set(locArray);
-        for (var location of locArray) {
+        let locSet = new Set(locArray);
+        for (let location of locArray) {
             if (!(locOrderSet.has(location))) {
                 locOrderSet.add(location);
             }
         }
-        for (var loc of Array.from(locOrderSet.values())) {
+        for (let loc of Array.from(locOrderSet.values())) {
             if (!(locSet.has(loc))) {
                 locOrderSet.delete(loc);
             }
         }
-        var locOrderArray = Array.from(locOrderSet.values());
-        var lastSelected = locOrderArray[locOrderArray.length - 1];
-        var coords = lastSelected.split(' ');
-        const center = new google.maps.LatLng(parseFloat(coords[0]), parseFloat(coords[1]));
+        let locOrderArray = Array.from(locOrderSet.values());
+        let lastSelected = locOrderArray[locOrderArray.length - 1];
+        let coords = lastSelected.split(' ');
+        const center = new google.maps.LatLng(parseFloat(coords[0]),
+            parseFloat(coords[1]));
         (window.map).panTo(center);
     }
 }
 
-var zoomOrderSet = new Set();
+let zoomOrderSet = new Set();
+/** Update preview zoom to most recently form-selected zoom level. */
 function updateZoom() {
-    var zoomArray = $('#zoom').val();
+    let zoomArray = $('#zoom').val();
     if (zoomArray.length == 0) {
         (window.map).setZoom(5);
     } else {
-        var zoomSet = new Set(zoomArray);
-        for (var zoom of zoomArray) {
+        let zoomSet = new Set(zoomArray);
+        for (let zoom of zoomArray) {
             if (!(zoomOrderSet.has(zoom))) {
                 zoomOrderSet.add(zoom);
             }
         }
-        for (var zoom of Array.from(zoomOrderSet.values())) {
+        for (let zoom of Array.from(zoomOrderSet.values())) {
             if (!(zoomSet.has(zoom))) {
                 zoomOrderSet.delete(zoom);
             }
         }
-        var zoomOrderArray = Array.from(zoomOrderSet.values());
-        var lastSelected = zoomOrderArray[zoomOrderArray.length - 1];      
+        let zoomOrderArray = Array.from(zoomOrderSet.values());
+        let lastSelected = zoomOrderArray[zoomOrderArray.length - 1];
         (window.map).setZoom(parseInt(lastSelected));
     }
 }
@@ -115,8 +120,10 @@ function loadLocations() {
             $('#locations').empty();
             for (let j = 0; j < locations.length; j++) {
                 const option = $('<option></option>')
-                    .attr('value', locations[j].cityName).text(locations[j].cityName);
-                    option.attr('coords', locations[j].latitude + ' ' + locations[j].longitude);
+                    .attr('value', locations[j].cityName)
+                    .text(locations[j].cityName);
+                option.attr('coords', locations[j].latitude + ' '
+                    + locations[j].longitude);
                 $('#locations').append(option);
             }
             $('#locations').val(locations[0].cityName);
@@ -192,7 +199,7 @@ async function clearImages() {
 //    if(err) {
 //       throw err; // or handle the error
 //    }
-//    var zip = new JSZip();
+//    let zip = new JSZip();
 //    zip.file('img.png', data, {binary:true});zip.generateAsync({type:'blob'})
 //     .then(function (blob) {
 //         saveAs(blob, 'hello.zip');

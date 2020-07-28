@@ -4,8 +4,6 @@ import static java.lang.Math.toIntExact;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.QueryResults;
 import java.util.ArrayList;
 
 public class HelperMethods {
@@ -24,15 +22,6 @@ public class HelperMethods {
             if (mapImage.getMonth() != MapImage.FAKE_CRON_MONTH) {
                 resultMapImages.add(mapImage);
             }
-        }
-        return resultMapImages;
-    }
-
-    public static ArrayList<MapImage> entitiesToMapImages(QueryResults<Entity> resultList) {
-        ArrayList<MapImage> resultMapImages = new ArrayList<>();
-        while (resultList.hasNext()) { // While we still have data
-            resultMapImages.add(
-                    entityToMapImage(resultList.next())); // Add the MapImage to the List
         }
         return resultMapImages;
     }

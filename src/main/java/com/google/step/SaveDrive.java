@@ -7,15 +7,15 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.apphosting.api.ApiProxy;
 import com.google.apphosting.api.ApiProxy.CancelledException;
 import com.google.apphosting.api.DeadlineExceededException;
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
@@ -54,10 +54,10 @@ public class SaveDrive extends HttpServlet {
                             .setApplicationName(PROJECT_ID)
                             .build();
             Storage storage = StorageOptions.getDefaultInstance().getService();
-            Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-            Query<Entity> query = Query.newEntityQueryBuilder().setKind("DriveMapImage").build();
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            Query query = new Query("DriveMapImage");
             // Get objects from Datastore
-            QueryResults<Entity> resultList = datastore.run(query);
+            PreparedQuery resultList = datastore.prepare(query);
             ArrayList<MapImage> mapImages = HelperMethods.entitiesToMapImages(resultList);
             for (MapImage image : mapImages) {
                 try {
@@ -81,9 +81,7 @@ public class SaveDrive extends HttpServlet {
                                     .setFields("id")
                                     .execute();
                     // Delete the DriveMapImage entity from Datastore
-                    Key key =
-                            Key.newBuilder(PROJECT_ID, "DriveMapImage", image.getObjectID())
-                                    .build();
+                    Key key = new KeyFactory.Builder("DriveMapImage", image.getObjectID()).getKey();
                     datastore.delete(key);
                 } catch (CancelledException | DeadlineExceededException | IOException e) {
                     LOGGER.severe(e.getMessage());
@@ -98,7 +96,7 @@ public class SaveDrive extends HttpServlet {
                 blobInfo, 3, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature());
     }
 
-    private FileList getParentFolder(String parentID, String folderName) {
+    private FileList getParentFolder(String parentID, String folderName) throws IOException {
         FileList result =
                 drive.files()
                         .list()
@@ -117,7 +115,7 @@ public class SaveDrive extends HttpServlet {
         return result;
     }
 
-    private File createFolder(String parentID, String folderName) {
+    private File createFolder(String parentID, String folderName) throws IOException {
         File fileMetadata = new File();
         fileMetadata.setName(folderName);
         fileMetadata.setParents(Collections.singletonList(parentID));

@@ -60,7 +60,7 @@ public class SaveImageCloud extends HttpServlet {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 updateMetadata(mapImage, date);
                 saveImageToCloudStorage(imageData, mapImage);
-            } catch (DeadlineExceededException | IOException | StorageException e) {
+            } catch (DeadlineExceededException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
                 throw e;
             }
@@ -86,15 +86,20 @@ public class SaveImageCloud extends HttpServlet {
         con.getInputStream().close();
     }
 
-    private byte[] getImageData(String requestURL) throws IOException {
-        URL url = new URL(requestURL);
-        BufferedImage image = ImageIO.read(url);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", bos);
-        return bos.toByteArray();
+    public byte[] getImageData(String requestURL) {
+        try {
+            URL url = new URL(requestURL);
+            BufferedImage image = ImageIO.read(url);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", bos);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            LOGGER.severe(e.getMessage());
+            return null;
+        }
     }
 
-    private void updateMetadata(MapImage mapImage, Date date) {
+    public void updateMetadata(MapImage mapImage, Date date) {
         String month = String.format("%tm", date);
         String year = String.format("%TY", date);
         // TODO: Revert mapImage.setMonth() code to below before Aug 1.
@@ -108,16 +113,21 @@ public class SaveImageCloud extends HttpServlet {
         mapImage.setTimeStamp(epoch);
     }
 
-    private Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
-            throws StorageException {
-        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
-        Blob blob = storage.create(blobInfo, imageData);
-        return blob;
+    public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage) {
+        try {
+            Storage storage =
+                    StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+            BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
+            Blob blob = storage.create(blobInfo, imageData);
+            return blob;
+        } catch (StorageException e) {
+            LOGGER.severe(e.getMessage());
+            return null;
+        }
     }
 
-    private ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
+    public ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
         ArrayList<String> requestUrls = new ArrayList<>();
         for (MapImage mapImage : mapImages) {
             StringBuilder requestUrl =

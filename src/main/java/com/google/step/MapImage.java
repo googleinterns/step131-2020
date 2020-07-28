@@ -55,6 +55,13 @@ public class MapImage {
         this.zoom = zoom;
     }
 
+    /** Overload the constructor loading tracked locations from Datastore. * */
+    public MapImage(String location, double latitude, double longitude) {
+        this.cityName = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     /**
      * Sets object's ID based off of attributes: year, month, name of city, and zoom level in this
      * order.

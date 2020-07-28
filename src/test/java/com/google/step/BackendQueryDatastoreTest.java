@@ -11,11 +11,12 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.api.datastore.dev.LocalDatastoreService.AutoIdAllocationPolicy;
@@ -33,16 +34,27 @@ public final class BackendQueryDatastoreTest {
 
     MapImage MAP_IMAGE_A = new MapImage(77.2176496, 28.6282961, "Delhi", 10, 7, 2020, 1594038988);
     MapImage MAP_IMAGE_B = new MapImage(-0.0911334, 51.5054466, "London", 7, 7, 2020, 1594038988);
+    MapImage TRACKED_LOCATION_MAP_IMAGE_A = new MapImage(77.2176496, 28.6282961, "Delhi", 10);
+    MapImage TRACKED_LOCATION_MAP_IMAGE_B = new MapImage(-0.0911334, 51.5054466, "London", 7);
     Entity TRACKED_LOCATION_ENTITY_A;
     Entity TRACKED_LOCATION_ENTITY_B;
 
     @Before
     public void setUp() {
-        //NOTE: Instantiating the Entity before performing helper.setUp() causes the API error.
+        //NOTE: Instantiating Entities before performing helper.setUp() causes the API error.
         helper.setUp();
         datastore = DatastoreServiceFactory.getDatastoreService();
+
+        // Set up Datastore entities.
         TRACKED_LOCATION_ENTITY_A = new Entity("TrackedLocation");
         TRACKED_LOCATION_ENTITY_B = new Entity("TrackedLocation");
+        TRACKED_LOCATION_ENTITY_A.setProperty("latitude", 28.6282961);
+        TRACKED_LOCATION_ENTITY_A.setProperty("longitude", 77.2176496);
+        TRACKED_LOCATION_ENTITY_A.setProperty("cityName", "Delhi");
+        TRACKED_LOCATION_ENTITY_B.setProperty("latitude", 51.5054466);
+        TRACKED_LOCATION_ENTITY_B.setProperty("longitude", -0.0911334);
+        TRACKED_LOCATION_ENTITY_B.setProperty("cityName", "London");
+
         backendQueryDatastore = new BackendQueryDatastore();
     }
 
@@ -53,30 +65,62 @@ public final class BackendQueryDatastoreTest {
 
     @Test
     public void getQuery_HasProperQuantity() {
-        // Set up Datastore entities.
-        TRACKED_LOCATION_ENTITY_A.setProperty("latitude", 28.6282961);
-        TRACKED_LOCATION_ENTITY_A.setProperty("longitude", 77.2176496);
-        TRACKED_LOCATION_ENTITY_A.setProperty("cityName", "Delhi");
-        TRACKED_LOCATION_ENTITY_B.setProperty("latitude", 51.5054466);
-        TRACKED_LOCATION_ENTITY_B.setProperty("longitude", -0.0911334);
-        TRACKED_LOCATION_ENTITY_B.setProperty("cityName", "London");
+        // Put the tracked locations into datastore.
         datastore.put(TRACKED_LOCATION_ENTITY_A);
         datastore.put(TRACKED_LOCATION_ENTITY_B);
 
+        // Make sure datastore has the right # of entities.
         PreparedQuery actual = backendQueryDatastore.getQuery();
         Assert.assertEquals(2, actual.countEntities());
     }
 
     @Test
-    public void loadTrackedLocations() {
-//        DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-//        PreparedQuery results = datastore.prepare(new Query("trackedLocations"));
-//        List<MapImage> actual = backendQueryDatastore.loadTrackedLocations(results);
-//        List<MapImage> expected = new ArrayList<>();
-//        expected.add(MAP_IMAGE_A);
-//        expected.add(MAP_IMAGE_B);
-//
-//        Assert.assertEquals(expected, actual);
-        System.out.println("yo");
+    public void loadProperAmountOfTrackedLocations() {
+        // Put the tracked locations into datastore.
+        datastore.put(TRACKED_LOCATION_ENTITY_A);
+        datastore.put(TRACKED_LOCATION_ENTITY_B);
+
+        // Load the tracked locations from Datastore.
+        Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
+        PreparedQuery results =datastore.prepare(query);  
+        List<MapImage> actual = backendQueryDatastore.loadTrackedLocations(results);
+
+        // Add all tracked locations from start to end zooms in expected.
+        List<MapImage> expected = new ArrayList<>();
+        for (int zoom = 5; zoom <= 18; zoom++) {
+            TRACKED_LOCATION_MAP_IMAGE_A.setZoom(zoom);
+            TRACKED_LOCATION_MAP_IMAGE_B.setZoom(zoom);
+            expected.add(TRACKED_LOCATION_MAP_IMAGE_A);
+            expected.add(TRACKED_LOCATION_MAP_IMAGE_B);
+        }
+
+        Assert.assertEquals(expected.size(), actual.size());
+    }
+
+    @Test
+    public void loadProperCityNames() {
+        // Put the tracked locations into datastore.
+        datastore.put(TRACKED_LOCATION_ENTITY_A);
+        datastore.put(TRACKED_LOCATION_ENTITY_B);
+
+        // Load the tracked locations from Datastore.
+        Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
+        PreparedQuery results =datastore.prepare(query);  
+        List<MapImage> actual = backendQueryDatastore.loadTrackedLocations(results);
+
+        // Add all tracked locations from start to end zooms in expected.
+        List<MapImage> expected = new ArrayList<>();
+        for (int zoom = 5; zoom <= 18; zoom++) {
+            TRACKED_LOCATION_MAP_IMAGE_A.setZoom(zoom);
+            TRACKED_LOCATION_MAP_IMAGE_B.setZoom(zoom);
+            expected.add(TRACKED_LOCATION_MAP_IMAGE_A);
+            expected.add(TRACKED_LOCATION_MAP_IMAGE_B);
+        }
+
+        // Get an element from the second set of tracked locations added.
+        MapImage actualMapImage = actual.get(0);
+        MapImage expectedMapImage = expected.get(0);
+
+        Assert.assertEquals(expectedMapImage.getCityName(), actualMapImage.getCityName());
     }
 }

@@ -2,6 +2,7 @@ package com.google.step;
 
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
+
     /** Snapshot's longitude coordinate. */
     private double longitude;
 
@@ -41,6 +42,13 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
+    public MapImage (double longitude, double latitude, String cityName, int zoom) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.cityName = cityName;
+        this.zoom = zoom;
+    }
+
     /** Overload the constructor for faster loading & querying from Datastore. * */
     public MapImage(double latitude, double longitude, int zoom) {
         this.latitude = latitude;
@@ -72,6 +80,10 @@ public class MapImage {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public void setZoom(int zoom) {
+        this.zoom = zoom;
     }
 
     public void setTimeStamp(long timeStamp) {

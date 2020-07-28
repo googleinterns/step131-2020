@@ -30,7 +30,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.StringBuilder;
 
 /**
  * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
@@ -39,7 +38,7 @@ import java.lang.StringBuilder;
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
+    private final String PROJECTtem.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
     // Sub-daily cron job uses month "13" as a sentinel to prevent duplicate MapImages from displaying.
     private final int FAKE_CRON_MONTH = 13;
@@ -110,18 +109,21 @@ public class FrontendQueryDatastore extends HttpServlet {
      * locations based off user-input values from the form. *
      */
     private CompositeFilter buildCompositeFilter(
-            ArrayList<String> zoomStrings, ArrayList<String> cityStrings, String startDateStr, String endDateStr) {
+            ArrayList<String> zoomStrings,
+            ArrayList<String> cityStrings,
+            String startDateStr,
+            String endDateStr) {
         // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
         // For complex queries like these, an index must be made & deployed before building query.
         // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.
         ArrayList<Filter> filters = new ArrayList<>();
-        
+
         // Build city filters.
         if (!cityStrings.isEmpty()) {
             filters.add(buildCityFilters(cityStrings));
         }
         // Build zoom filters.
-        if(!zoomStrings.isEmpty()) {
+        if (!zoomStrings.isEmpty()) {
             filters.add(buildZoomFilters(zoomStrings));
         }
         // Build date filters.
@@ -148,17 +150,15 @@ public class FrontendQueryDatastore extends HttpServlet {
             // NOTE: Sometimes all the images won't load the first time, but will the second time.
             compositeFilter = new CompositeFilter(CompositeFilterOperator.AND, filters);
         }
-        System.out.println("Filters Size: " + filters.size());
-        System.out.println("Filters: " + filters.toString());
         return compositeFilter;
     }
 
-    /** Helper function for buildCityFilters **/
+    /** Helper function for buildCityFilters * */
     private Filter buildIndividualCityFilter(String city) {
         return FilterOperator.EQUAL.of("City Name", city);
     }
 
-    /** Builds the city filters for the overall Composite Filter **/
+    /** Builds the city filters for the overall Composite Filter * */
     private Filter buildCityFilters(ArrayList<String> cityStrings) {
         ArrayList<Filter> cityFilters = new ArrayList<>();
         for (int i = 0; i < cityStrings.size(); i++) {
@@ -173,7 +173,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         }
     }
 
-    /** Helper function for buildZoomFilters **/
+    /** Helper function for buildZoomFilters * */
     private Filter buildIndividualZoomFilter(int zoom) {
         return FilterOperator.EQUAL.of("Zoom", zoom);
     }
@@ -182,7 +182,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
-            try{
+            try {
                 int zoom = Integer.parseInt(zoomStrings.get(i));
                 zoomFilters.add(buildIndividualZoomFilter(zoom));
             } catch (NumberFormatException e) {
@@ -215,9 +215,9 @@ public class FrontendQueryDatastore extends HttpServlet {
         for (Entity entity : resultList.asIterable()) {
             MapImage mapImage = entityToMapImage(entity);
             // Check for timestamps older than the CRON_EPOCH to prevent duplicates from displaying.
-            // This will cause August mapImages not to display, but this code will be taken out before Aug 1.
+            // This code causes August MapImages not to display but will remove before Aug 1.
             // TODO: Remove this if statement before Aug 1.
-            if(mapImage.getMonth() != FAKE_CRON_MONTH) {
+            if (mapImage.getMonth() != FAKE_CRON_MONTH) {
                 resultMapImages.add(mapImage);
             }
         }
@@ -250,7 +250,6 @@ public class FrontendQueryDatastore extends HttpServlet {
                         toIntExact(year),
                         timeStamp);
         mapImage.setObjectID();
-        System.out.println("ObjectID: " + mapImage.getObjectID());
         return mapImage;
     }
 }

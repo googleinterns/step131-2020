@@ -25,18 +25,18 @@ $(document).ready(function() {
 
                 var atag = document.createElement('a');
                 atag.id = 'a' + i;
-                $("a" + i).attr("href", "#");
+                $('a' + i).attr('href', '#');
 
                 var image = document.createElement('img');
                 image.id = 'Image' + i;
                 image.src = url;
  
-                h4 = document.createElement("h4");
+                h4 = document.createElement('h4');
                 h4.textContent = array[i].cityName + ' on ' + array[i].month + '/' + array[i].year + ' zoom level ' + array[i].zoom;
                 atag.appendChild(image);
                 div.appendChild(atag);                
                 div.appendChild(h4);
-                $("#requested-images").append(div);
+                $('#requested-images').append(div);
             }
         });
     });
@@ -54,46 +54,58 @@ function createMap() {
 
 var locOrderSet = new Set();
 function updateLocation() {
-    var locArray = $('#locations').val();
-    var locSet = new Set(locArray);
-
-    for (var location of locArray) {
-        if (!(locOrderSet.has(location))) {
-            locOrderSet.add(location);
+    var option;
+    var locArray = []
+    var locations = document.getElementById('locations');
+    for (var i = 0; i < locations.length; i++) {
+        option = locations.options[i];
+        if (option.selected) {
+            locArray.push(option.getAttribute('coords'));
         }
     }
-    for (var loc of Array.from(locOrderSet.values())) {
-        if (!(locSet.has(loc))) {
-            locOrderSet.delete(loc);
+    if (locArray.length == 0) {
+        (window.map).panTo(new google.maps.LatLng(35.9128, -100.3821));
+    } else {
+        var locSet = new Set(locArray);
+        for (var location of locArray) {
+            if (!(locOrderSet.has(location))) {
+                locOrderSet.add(location);
+            }
         }
-    }  
-    
-    var locOrderArray = Array.from(locOrderSet.values());
-    var lastSelected = locOrderArray[locOrderArray.length - 1];
-    var coords = lastSelected.split(' ');
-    const center = new google.maps.LatLng(parseFloat(coords[0]), parseFloat(coords[1]));
-    (window.map).panTo(center);
+        for (var loc of Array.from(locOrderSet.values())) {
+            if (!(locSet.has(loc))) {
+                locOrderSet.delete(loc);
+            }
+        }
+        var locOrderArray = Array.from(locOrderSet.values());
+        var lastSelected = locOrderArray[locOrderArray.length - 1];
+        var coords = lastSelected.split(' ');
+        const center = new google.maps.LatLng(parseFloat(coords[0]), parseFloat(coords[1]));
+        (window.map).panTo(center);
+    }
 }
 
 var zoomOrderSet = new Set();
 function updateZoom() {
     var zoomArray = $('#zoom').val();
-    var zoomSet = new Set(zoomArray);
-
-    for (var zoom of zoomArray) {
-        if (!(zoomOrderSet.has(zoom))) {
-            zoomOrderSet.add(zoom);
+    if (zoomArray.length == 0) {
+        (window.map).setZoom(5);
+    } else {
+        var zoomSet = new Set(zoomArray);
+        for (var zoom of zoomArray) {
+            if (!(zoomOrderSet.has(zoom))) {
+                zoomOrderSet.add(zoom);
+            }
         }
+        for (var zoom of Array.from(zoomOrderSet.values())) {
+            if (!(zoomSet.has(zoom))) {
+                zoomOrderSet.delete(zoom);
+            }
+        }
+        var zoomOrderArray = Array.from(zoomOrderSet.values());
+        var lastSelected = zoomOrderArray[zoomOrderArray.length - 1];      
+        (window.map).setZoom(parseInt(lastSelected));
     }
-    for (var zoom of Array.from(zoomOrderSet.values())) {
-        if (!(zoomSet.has(zoom))) {
-            zoomOrderSet.delete(zoom);
-        }
-    }  
-    
-    var zoomOrderArray = Array.from(zoomOrderSet.values());
-    var lastSelected = zoomOrderArray[zoomOrderArray.length - 1];      
-    (window.map).setZoom(parseInt(lastSelected));
 }
 
 /** Loads the location options for the form through Datastore. */
@@ -103,10 +115,11 @@ function loadLocations() {
             $('#locations').empty();
             for (let j = 0; j < locations.length; j++) {
                 const option = $('<option></option>')
-                    .attr('value', locations[j].latitude + ' ' + locations[j].longitude).text(locations[j].cityName);
+                    .attr('value', locations[j].cityName).text(locations[j].cityName);
+                    option.attr('coords', locations[j].latitude + ' ' + locations[j].longitude);
                 $('#locations').append(option);
             }
-            $('#locations').val(locations[0].latitude + ' ' + locations[0].longitude);
+            $('#locations').val(locations[0].cityName);
             $('#locations').selectpicker('refresh');
             $('#locations').selectpicker('render');
             $('#zoom').selectpicker('refresh');
@@ -114,7 +127,7 @@ function loadLocations() {
             $('#locations + button').children('.filter-option')
                 .prepend('<span class="dropdown-title">Locations</span>');
             $('#zoom + button').children('.filter-option')
-                .prepend('<span class="dropdown-title">Zoom Level</span>');            
+                .prepend('<span class="dropdown-title">Zoom Level</span>');
         });
 }
 

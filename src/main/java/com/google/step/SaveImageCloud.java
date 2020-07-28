@@ -18,39 +18,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.net.HttpURLConnection;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
-import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
-import com.google.api.services.drive.Drive.Files;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.lang.StringBuilder;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import com.google.apphosting.api.DeadlineExceededException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-import java.util.logging.Logger;
-import java.time.ZoneId;
 
 /**
  * This servlet stores Static Maps binary image data in Cloud. A POST request gets MapImages to make
@@ -77,13 +54,14 @@ public class SaveImageCloud extends HttpServlet {
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
-        // There are an equal number of elements in mapImages & requestUrls.
+        // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
             } catch (DeadlineExceededException e) {
-                // TODO: add error handling
+                LOGGER.log(Level.SEVERE, e.getMessage());
+                throw e;
             }
         }
 
@@ -118,12 +96,14 @@ public class SaveImageCloud extends HttpServlet {
     private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
             throws StorageException {
         Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        mapImage.setMonth(Integer.parseInt(month));
+        // TODO: Revert mapImage.setMonth() code to below before Aug 1.
+        // mapImage.setMonth(Integer.parseInt(month));
+        mapImage.setMonth(MapImage.FAKE_CRON_MONTH);
         mapImage.setYear(Integer.parseInt(year));
         mapImage.setObjectID();
         LocalDateTime time = LocalDateTime.now();
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         mapImage.setTimeStamp(epoch);
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();

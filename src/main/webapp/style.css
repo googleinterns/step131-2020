@@ -1,0 +1,22 @@
+#main-container {
+  padding: 17px 20px 20px;
+}
+
+#title {
+  color: #17a2b8;
+}
+
+.dropdown-title {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+#date-filter-label,
+.dropdown {
+  margin-right: 3px;
+}
+
+#submit-btn {
+  height: 62px;
+  text-transform: uppercase;
+}

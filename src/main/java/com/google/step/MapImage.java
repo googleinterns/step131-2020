@@ -2,6 +2,9 @@ package com.google.step;
 
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
+    // TODO(cgregori): Remove all references to FAKE_CRON_MONTH by Aug 1.
+    /** Sentinel month for sub-daily cron jobs to prevent duplicates */
+    static final int FAKE_CRON_MONTH = 13;
     /** Snapshot's longitude coordinate. */
     private double longitude;
 
@@ -20,7 +23,7 @@ public class MapImage {
     /** Year snapshot was took. */
     private int year;
 
-    /** Exact time snapshot was took. */
+    /** Exact time snapshot was took from Unix Epoch in seconds. */
     private long timeStamp;
 
     /**
@@ -29,9 +32,16 @@ public class MapImage {
     private String objectID;
 
     /** URL given by Cloud to display the image. */
-    private String url; 
+    private String url;
 
-    public MapImage(double longitude, double latitude, String cityName, int zoom, int month, int year, long timeStamp) {
+    public MapImage(
+            double longitude,
+            double latitude,
+            String cityName,
+            int zoom,
+            int month,
+            int year,
+            long timeStamp) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.cityName = cityName;

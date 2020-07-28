@@ -6,17 +6,25 @@ $(document).ready(function() {
     loadLocations();
     loadDateRange();
 
-    fetch('/query-cloud').then((response) => response.json()).then((array) => {
-        clearImages();
-        // array '{}' on page load: request made before form submission
-        // array not '{}' when request is made after form submission.
-        if (array !== '{}') {
+    $('#request-form').submit(function(event) {
+        event.preventDefault();
+        const formData = $('#request-form').serialize();
+        const formHeaders = new Headers();
+        formHeaders.append('Content-Type', 'application/x-www-form-urlencoded');
+        const request = new Request('/frontend-query-datastore',
+            {
+                method: 'POST',
+                headers: formHeaders,
+                body: formData,
+            });
+        fetch(request).then((response) => response.json()).then((array) => {
+            clearImages();
             for (let i = 0; i < array.length; i++) {
                 const url = array[i].url;
                 // TODO: create entire image list structure
                 $('#requested-images').append(`<li><img src='${url}'></li>`);
             }
-        }
+        });
     });
 
     // Upload files any files to Drive that need to be uploaded
@@ -29,13 +37,13 @@ function loadLocations() {
         .then((locations) => {
             $('#locations').empty();
             for (let j = 0; j < locations.length; j++) {
-                console.log(locations[j]);
                 const option = $('<option></option>')
                     .attr('value', locations[j]).text(locations[j]);
                 $('#locations').append(option);
             }
             $('#locations').val(locations[0]);
             $('#locations').selectpicker('refresh');
+            $('#locations').selectpicker('render');
         });
 }
 

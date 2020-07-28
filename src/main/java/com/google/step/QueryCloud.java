@@ -19,30 +19,13 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * This servlet retrieves binary image data from Cloud for corresponding MapImage instance. A POST
  * request gets image data to convert to a URL then sets the 'url' attribute of its MapImage
- * instance. A GET request writes the POST-modified MapImage ArrayList to write on the servlet.
+ * instance.
  */
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private static final Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
-    private ArrayList<MapImage> mapImages = null;
-
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Handles the request that is made before the form is submitted (on page load).
-        if (mapImages == null) {
-            response.getWriter().println("{}");
-        }
-        // Handles the request that is made after the form is submitted.
-        else {
-            Gson gson = new Gson();
-            String data = gson.toJson(mapImages);
-            response.setContentType("application/json");
-            response.getWriter().println(data);
-            mapImages = null;
-        }
-    }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -50,7 +33,8 @@ public class QueryCloud extends HttpServlet {
         try {
             BufferedReader reader = request.getReader();
             Gson gson = new Gson();
-            mapImages = gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
+            ArrayList<MapImage> mapImages =
+                    gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
             Storage storage = StorageOptions.getDefaultInstance().getService();
             mapImages.forEach(
                     image -> {
@@ -65,6 +49,9 @@ public class QueryCloud extends HttpServlet {
                                         .toString();
                         image.setURL(url);
                     });
+            String data = gson.toJson(mapImages);
+            response.setContentType("application/json");
+            response.getWriter().println(data);
         } catch (SigningException e) {
             LOGGER.severe(e.getCause().getMessage());
         }

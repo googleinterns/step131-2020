@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -53,13 +54,14 @@ public class SaveImageCloud extends HttpServlet {
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
-        // There are an equal number of elements in mapImages & requestUrls.
+        // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {
                 byte[] imageData = getImageData(requestUrls.get(i));
                 saveImageToCloudStorage(imageData, mapImages.get(i));
             } catch (DeadlineExceededException e) {
-                // TODO: add error handling
+                LOGGER.log(Level.SEVERE, e.getMessage());
+                throw e;
             }
         }
 
@@ -94,12 +96,14 @@ public class SaveImageCloud extends HttpServlet {
     private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
             throws StorageException {
         Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        mapImage.setMonth(Integer.parseInt(month));
+        // TODO: Revert mapImage.setMonth() code to below before Aug 1.
+        // mapImage.setMonth(Integer.parseInt(month));
+        mapImage.setMonth(MapImage.FAKE_CRON_MONTH);
         mapImage.setYear(Integer.parseInt(year));
         mapImage.setObjectID();
         LocalDateTime time = LocalDateTime.now();
         // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         mapImage.setTimeStamp(epoch);
         BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();

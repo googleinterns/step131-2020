@@ -1,5 +1,7 @@
 package com.google.step;
 
+import java.time.LocalDateTime;
+
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
     // TODO(cgregori): Remove all references to FAKE_CRON_MONTH by Aug 1.
@@ -122,5 +124,15 @@ public class MapImage {
 
     public String getURL() {
         return url;
+    }
+
+    public void updateMetadata(LocalDateTime time) {
+        // TODO: Revert mapImage.setMonth() code to below before Aug 1.
+        // setMonth(time.getMonthValue());
+        setMonth(MapImage.FAKE_CRON_MONTH);
+        setYear(time.getYear());
+        setObjectID();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+        setTimeStamp(epoch);
     }
 }

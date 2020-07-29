@@ -8,14 +8,36 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import java.util.Date;
+import com.google.apphosting.api.DeadlineExceededException;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
+import com.google.cloud.storage.StorageOptions;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
 
 @RunWith(JUnit4.class)
 public final class SaveImageCloudTest {
     private SaveImageCloud saveCloud;
+    private LocalDateTime time;
 
     @Before
     public void setUp() {
         saveCloud = new SaveImageCloud();
+        time = LocalDateTime.of(2020, 13, 10, 9, 30);
     }
 
     @Test
@@ -35,26 +57,15 @@ public final class SaveImageCloudTest {
     }
 
     @Test
-    public void nonNullImageData() {
+    public void notNullImageData() {
         String url =
                 "https://maps.googleapis.com/maps/api/staticmap?center=59.3248943,18.0688734&zoom=6&size=640x640&scale=2&key=AIzaSyA75DbMo0voP63IzAQykD1xXhPEI8_F984";
         try {
             byte[] imageData = saveCloud.getImageData(url);
-            assert true;
+            Assert.assertNotNull(imageData);
         } catch (IOException e) {
             assert false : e.getMessage();
         }
-    }
-
-    @Test
-    public void updatedMetadata() {
-        // TODO: come up with test for "updateMetadata" method
-        // MapImage actual = new MapImage(40.7338366, -74.0043566, 5);
-        // Date date = new Date();
-        // String month = String.format("%tm", date);
-        // String year = String.format("%TY", date);
-        // MapImage expected = new MapImage(40.7338366, -74.0043566, 5);
-        assert true;
     }
 
     @Test

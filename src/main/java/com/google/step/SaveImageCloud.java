@@ -40,14 +40,12 @@ import javax.servlet.http.HttpServletResponse;
 public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
-    private Date date = null;
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         BufferedReader reader = request.getReader();
-        date = new Date();
         Gson gson = new Gson();
         ArrayList<MapImage> mapImages =
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
@@ -58,7 +56,7 @@ public class SaveImageCloud extends HttpServlet {
             try {
                 MapImage mapImage = mapImages.get(i);
                 byte[] imageData = getImageData(requestUrls.get(i));
-                updateMetadata(mapImage, date);
+                mapImage.updateMetadata(LocalDateTime.now());
                 saveImageToCloudStorage(imageData, mapImage);
             } catch (DeadlineExceededException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
@@ -97,20 +95,6 @@ public class SaveImageCloud extends HttpServlet {
             LOGGER.severe(e.getMessage());
             throw e;
         }
-    }
-
-    public void updateMetadata(MapImage mapImage, Date date) {
-        String month = String.format("%tm", date);
-        String year = String.format("%TY", date);
-        // TODO: Revert mapImage.setMonth() code to below before Aug 1.
-        // mapImage.setMonth(Integer.parseInt(month));
-        mapImage.setMonth(MapImage.FAKE_CRON_MONTH);
-        mapImage.setYear(Integer.parseInt(year));
-        mapImage.setObjectID();
-        LocalDateTime time = LocalDateTime.now();
-        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
-        mapImage.setTimeStamp(epoch);
     }
 
     public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)

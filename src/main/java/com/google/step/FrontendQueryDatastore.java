@@ -102,7 +102,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
 
-
     /**
      * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by
      * first checking for empty values from the form, then using sub-filters of zooms, dates, and

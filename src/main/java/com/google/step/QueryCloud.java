@@ -48,10 +48,8 @@ public class QueryCloud extends HttpServlet {
                                                 Storage.SignUrlOption.withV4Signature())
                                         .toString();
                         image.setURL(url);
-                        System.out.println("QueryCloud URL: " + url);
                     });
             String data = gson.toJson(mapImages);
-            System.out.println(data);
             response.setContentType("application/json");
             response.getWriter().println(data);
         } catch (SigningException e) {

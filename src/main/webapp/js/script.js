@@ -16,7 +16,6 @@ $(document).ready(function() {
         fetch(request).then((response) => response.json()).then((array) => {
             $('#requested-images').empty();
             for (let i = 0; i < array.length; i++) {
-                const url = array[i].url;
                 const div = document.createElement('div');
                 div.className = 'tile';
                 div.id = 'Item' + i;
@@ -26,12 +25,12 @@ $(document).ready(function() {
                 $('a' + i).attr('href', '#');
 
                 const image = document.createElement('img');
-                image.id = 'Image' + i;
-                image.src = url;
+                image.src = array[i].url;
 
                 h4 = document.createElement('h4');
                 h4.textContent = array[i].cityName + ' on ' + array[i].month +
-                    '/' + array[i].year + ' zoom level ' + array[i].zoom;
+                    '/' + array[i].year + ' at Zoom Level ' + array[i].zoom;
+                
                 atag.appendChild(image);
                 div.appendChild(atag);
                 div.appendChild(h4);

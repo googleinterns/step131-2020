@@ -1,11 +1,8 @@
 package com.google.step;
 
-import static java.lang.Math.toIntExact;
-
 import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilter;
@@ -52,16 +49,16 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Get parameters from form.
         ArrayList<String> zoomStrings = new ArrayList<>();
-        ArrayList<String> cityStrings = new ArrayList<>();
-        try {
+        if(request.getParameterValues("zoom-level") != null) {
             zoomStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("zoom-level")));
-        } catch (NullPointerException e) {
-            LOGGER.log(Level.WARNING, "Getting Zoom parameters: Zoom array is empty.");
+        } else {
+            LOGGER.log(Level.FINE, "Getting Zoom parameters: Zoom array is empty.");
         }
-        try {
+        ArrayList<String> cityStrings = new ArrayList<>();
+        if(request.getParameterValues("city") != null) {
             cityStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("city")));
-        } catch (NullPointerException e) {
-            LOGGER.log(Level.WARNING, "Getting City parameters: City array is empty.");
+        } else {
+            LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
         }
         //TODO: Not getting request parameters from form.
         String startDateStr = request.getParameter("startDate");
@@ -93,7 +90,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
-            mapImages = entitiesToMapImages(resultList);
+            mapImages = CommonUtils.entitiesToMapImages(resultList);
         } catch (DatastoreNeedIndexException e) {
             LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }
@@ -196,15 +193,11 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** * Builds the zoom filters for the overall Composite Filter. * */
-    private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
+    private Filter buildZoomFilters(ArrayList<String> zoomStrings) throws IllegalArgumentException {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
-            try{
-                int zoom = Integer.parseInt(zoomStrings.get(i));
-                zoomFilters.add(buildIndividualZoomFilter(zoom));
-            } catch (NumberFormatException e) {
-                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
-            }
+            int zoom = Integer.parseInt(zoomStrings.get(i));
+            zoomFilters.add(buildIndividualZoomFilter(zoom));
         }
         if (zoomFilters.size() > 1) {
             return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
@@ -221,48 +214,6 @@ public class FrontendQueryDatastore extends HttpServlet {
                 Arrays.asList(
                         FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
                         FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
-    }
-
-    /**
-     * * Converts the entities returned from the Datastore query into MapImage objects for us to
-     * use. *
-     */
-    private ArrayList<MapImage> entitiesToMapImages(PreparedQuery resultList) {
-        ArrayList<MapImage> resultMapImages = new ArrayList<>();
-        for (Entity entity : resultList.asIterable()) {
-            MapImage mapImage = entityToMapImage(entity);
-            resultMapImages.add(mapImage);
-        }
-        return resultMapImages;
-    }
-
-    /*
-     *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-     *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-     */
-    /**
-     * Helper function for entitiesToMapImages. Converts each individual entity into a MapImage
-     * object.
-     */
-    private MapImage entityToMapImage(Entity entity) {
-        double latitude = (double) entity.getProperty("Latitude");
-        double longitude = (double) entity.getProperty("Longitude");
-        long zoom = (long) entity.getProperty("Zoom");
-        String cityName = (String) entity.getProperty("City Name");
-        long month = (long) entity.getProperty("Month");
-        long year = (long) entity.getProperty("Year");
-        Long timeStamp = (long) entity.getProperty("Timestamp");
-        MapImage mapImage =
-                new MapImage(
-                        longitude,
-                        latitude,
-                        cityName,
-                        toIntExact(zoom),
-                        toIntExact(month),
-                        toIntExact(year),
-                        timeStamp);
-        mapImage.setObjectID();
-        return mapImage;
     }
 
     private sortMapImages(ArrayList<MapImages> mapImages) {

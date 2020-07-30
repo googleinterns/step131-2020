@@ -18,9 +18,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.servlet.annotation.WebServlet;
@@ -39,9 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
-    private Date date = new Date();
-    private String month = String.format("%tm", date);
-    private String year = String.format("%TY", date);
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
@@ -53,13 +49,16 @@ public class SaveImageCloud extends HttpServlet {
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
 
-        // There are an equal number of elements in mapImages & requestUrls.
+        // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {
+                MapImage mapImage = mapImages.get(i);
                 byte[] imageData = getImageData(requestUrls.get(i));
-                saveImageToCloudStorage(imageData, mapImages.get(i));
+                mapImage.updateMetadata(LocalDateTime.now());
+                saveImageToCloudStorage(imageData, mapImage);
             } catch (DeadlineExceededException e) {
-                // TODO: add error handling
+                LOGGER.log(Level.SEVERE, e.getMessage());
+                throw e;
             }
         }
 
@@ -83,30 +82,35 @@ public class SaveImageCloud extends HttpServlet {
         con.getInputStream().close();
     }
 
-    private byte[] getImageData(String requestURL) throws IOException {
-        URL url = new URL(requestURL);
-        BufferedImage image = ImageIO.read(url);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ImageIO.write(image, "png", bos);
-        return bos.toByteArray();
+    public byte[] getImageData(String requestURL) throws IOException {
+        try {
+            URL url = new URL(requestURL);
+            BufferedImage image = ImageIO.read(url);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", bos);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            LOGGER.severe(e.getMessage());
+            throw e;
+        }
     }
 
-    private void saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
+    public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
             throws StorageException {
-        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-        mapImage.setMonth(Integer.parseInt(month));
-        mapImage.setYear(Integer.parseInt(year));
-        mapImage.setObjectID();
-        LocalDateTime time = LocalDateTime.now();
-        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy K:mm a");
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        mapImage.setTimeStamp(epoch);
-        BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
-        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
-        Blob blob = storage.create(blobInfo, imageData);
+        try {
+            Storage storage =
+                    StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+            BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
+            Blob blob = storage.create(blobInfo, imageData);
+            return blob;
+        } catch (StorageException e) {
+            LOGGER.severe(e.getMessage());
+            throw e;
+        }
     }
 
-    private ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
+    public ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
         ArrayList<String> requestUrls = new ArrayList<>();
         for (MapImage mapImage : mapImages) {
             StringBuilder requestUrl =

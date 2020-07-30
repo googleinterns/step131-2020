@@ -1,5 +1,8 @@
 package com.google.step;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
     /** Snapshot's longitude coordinate. */
@@ -20,7 +23,7 @@ public class MapImage {
     /** Year snapshot was took. */
     private int year;
 
-    /** Exact time snapshot was took. */
+    /** Exact time snapshot was took from Unix Epoch in seconds. */
     private long timeStamp;
 
     /**
@@ -119,5 +122,13 @@ public class MapImage {
 
     public String getURL() {
         return url;
+    }
+
+    public void updateMetadata(LocalDateTime time) {
+        setMonth(time.getMonthValue());
+        setYear(time.getYear());
+        setObjectID();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+        setTimeStamp(epoch);
     }
 }

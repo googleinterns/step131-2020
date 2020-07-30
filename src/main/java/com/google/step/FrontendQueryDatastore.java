@@ -40,7 +40,9 @@ import javax.servlet.http.HttpServletResponse;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-
+    // Sub-daily cron job uses month "13" as a sentinel to prevent duplicate MapImages from displaying.
+    private final int FAKE_CRON_MONTH = 13;
+    
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)

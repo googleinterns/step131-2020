@@ -207,7 +207,8 @@ public class FrontendQueryDatastore extends HttpServlet {
     private Query buildQuery(CompositeFilter compositeFilter) {
         Query query = new Query("MapImage")
             .setFilter(compositeFilter)
-            .addSort("Timestamp", SortDirection.ASCENDING);
+            .addSort("Timestamp", SortDirection.ASCENDING)
+            .addSort("Zoom", SortDirection.ASCENDING);
         return query;
     }
 }

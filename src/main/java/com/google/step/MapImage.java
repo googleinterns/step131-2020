@@ -2,6 +2,9 @@ package com.google.step;
 
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
+    // TODO(cgregori): Remove all references to FAKE_CRON_MONTH by Aug 1.
+    /** Sentinel month for sub-daily cron jobs to prevent duplicates */
+    static final int FAKE_CRON_MONTH = 13;
     /** Snapshot's longitude coordinate. */
     private double longitude;
 

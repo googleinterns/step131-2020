@@ -114,6 +114,11 @@
             <version>1.9.80</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
+            <version>1.9.80</version>
+        </dependency>
     </dependencies>
 
     <build>

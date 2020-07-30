@@ -74,4 +74,26 @@ public class BackendQueryDatastore extends HttpServlet {
         }
         return mapImages;
     }
+
+    /** * Query Datastore for the locations and zoom levels that we need to get
+ for this month. * */
+    public PreparedQuery getQuery() {
+        Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
+        return datastore.prepare(query);
+    }
+
+    public List<MapImage> loadTrackedLocations(PreparedQuery results) {
+        List<MapImage> mapImages = new ArrayList<>();
+        for (Entity entity : results.asIterable()) {
+            for (int zoom = 5; zoom <= 18; zoom++) {
+                double latitude = (double) entity.getProperty("latitude");
+                double longitude = (double) entity.getProperty("longitude");
+                String cityName = (String) entity.getProperty("cityName");
+
+                MapImage mapImage = new MapImage(latitude, longitude, zoom, cityName);
+                mapImages.add(mapImage);
+            }
+        }
+        return mapImages;
+    }
 }

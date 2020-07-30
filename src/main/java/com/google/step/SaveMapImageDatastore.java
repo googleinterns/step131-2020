@@ -15,8 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * This servlet retrieves MapImages after many attributes are set in SaveImageCloud.java to be
- * stored in Datastore. A POST request gets the MapImage ArrayList to store each MapImage instance
- * in Datastore.
+ * stored in Datastore.
  */
 @WebServlet("/save-mapimage-datastore")
 public class SaveMapImageDatastore extends HttpServlet {
@@ -31,30 +30,26 @@ public class SaveMapImageDatastore extends HttpServlet {
         ArrayList<MapImage> mapImages =
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
 
-        // Put updated MapImages into Datastore under the entity kind 'MapImage'. An entity's
-        // look-up key is its objectID.
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         for (MapImage mapImage : mapImages) {
-            Entity mapImageEntity = new Entity("MapImage", mapImage.getObjectID());
-            mapImageEntity.setProperty("Longitude", mapImage.getLongitude());
-            mapImageEntity.setProperty("Latitude", mapImage.getLatitude());
-            mapImageEntity.setProperty("City Name", mapImage.getCityName());
-            mapImageEntity.setProperty("Zoom", mapImage.getZoom());
-            mapImageEntity.setProperty("Month", mapImage.getMonth());
-            mapImageEntity.setProperty("Year", mapImage.getYear());
-            mapImageEntity.setProperty("Timestamp", mapImage.getTimeStamp());
-
-            Entity driveMapImageEntity = new Entity("DriveMapImage", mapImage.getObjectID());
-            driveMapImageEntity.setProperty("Longitude", mapImage.getLongitude());
-            driveMapImageEntity.setProperty("Latitude", mapImage.getLatitude());
-            driveMapImageEntity.setProperty("City Name", mapImage.getCityName());
-            driveMapImageEntity.setProperty("Zoom", mapImage.getZoom());
-            driveMapImageEntity.setProperty("Month", mapImage.getMonth());
-            driveMapImageEntity.setProperty("Year", mapImage.getYear());
-            driveMapImageEntity.setProperty("Time Stamp", mapImage.getTimeStamp());
-
+            Entity mapImageEntity = createEntity(mapImage, "MapImage");
+            Entity driveMapImageEntity = createEntity(mapImage, "DriveMapImage");
             datastore.put(mapImageEntity);
             datastore.put(driveMapImageEntity);
         }
+    }
+
+    /** Makes new entity of kind entityKind and sets properties. */
+    public Entity createEntity(MapImage mapImage, String entityKind) {
+        // An entity's look-up key is its objectID.
+        Entity entity = new Entity(entityKind, mapImage.getObjectID());
+        entity.setProperty("Latitude", mapImage.getLatitude());
+        entity.setProperty("Longitude", mapImage.getLongitude());
+        entity.setProperty("City Name", mapImage.getCityName());
+        entity.setProperty("Zoom", mapImage.getZoom());
+        entity.setProperty("Month", mapImage.getMonth());
+        entity.setProperty("Year", mapImage.getYear());
+        entity.setProperty("Timestamp", mapImage.getTimeStamp());
+        return entity;
     }
 }

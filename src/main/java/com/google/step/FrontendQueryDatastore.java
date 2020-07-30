@@ -30,7 +30,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.StringBuilder;
 
 /**
  * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
@@ -41,7 +40,9 @@ import java.lang.StringBuilder;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-
+    // Sub-daily cron uses month "13" to prevent duplicate MapImages display.
+    private final int FAKE_CRON_MONTH = 13;
+    
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -75,7 +76,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
-            mapImages = entitiesToMapImages(resultList);
+            mapImages = CommonUtils.entitiesToMapImages(resultList);
         } catch (DatastoreNeedIndexException e) {
             LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }
@@ -101,25 +102,27 @@ public class FrontendQueryDatastore extends HttpServlet {
         response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
 
-
     /**
      * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by
      * first checking for empty values from the form, then using sub-filters of zooms, dates, and
      * locations based off user-input values from the form. *
      */
     private CompositeFilter buildCompositeFilter(
-            ArrayList<String> zoomStrings, ArrayList<String> cityStrings, String startDateStr, String endDateStr) {
+            ArrayList<String> zoomStrings,
+            ArrayList<String> cityStrings,
+            String startDateStr,
+            String endDateStr) {
         // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
         // For complex queries like these, an index must be made & deployed before building query.
         // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.
         ArrayList<Filter> filters = new ArrayList<>();
-        
+
         // Build city filters.
         if (!cityStrings.isEmpty()) {
             filters.add(buildCityFilters(cityStrings));
         }
         // Build zoom filters.
-        if(!zoomStrings.isEmpty()) {
+        if (!zoomStrings.isEmpty()) {
             filters.add(buildZoomFilters(zoomStrings));
         }
         // Build date filters.
@@ -149,12 +152,12 @@ public class FrontendQueryDatastore extends HttpServlet {
         return compositeFilter;
     }
 
-    /** Helper function for buildCityFilters **/
+    /** Helper function for buildCityFilters * */
     private Filter buildIndividualCityFilter(String city) {
         return FilterOperator.EQUAL.of("City Name", city);
     }
 
-    /** Builds the city filters for the overall Composite Filter **/
+    /** Builds the city filters for the overall Composite Filter * */
     private Filter buildCityFilters(ArrayList<String> cityStrings) {
         ArrayList<Filter> cityFilters = new ArrayList<>();
         for (int i = 0; i < cityStrings.size(); i++) {
@@ -169,7 +172,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         }
     }
 
-    /** Helper function for buildZoomFilters **/
+    /** Helper function for buildZoomFilters * */
     private Filter buildIndividualZoomFilter(int zoom) {
         return FilterOperator.EQUAL.of("Zoom", zoom);
     }
@@ -178,19 +181,25 @@ public class FrontendQueryDatastore extends HttpServlet {
     private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
-            try{
+            try {
                 int zoom = Integer.parseInt(zoomStrings.get(i));
                 zoomFilters.add(buildIndividualZoomFilter(zoom));
             } catch (NumberFormatException e) {
                 LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
             }
         }
+        Filter zoomFilter = null;
         if (zoomFilters.size() > 1) {
             return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
         } else {
             // We ensure that zoomFilters is not empty in buildCompositeFilter().
-            return zoomFilters.get(0);
+            try {
+                zoomFilter = zoomFilters.get(0);
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
+            }
         }
+        return zoomFilter;
     }
 
     /** * Builds the date filters for the overall Composite Filter. * */
@@ -211,9 +220,9 @@ public class FrontendQueryDatastore extends HttpServlet {
         for (Entity entity : resultList.asIterable()) {
             MapImage mapImage = entityToMapImage(entity);
             // Check for timestamps older than the CRON_EPOCH to prevent duplicates from displaying.
-            // This will cause August mapImages not to display, but this code will be taken out before Aug 1.
+            // This code causes August MapImages not to display but will remove before Aug 1.
             // TODO: Remove this if statement before Aug 1.
-            if(mapImage.getMonth() != MapImage.FAKE_CRON_MONTH) {
+            if (mapImage.getMonth() != FAKE_CRON_MONTH) {
                 resultMapImages.add(mapImage);
             }
         }
@@ -238,8 +247,8 @@ public class FrontendQueryDatastore extends HttpServlet {
         Long timeStamp = (long) entity.getProperty("Timestamp");
         MapImage mapImage =
                 new MapImage(
-                        longitude,
                         latitude,
+                        longitude,
                         cityName,
                         toIntExact(zoom),
                         toIntExact(month),

@@ -40,8 +40,7 @@ public class SaveMapImageDatastore extends HttpServlet {
     }
 
     /**
-    * Makes a new entity under the kind entityKind and sets properties
-    * based on a MapImage's metadata.
+    * Makes new entity of kind entityKind and sets properties.
     */
     public Entity createEntity(MapImage mapImage, String entityKind) {
         // An entity's look-up key is its objectID.

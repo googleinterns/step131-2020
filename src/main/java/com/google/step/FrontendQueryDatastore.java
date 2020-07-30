@@ -1,4 +1,3 @@
-
 package com.google.step;
 
 import static java.lang.Math.toIntExact;
@@ -31,7 +30,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.StringBuilder;
 
 /**
  * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
@@ -42,7 +40,7 @@ import java.lang.StringBuilder;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-    // Sub-daily cron job uses month "13" as a sentinel to prevent duplicate MapImages from displaying.
+    // Sub-daily cron uses month "13" to prevent duplicate MapImages display.
     private final int FAKE_CRON_MONTH = 13;
     
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
@@ -103,7 +101,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         // Send the image data if there are any images to send, otherwise send empty array
         response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
-
 
     /**
      * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by

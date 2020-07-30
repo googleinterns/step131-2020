@@ -51,8 +51,8 @@ public class BackendQueryDatastore extends HttpServlet {
         queue.add(options);
     }
 
-    /** * Query Datastore for the locations and zoom levels that we need to
-    get for this month. * */
+    /** * Query Datastore for the locations and zoom levels that we need to get
+for this month. * */
     public PreparedQuery getQuery() {
         Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
         return datastore.prepare(query);

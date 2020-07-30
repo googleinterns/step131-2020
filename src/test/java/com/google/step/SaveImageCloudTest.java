@@ -26,8 +26,8 @@ public final class SaveImageCloudTest {
         ArrayList<MapImage> mapImages =
                 new ArrayList<>(
                         Arrays.asList(
-                                new MapImage(40.7338366, -74.0043566, 5),
-                                new MapImage(59.3248943, 18.0688734, 6)));
+                                new MapImage(40.7338366, -74.0043566, 5, "New York City"),
+                                new MapImage(59.3248943, 18.0688734, 6, "Stockholm")));
         ArrayList<String> actual = saveCloud.generateRequestUrls(mapImages);
         ArrayList<String> expected =
                 new ArrayList<>(

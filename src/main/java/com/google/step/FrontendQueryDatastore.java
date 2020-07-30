@@ -188,16 +188,18 @@ public class FrontendQueryDatastore extends HttpServlet {
                 LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
             }
         }
+        Filter zoomFilter = null;
         if (zoomFilters.size() > 1) {
             return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
         } else {
             // We ensure that zoomFilters is not empty in buildCompositeFilter().
             try {
-                return zoomFilters.get(0);
+                zoomFilter = zoomFilters.get(0);
             } catch (NumberFormatException e) {
                 LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
             }
         }
+        return zoomFilter;
     }
 
     /** * Builds the date filters for the overall Composite Filter. * */

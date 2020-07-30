@@ -30,7 +30,7 @@ $(document).ready(function() {
                 h4 = document.createElement('h4');
                 h4.textContent = array[i].cityName + ' on ' + array[i].month +
                     '/' + array[i].year + ' at Zoom Level ' + array[i].zoom;
-                
+
                 atag.appendChild(image);
                 div.appendChild(atag);
                 div.appendChild(h4);

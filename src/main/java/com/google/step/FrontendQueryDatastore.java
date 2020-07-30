@@ -1,11 +1,8 @@
 package com.google.step;
 
-import static java.lang.Math.toIntExact;
-
 import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilter;
@@ -77,7 +74,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
-            mapImages = entitiesToMapImages(resultList);
+            mapImages = CommonUtils.entitiesToMapImages(resultList);
         } catch (DatastoreNeedIndexException e) {
             LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }

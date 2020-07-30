@@ -7,15 +7,15 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.apphosting.api.ApiProxy;
 import com.google.apphosting.api.ApiProxy.CancelledException;
 import com.google.apphosting.api.DeadlineExceededException;
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
@@ -54,18 +54,18 @@ public class SaveDrive extends HttpServlet {
                             .setApplicationName(PROJECT_ID)
                             .build();
             Storage storage = StorageOptions.getDefaultInstance().getService();
-            Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-            Query<Entity> query = Query.newEntityQueryBuilder().setKind("DriveMapImage").build();
+            DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+            Query query = new Query("DriveMapImage");
             // Get objects from Datastore
-            QueryResults<Entity> resultList = datastore.run(query);
-            ArrayList<MapImage> mapImages = entitiesToMapImages(resultList);
+            PreparedQuery resultList = datastore.prepare(query);
+            ArrayList<MapImage> mapImages = CommonUtils.entitiesToMapImages(resultList);
             for (MapImage image : mapImages) {
                 try {
                     long timeRemaining = ApiProxy.getCurrentEnvironment().getRemainingMillis();
                     // Stop uploading images if the task has less than 20 seconds remaining
                     if (timeRemaining < 20000) break;
                     // Get url from Storage
-                    URL url = getFileURL(storage, image);
+                    URL url = getFileURL(storage, image.getObjectID());
                     // Generate file metadata
                     File fileMetadata = new File();
                     fileMetadata.setName(image.getObjectID().replaceAll("/", "_"));
@@ -81,9 +81,7 @@ public class SaveDrive extends HttpServlet {
                                     .setFields("id")
                                     .execute();
                     // Delete the DriveMapImage entity from Datastore
-                    Key key =
-                            Key.newBuilder(PROJECT_ID, "DriveMapImage", image.getObjectID())
-                                    .build();
+                    Key key = new KeyFactory.Builder("DriveMapImage", image.getObjectID()).getKey();
                     datastore.delete(key);
                 } catch (CancelledException | DeadlineExceededException | IOException e) {
                     LOGGER.severe(e.getMessage());
@@ -126,6 +124,39 @@ public class SaveDrive extends HttpServlet {
                 blobInfo, 3, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature());
     }
 
+    private FileList getParentFolder(String parentID, String folderName) throws IOException {
+        FileList result =
+                drive.files()
+                        .list()
+                        .setQ(
+                                String.format(
+                                        "mimeType='application/vnd.google-apps.folder' and trashed=false and name='%s' and parents in '%s'",
+                                        folderName, parentID))
+                        .setSpaces("drive")
+                        .setDriveId(DRIVE_ID)
+                        .setIncludeItemsFromAllDrives(
+                                true) // Required parameter for querying shared drives
+                        .setCorpora("drive") // Required parameter for querying shared drives
+                        .setSupportsAllDrives(true) // Required parameter for querying shared drives
+                        .setFields("files(id, name)")
+                        .execute();
+        return result;
+    }
+
+    private File createFolder(String parentID, String folderName) throws IOException {
+        File fileMetadata = new File();
+        fileMetadata.setName(folderName);
+        fileMetadata.setParents(Collections.singletonList(parentID));
+        fileMetadata.setMimeType("application/vnd.google-apps.folder");
+        File file =
+                drive.files()
+                        .create(fileMetadata)
+                        .setFields("id")
+                        .setSupportsAllDrives(true)
+                        .execute();
+        return file;
+    }
+
     private String getParentFolderID(MapImage mapImage) throws IOException {
         String yearString = Integer.toString(mapImage.getYear());
         String yearFolderID = "";
@@ -133,100 +164,31 @@ public class SaveDrive extends HttpServlet {
         String monthFolderID = "";
         String cityString = mapImage.getCityName();
         String cityFolderID = "";
-        // Create year folder if it does not exist
-        FileList result =
-                drive.files()
-                        .list()
-                        .setQ(
-                                String.format(
-                                        "mimeType='application/vnd.google-apps.folder' and trashed=false and name='%s'",
-                                        yearString))
-                        .setSpaces("drive")
-                        .setDriveId(DRIVE_ID)
-                        .setIncludeItemsFromAllDrives(
-                                true) // Required parameter for querying shared drives
-                        .setCorpora("drive") // Required parameter for querying shared drives
-                        .setSupportsAllDrives(true) // Required parameter for querying shared drives
-                        .setFields("files(id, name)")
-                        .execute();
-        // Check if the folder exists
+
+        // Check if the year folder exists
+        FileList result = getParentFolder(DRIVE_ID, yearString);
         if (result.getFiles().size() == 0) {
-            File fileMetadata = new File();
-            fileMetadata.setName(yearString);
-            fileMetadata.setParents(Collections.singletonList(DRIVE_ID));
-            fileMetadata.setMimeType("application/vnd.google-apps.folder");
-            File file =
-                    drive.files()
-                            .create(fileMetadata)
-                            .setFields("id")
-                            .setSupportsAllDrives(true)
-                            .execute();
+            File file = createFolder(DRIVE_ID, yearString);
             yearFolderID = file.getId();
         } else {
             File file = result.getFiles().get(0);
             yearFolderID = file.getId();
         }
-        // Create month folder if it does not exist
-        result =
-                drive.files()
-                        .list()
-                        .setQ(
-                                String.format(
-                                        "mimeType='application/vnd.google-apps.folder' and trashed=false and name='%s' and parents in '%s'",
-                                        monthString, yearFolderID))
-                        .setSpaces("drive")
-                        .setDriveId(DRIVE_ID)
-                        .setIncludeItemsFromAllDrives(
-                                true) // Required parameter for querying shared drives
-                        .setCorpora("drive") // Required parameter for querying shared drives
-                        .setSupportsAllDrives(true) // Required parameter for querying shared drives
-                        .setFields("files(id, name)")
-                        .execute();
-        // Check if the folder exists
+
+        // Check if the month folder exists
+        result = getParentFolder(yearFolderID, monthString);
         if (result.getFiles().size() == 0) {
-            File fileMetadata = new File();
-            fileMetadata.setName(monthString);
-            fileMetadata.setParents(Collections.singletonList(yearFolderID));
-            fileMetadata.setMimeType("application/vnd.google-apps.folder");
-            File file =
-                    drive.files()
-                            .create(fileMetadata)
-                            .setFields("id")
-                            .setSupportsAllDrives(true)
-                            .execute();
+            File file = createFolder(yearFolderID, monthString);
             monthFolderID = file.getId();
         } else {
             File file = result.getFiles().get(0);
             monthFolderID = file.getId();
         }
-        // Create city folder if it does not exist
-        result =
-                drive.files()
-                        .list()
-                        .setQ(
-                                String.format(
-                                        "mimeType='application/vnd.google-apps.folder' and trashed=false and name='%s' and parents in '%s'",
-                                        cityString, monthFolderID))
-                        .setSpaces("drive")
-                        .setDriveId(DRIVE_ID)
-                        .setIncludeItemsFromAllDrives(
-                                true) // Required parameter for querying shared drives
-                        .setCorpora("drive") // Required parameter for querying shared drives
-                        .setSupportsAllDrives(true) // Required parameter for querying shared drives
-                        .setFields("files(id, name)")
-                        .execute();
-        // Check if the folder exists
+
+        // Check if the city folder exists
+        result = getParentFolder(monthFolderID, cityString);
         if (result.getFiles().size() == 0) {
-            File fileMetadata = new File();
-            fileMetadata.setName(cityString);
-            fileMetadata.setParents(Collections.singletonList(monthFolderID));
-            fileMetadata.setMimeType("application/vnd.google-apps.folder");
-            File file =
-                    drive.files()
-                            .create(fileMetadata)
-                            .setFields("id")
-                            .setSupportsAllDrives(true)
-                            .execute();
+            File file = createFolder(monthFolderID, cityString);
             cityFolderID = file.getId();
         } else {
             File file = result.getFiles().get(0);

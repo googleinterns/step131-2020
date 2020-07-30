@@ -119,11 +119,6 @@
             <artifactId>appengine-api-labs</artifactId>
             <version>1.9.80</version>
         </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

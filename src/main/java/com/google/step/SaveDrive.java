@@ -58,7 +58,7 @@ public class SaveDrive extends HttpServlet {
             Query query = new Query("DriveMapImage");
             // Get objects from Datastore
             PreparedQuery resultList = datastore.prepare(query);
-            ArrayList<MapImage> mapImages = HelperMethods.entitiesToMapImages(resultList);
+            ArrayList<MapImage> mapImages = CommonUtils.entitiesToMapImages(resultList);
             for (MapImage image : mapImages) {
                 try {
                     long timeRemaining = ApiProxy.getCurrentEnvironment().getRemainingMillis();

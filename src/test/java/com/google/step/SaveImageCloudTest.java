@@ -18,7 +18,7 @@ public final class SaveImageCloudTest {
     @Before
     public void setUp() {
         saveCloud = new SaveImageCloud();
-        time = LocalDateTime.of(2020, 13, 10, 9, 30);
+        time = LocalDateTime.of(2020, 7, 10, 9, 30);
     }
 
     @Test
@@ -38,15 +38,11 @@ public final class SaveImageCloudTest {
     }
 
     @Test
-    public void notNullImageData() {
+    public void notNullImageData() throws IOException {
         String url =
                 "https://maps.googleapis.com/maps/api/staticmap?center=59.3248943,18.0688734&zoom=6&size=640x640&scale=2&key=AIzaSyA75DbMo0voP63IzAQykD1xXhPEI8_F984";
-        try {
-            byte[] imageData = saveCloud.getImageData(url);
-            Assert.assertNotNull(imageData);
-        } catch (IOException e) {
-            assert false : e.getMessage();
-        }
+        byte[] imageData = saveCloud.getImageData(url);
+        Assert.assertNotNull(imageData);
     }
 
     @Test

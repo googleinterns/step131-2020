@@ -6,7 +6,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import java.util.ArrayList;
 
-public class HelperMethods {
+public class CommonUtils {
     /**
      * * Converts the entities returned from the Datastore query into MapImage objects for us to
      * use. *
@@ -15,13 +15,7 @@ public class HelperMethods {
         ArrayList<MapImage> resultMapImages = new ArrayList<>();
         for (Entity entity : resultList.asIterable()) {
             MapImage mapImage = entityToMapImage(entity);
-            // Check for timestamps older than the CRON_EPOCH to prevent duplicates from displaying.
-            // This will cause August mapImages not to display, but this code will be taken out
-            // before Aug 1.
-            // TODO: Remove this if statement before Aug 1.
-            if (mapImage.getMonth() != MapImage.FAKE_CRON_MONTH) {
-                resultMapImages.add(mapImage);
-            }
+            resultMapImages.add(mapImage);
         }
         return resultMapImages;
     }

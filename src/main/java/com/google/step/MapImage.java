@@ -1,12 +1,10 @@
 package com.google.step;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
-    // TODO(cgregori): Remove all references to FAKE_CRON_MONTH by Aug 1.
-    /** Sentinel month for sub-daily cron jobs to prevent duplicates */
-    static final int FAKE_CRON_MONTH = 13;
     /** Snapshot's longitude coordinate. */
     private double longitude;
 
@@ -127,9 +125,7 @@ public class MapImage {
     }
 
     public void updateMetadata(LocalDateTime time) {
-        // TODO: Revert mapImage.setMonth() code to below before Aug 1.
-        // setMonth(time.getMonthValue());
-        setMonth(MapImage.FAKE_CRON_MONTH);
+        setMonth(time.getMonthValue());
         setYear(time.getYear());
         setObjectID();
         long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();

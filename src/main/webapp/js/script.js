@@ -1,8 +1,4 @@
 $(document).ready(function() {
-    $('#locations + button').children('.filter-option')
-        .prepend('<span class="dropdown-title">Locations</span>');
-    $('#zoom + button').children('.filter-option')
-        .prepend('<span class="dropdown-title">Zoom Level</span>');
     loadLocations();
     loadDateRange();
 
@@ -18,11 +14,27 @@ $(document).ready(function() {
                 body: formData,
             });
         fetch(request).then((response) => response.json()).then((array) => {
-            clearImages();
+            $('#requested-images').empty();
             for (let i = 0; i < array.length; i++) {
-                const url = array[i].url;
-                // TODO: create entire image list structure
-                $('#requested-images').append(`<li><img src='${url}'></li>`);
+                const div = document.createElement('div');
+                div.className = 'tile';
+                div.id = 'Item' + i;
+
+                const atag = document.createElement('a');
+                atag.id = 'a' + i;
+                $('a' + i).attr('href', '#');
+
+                const image = document.createElement('img');
+                image.src = array[i].url;
+
+                h4 = document.createElement('h4');
+                h4.textContent = array[i].cityName + ' on ' + array[i].month +
+                    '/' + array[i].year + ' at Zoom Level ' + array[i].zoom;
+
+                atag.appendChild(image);
+                div.appendChild(atag);
+                div.appendChild(h4);
+                $('#requested-images').append(div);
             }
         });
     });
@@ -31,6 +43,78 @@ $(document).ready(function() {
     fetch('/start-save-drive');
 });
 
+window.map = undefined;
+
+/** Makes a map and adds it to the page. */
+function createMap() {
+    window.map = new google.maps.Map(document.getElementById('map'),
+        {center: {lat: 35.9128, lng: -100.3821}, zoom: 5});
+}
+
+const locOrderSelected = new Set();
+/** Update preview location to most recently selected location in form. */
+function updateLocation() {
+    let location;
+    const selectedCoords = [];
+    const locations = document.getElementById('locations');
+    for (let i = 0; i < locations.length; i++) {
+        location = locations.options[i];
+        if (location.selected) {
+            selectedCoords.push(location.getAttribute('coords'));
+        }
+    }
+
+    if (selectedCoords.length == 0) {
+        (window.map).panTo(new google.maps.LatLng(35.9128, -100.3821));
+    } else {
+        for (const location of selectedCoords) {
+            if (!(locOrderSelected.has(location))) {
+                locOrderSelected.add(location);
+            }
+        }
+
+        const selectedCoordsSET = new Set(selectedCoords);
+        for (const loc of Array.from(locOrderSelected.values())) {
+            if (!((selectedCoordsSET).has(loc))) {
+                locOrderSelected.delete(loc);
+            }
+        }
+
+        const locOrderARRAY = Array.from(locOrderSelected.values());
+        const lastLocationSelected = locOrderARRAY[locOrderARRAY.length - 1];
+        const coords = lastLocationSelected.split(' ');
+        const center = new google.maps.LatLng(parseFloat(coords[0]),
+            parseFloat(coords[1]));
+        (window.map).panTo(center);
+    }
+}
+
+const zoomOrderSelected = new Set();
+/** Update preview zoom to most recently form-selected zoom level. */
+function updateZoom() {
+    const selectedZooms = $('#zoom').val();
+    if (selectedZooms.length == 0) {
+        (window.map).setZoom(5);
+    } else {
+        for (const zoom1 of selectedZooms) {
+            if (!(zoomOrderSelected.has(zoom1))) {
+                zoomOrderSelected.add(zoom1);
+            }
+        }
+
+        const selectedZoomsSET = new Set(selectedZooms);
+        for (const zoom2 of Array.from(zoomOrderSelected.values())) {
+            if (!(selectedZoomsSET.has(zoom2))) {
+                zoomOrderSelected.delete(zoom2);
+            }
+        }
+
+        const zoomOrderARRAY = Array.from(zoomOrderSelected.values());
+        const lastZoomSelected = zoomOrderARRAY[zoomOrderARRAY.length - 1];
+        (window.map).setZoom(parseInt(lastZoomSelected));
+    }
+}
+
 /** Loads the location options for the form through Datastore. */
 function loadLocations() {
     fetch('/form-locations').then((response) => response.json())
@@ -38,12 +122,21 @@ function loadLocations() {
             $('#locations').empty();
             for (let j = 0; j < locations.length; j++) {
                 const option = $('<option></option>')
-                    .attr('value', locations[j]).text(locations[j]);
+                    .attr('value', locations[j].cityName)
+                    .text(locations[j].cityName);
+                option.attr('coords', locations[j].latitude + ' ' +
+                    locations[j].longitude);
                 $('#locations').append(option);
             }
-            $('#locations').val(locations[0]);
+            $('#locations').val(locations[0].cityName);
             $('#locations').selectpicker('refresh');
             $('#locations').selectpicker('render');
+            $('#zoom').selectpicker('refresh');
+            $('#zoom').selectpicker('render');
+            $('#locations + button').children('.filter-option')
+                .prepend('<span class="dropdown-title">Locations</span>');
+            $('#zoom + button').children('.filter-option')
+                .prepend('<span class="dropdown-title">Zoom Level</span>');
         });
 }
 
@@ -108,7 +201,7 @@ async function clearImages() {
 //    if(err) {
 //       throw err; // or handle the error
 //    }
-//    var zip = new JSZip();
+//    let zip = new JSZip();
 //    zip.file('img.png', data, {binary:true});zip.generateAsync({type:'blob'})
 //     .then(function (blob) {
 //         saveAs(blob, 'hello.zip');

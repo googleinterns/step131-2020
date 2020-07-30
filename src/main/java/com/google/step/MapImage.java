@@ -1,11 +1,10 @@
 package com.google.step;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
-    // TODO(cgregori): Remove all references to FAKE_CRON_MONTH by Aug 1.
-    /** Sentinel month for sub-daily cron jobs to prevent duplicates */
-    static final int FAKE_CRON_MONTH = 13;
-  
     /** Snapshot's longitude coordinate. */
     private double longitude;
 
@@ -36,15 +35,15 @@ public class MapImage {
     private String url;
 
     public MapImage(
-            double longitude,
             double latitude,
+            double longitude,
             String cityName,
             int zoom,
             int month,
             int year,
             long timeStamp) {
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         this.cityName = cityName;
         this.zoom = zoom;
         this.month = month;
@@ -60,10 +59,18 @@ public class MapImage {
     }
 
     /** Overload the constructor for faster loading & querying from Datastore. * */
-    public MapImage(double latitude, double longitude, int zoom) {
+    public MapImage(double latitude, double longitude, int zoom, String location) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.zoom = zoom;
+        this.cityName = location;
+    }
+
+    /** Overload the constructor loading tracked locations from Datastore. * */
+    public MapImage(String location, double latitude, double longitude) {
+        this.cityName = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /**
@@ -134,5 +141,13 @@ public class MapImage {
 
     public String getURL() {
         return url;
+    }
+
+    public void updateMetadata(LocalDateTime time) {
+        setMonth(time.getMonthValue());
+        setYear(time.getYear());
+        setObjectID();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+        setTimeStamp(epoch);
     }
 }

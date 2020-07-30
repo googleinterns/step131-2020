@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -69,14 +70,12 @@ public class FrontendQueryDatastore extends HttpServlet {
             endDateStr = request.getParameter("endDate");
         }
 
-        // Add the appropriate filters according to the form input.
+//        // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter =
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
         Query query = buildQuery(compositeFilter);
-
-        System.out.println(query.toString());
 
         // Add all the mapEntities that matched the filter.
         PreparedQuery resultList = datastore.prepare(query);
@@ -86,9 +85,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         } catch (DatastoreNeedIndexException e) {
             LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }
-
-//        // Sort all the mapImages.
-//        sortMapImages(mapImages);
 
         // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
@@ -209,26 +205,9 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     private Query buildQuery(CompositeFilter compositeFilter) {
-        Query query;
-        List<Filter> subFilters = compositeFilter.getSubFilters();
-        if() {
-            query = new Query("MapImage")
-                .setFilter(compositeFilter)
-                .addSort("Timestamp", SortDirection.ASCENDING);
-        } else {
-            // Datastore cannot preform a sort order b/c there are no inequality filters.
-            query = new Query("MapImage")
-                .setFilter(compositeFilter)
-                .addSort("Zoom");
-        }
+        Query query = new Query("MapImage")
+            .setFilter(compositeFilter)
+            .addSort("Timestamp", SortDirection.ASCENDING);
         return query;
     }
-
-//    private void sortMapImages(ArrayList<MapImage> mapImages) {
-//        // Sort by merge sort based on Zoom since all entities have zoom.
-//        // Maybe be able to see if the 0 filter mapImages come through.
-//        mergeSortRecursive();
-//        System.out.println(mapImages.toString());
-//        return mapImages;
-//    }
 }

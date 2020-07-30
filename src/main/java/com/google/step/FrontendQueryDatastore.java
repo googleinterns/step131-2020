@@ -192,7 +192,11 @@ public class FrontendQueryDatastore extends HttpServlet {
             return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
         } else {
             // We ensure that zoomFilters is not empty in buildCompositeFilter().
-            return zoomFilters.get(0);
+            try {
+                return zoomFilters.get(0);
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
+            }
         }
     }
 

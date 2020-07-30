@@ -30,6 +30,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.StringBuilder;
 
 /**
  * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
@@ -101,6 +102,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         // Send the image data if there are any images to send, otherwise send empty array
         response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
+
 
     /**
      * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by

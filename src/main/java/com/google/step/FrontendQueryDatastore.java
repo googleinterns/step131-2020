@@ -9,6 +9,7 @@ import com.google.appengine.api.datastore.Query.CompositeFilter;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -39,7 +40,6 @@ import java.time.LocalDateTime;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-    boolean hasDate = false;
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
@@ -60,31 +60,23 @@ public class FrontendQueryDatastore extends HttpServlet {
         } else {
             LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
         }
-        //TODO: Not getting request parameters from form.
-        String startDateStr = request.getParameter("startDate");
-        String endDateStr = request.getParameter("endDate");
-
-        System.out.println("Request hasDate: "+ request.getParameter("hasDate"));
-        hasDate = Boolean.parseBoolean(request.getParameter("hasDate"));
-
-        System.out.println("Start Date: " + startDateStr);
-        System.out.println("End Date: " + endDateStr);
-        System.out.println("Has Date???: " + hasDate); 
+        String startDateStr = "";
+        String endDateStr = "";
+        if (request.getParameter("startDate") != null) {
+            startDateStr = request.getParameter("startDate");
+        }
+        if (request.getParameter("endDate") != null) {
+            endDateStr = request.getParameter("endDate");
+        }
 
         // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter =
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        if(hasDate) {
-            // Sort by date so later merge sort is still grouped by date.
-            Query query = new Query("MapImage")
-                .setFilter(compositeFilter)
-                .addSort("Timestamp", SortDirection.ASCENDING);
-        } else {
-            // Datastore cannot preform a sort order b/c there are no inequality filters.
-            Query query = new Query("MapImage").setFilter(compositeFilter);
-        }
+        Query query = buildQuery(compositeFilter);
+
+        System.out.println(query.toString());
 
         // Add all the mapEntities that matched the filter.
         PreparedQuery resultList = datastore.prepare(query);
@@ -95,8 +87,8 @@ public class FrontendQueryDatastore extends HttpServlet {
             LOGGER.log(Level.WARNING, "Converting entities to MapImages: " + e.getMessage());
         }
 
-        // Sort all the mapImages.
-        sortMapImages(mapImages);
+//        // Sort all the mapImages.
+//        sortMapImages(mapImages);
 
         // Send the MapImage metadata to QueryCloud.java
         Gson gson = new Gson();
@@ -216,11 +208,27 @@ public class FrontendQueryDatastore extends HttpServlet {
                         FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
     }
 
-    private sortMapImages(ArrayList<MapImages> mapImages) {
-        // Sort by merge sort based on Zoom since all entities have zoom.
-        // Maybe be able to see if the 0 filter mapImages come through.
-        mergeSortRecursive();
-        System.out.println(mapImages.toString());
-        return mapImages;
+    private Query buildQuery(CompositeFilter compositeFilter) {
+        Query query;
+        List<Filter> subFilters = compositeFilter.getSubFilters();
+        if() {
+            query = new Query("MapImage")
+                .setFilter(compositeFilter)
+                .addSort("Timestamp", SortDirection.ASCENDING);
+        } else {
+            // Datastore cannot preform a sort order b/c there are no inequality filters.
+            query = new Query("MapImage")
+                .setFilter(compositeFilter)
+                .addSort("Zoom");
+        }
+        return query;
     }
+
+//    private void sortMapImages(ArrayList<MapImage> mapImages) {
+//        // Sort by merge sort based on Zoom since all entities have zoom.
+//        // Maybe be able to see if the 0 filter mapImages come through.
+//        mergeSortRecursive();
+//        System.out.println(mapImages.toString());
+//        return mapImages;
+//    }
 }

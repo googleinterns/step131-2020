@@ -26,7 +26,7 @@ $(document).ready(function() {
 
                 const image = document.createElement('img');
                 image.src = array[i].url;
-                let fileName = array[i].objectID.replace(/\//g, '_');
+                const fileName = array[i].objectID.replace(/\//g, '_');
                 image.setAttribute('filename', fileName);
 
                 h4 = document.createElement('h4');
@@ -48,8 +48,8 @@ $(document).ready(function() {
     });
 
     $('#requested-images').on('click', '.tile a', function(event) {
-        let gridImage = $(this).children('img');
-        let url = gridImage.attr('src');
+        const gridImage = $(this).children('img');
+        const url = gridImage.attr('src');
         $('#overlay img').attr('src', url);
         $('#overlay').show();
     });
@@ -243,13 +243,4 @@ function loadDateRange() {
         'endDate': endDate,
         'minDate': '07/01/2020',
     }, callback);
-}
-
-/** Removes any current description and image li elements on the page. */
-async function clearImages() {
-    const list = document.getElementById('requested-images');
-    // As long as <ul> has a child node, remove it
-    while (list.hasChildNodes()) {
-        list.removeChild(list.firstChild);
-    }
 }

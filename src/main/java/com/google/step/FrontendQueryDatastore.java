@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.Query.CompositeFilter;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -40,8 +41,6 @@ import javax.servlet.http.HttpServletResponse;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-    // Sub-daily cron uses month "13" to prevent duplicate MapImages display.
-    private final int FAKE_CRON_MONTH = 13;
     
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
@@ -70,7 +69,7 @@ public class FrontendQueryDatastore extends HttpServlet {
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        Query query = new Query("MapImage").setFilter(compositeFilter);
+        Query query = new Query("MapImage").setFilter(compositeFilter).addSort("City Name", SortDirection.ASCENDING).addSort("Zoom", SortDirection.ASCENDING).addSort("Month", SortDirection.ASCENDING);
 
         // Add all the mapEntities that matched the filter
         PreparedQuery resultList = datastore.prepare(query);
@@ -209,52 +208,5 @@ public class FrontendQueryDatastore extends HttpServlet {
                 Arrays.asList(
                         FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
                         FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
-    }
-
-    /**
-     * * Converts the entities returned from the Datastore query into MapImage objects for us to
-     * use. *
-     */
-    private ArrayList<MapImage> entitiesToMapImages(PreparedQuery resultList) {
-        ArrayList<MapImage> resultMapImages = new ArrayList<>();
-        for (Entity entity : resultList.asIterable()) {
-            MapImage mapImage = entityToMapImage(entity);
-            // Check for timestamps older than the CRON_EPOCH to prevent duplicates from displaying.
-            // This code causes August MapImages not to display but will remove before Aug 1.
-            // TODO: Remove this if statement before Aug 1.
-            if (mapImage.getMonth() != FAKE_CRON_MONTH) {
-                resultMapImages.add(mapImage);
-            }
-        }
-        return resultMapImages;
-    }
-
-    /*
-     *   NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-     *   if the property doesn't exist, or a ClassCastException if the value is the wrong type
-     */
-    /**
-     * Helper function for entitiesToMapImages. Converts each individual entity into a MapImage
-     * object.
-     */
-    private MapImage entityToMapImage(Entity entity) {
-        double latitude = (double) entity.getProperty("Latitude");
-        double longitude = (double) entity.getProperty("Longitude");
-        long zoom = (long) entity.getProperty("Zoom");
-        String cityName = (String) entity.getProperty("City Name");
-        long month = (long) entity.getProperty("Month");
-        long year = (long) entity.getProperty("Year");
-        Long timeStamp = (long) entity.getProperty("Timestamp");
-        MapImage mapImage =
-                new MapImage(
-                        latitude,
-                        longitude,
-                        cityName,
-                        toIntExact(zoom),
-                        toIntExact(month),
-                        toIntExact(year),
-                        timeStamp);
-        mapImage.setObjectID();
-        return mapImage;
     }
 }

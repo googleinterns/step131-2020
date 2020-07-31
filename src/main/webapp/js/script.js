@@ -26,22 +26,81 @@ $(document).ready(function() {
 
                 const image = document.createElement('img');
                 image.src = array[i].url;
+                let fileName = array[i].objectID.replace(/\//g, '_');
+                image.setAttribute('filename', fileName);
 
                 h4 = document.createElement('h4');
                 h4.textContent = array[i].cityName + ' on ' + array[i].month +
                     '/' + array[i].year + ' at Zoom Level ' + array[i].zoom;
 
                 atag.appendChild(image);
+                atag.appendChild(h4);
                 div.appendChild(atag);
-                div.appendChild(h4);
                 $('#requested-images').append(div);
             }
+            if (array.length > 0) {
+                $('#download-btn').removeClass('disabled');
+            }
+            else {
+                $('#download-btn').addClass('disabled');
+            }
+        });
+    });
+
+    $('#requested-images').on('click', '.tile a', function(event) {
+        let gridImage = $(this).children('img');
+        let url = gridImage.attr('src');
+        $('#overlay img').attr('src', url);
+        $('#overlay').show();
+    });
+
+    $("#overlay").click(function(event) {
+        if(event.target.id !== "overlay-img") {
+            $(this).hide();
+        }
+    });
+
+    // Download the displayed images
+    $('#download-btn').click(function(event) {
+        if ($(this).hasClass('disabled')) return;
+        let zip = new JSZip();
+        let images = Array.from(document.querySelectorAll('#requested-images .tile a img'));
+        let imagePromises = images.map(function callback(currentImage) {
+            let fileName = currentImage.getAttribute('filename');
+            let url = currentImage.getAttribute('src');
+            return urlToPromise(url).then(function(blob) {
+                zip.file(fileName, blob, {binary:true});
+            });
+        });
+
+        Promise.all(imagePromises).then(function() {
+            let date = new Date(Date.now());
+            let dateString = date.toLocaleDateString().replace(/\//g, '-');
+            let timeArray = date.toLocaleTimeString().split(' ')[0].split(':');
+            let hrs = timeArray[0];
+            let mins = timeArray[1];
+            zip.generateAsync({type:'blob'})
+            .then(function (blob) {
+                saveAs(blob, `Map Snapshot Images from ${dateString}_${hrs}_${mins}.zip`);
+            });
         });
     });
 
     // Upload files any files to Drive that need to be uploaded
     fetch('/start-save-drive');
 });
+
+function urlToPromise(url) {
+    return new Promise(function(resolve, reject) {
+        JSZipUtils.getBinaryContent(url, function (err, data) {
+            if(err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+}
 
 window.map = undefined;
 
@@ -193,17 +252,3 @@ async function clearImages() {
         list.removeChild(list.firstChild);
     }
 }
-
-/** TODO: Once the html elements for the images are finalized, this code
-*   will be used to download the images in a zip folder
-*/
-// JSZipUtils.getBinaryContent('[imageURL]', function (err, data) {
-//    if(err) {
-//       throw err; // or handle the error
-//    }
-//    let zip = new JSZip();
-//    zip.file('img.png', data, {binary:true});zip.generateAsync({type:'blob'})
-//     .then(function (blob) {
-//         saveAs(blob, 'hello.zip');
-//     });
-// });

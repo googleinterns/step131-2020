@@ -1,11 +1,9 @@
 package com.google.step;
 
-import static java.lang.Math.toIntExact;
 
 import com.google.appengine.api.datastore.DatastoreNeedIndexException;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilter;
@@ -41,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 public class FrontendQueryDatastore extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
-    
+
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -69,7 +67,12 @@ public class FrontendQueryDatastore extends HttpServlet {
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        Query query = new Query("MapImage").setFilter(compositeFilter).addSort("City Name", SortDirection.ASCENDING).addSort("Zoom", SortDirection.ASCENDING).addSort("Month", SortDirection.ASCENDING);
+        Query query =
+                new Query("MapImage")
+                        .setFilter(compositeFilter)
+                        .addSort("City Name", SortDirection.ASCENDING)
+                        .addSort("Zoom", SortDirection.ASCENDING)
+                        .addSort("Month", SortDirection.ASCENDING);
 
         // Add all the mapEntities that matched the filter
         PreparedQuery resultList = datastore.prepare(query);

@@ -51,7 +51,7 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
-    public MapImage (double longitude, double latitude, String cityName, int zoom) {
+    public MapImage(double longitude, double latitude, String cityName, int zoom) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.cityName = cityName;

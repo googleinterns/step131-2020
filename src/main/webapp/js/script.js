@@ -63,6 +63,7 @@ $(document).ready(function() {
     // Download the displayed images
     $('#download-btn').click(function(event) {
         if ($(this).hasClass('disabled')) return;
+        event.preventDefault();
         let zip = new JSZip();
         let images = Array.from(document.querySelectorAll('#requested-images .tile a img'));
         let imagePromises = images.map(function callback(currentImage) {

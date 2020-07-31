@@ -95,3 +95,7 @@
 #download-btn.disabled {
   cursor: not-allowed;
 }
+
+#request-form {
+    display: inline-block;
+}

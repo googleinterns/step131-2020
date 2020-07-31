@@ -43,7 +43,7 @@ public class QueryCloud extends HttpServlet {
                         String url =
                                 storage.signUrl(
                                                 blobInfo,
-                                                10,
+                                                30,
                                                 TimeUnit.MINUTES,
                                                 Storage.SignUrlOption.withV4Signature())
                                         .toString();

@@ -21,6 +21,10 @@
             <p id="description">Use this form to search for snapshots of Google Maps at different points in time.</p>
             <div class="alert alert-warning" role="alert">Disclaimer: Snapshots Recorded Since 07/2020</div>
 
+            <div id="overlay">
+                <img src="#" id="overlay-img" alt="overlay image"/>
+            </div>
+
             <form id="request-form" method="POST">
                 <label id="date-filter-label">Date Range:
                     <input type="text" name="dateFilter" value=""/>
@@ -59,7 +63,7 @@
                 </select>
                 <input class="btn btn-info" id="submit-btn" type="submit"/>
             </form>
-
+            <button class="btn btn-info disabled" id="download-btn">Download</button>
             <br>
             <h2>Preview</h2>
             <div id="map"></div>

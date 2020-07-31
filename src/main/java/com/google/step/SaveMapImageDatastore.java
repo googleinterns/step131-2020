@@ -41,15 +41,15 @@ public class SaveMapImageDatastore extends HttpServlet {
 
     /** Makes new entity of kind entityKind and sets properties. */
     public Entity createEntity(MapImage mapImage, String entityKind) {
-        // An entity's look-up key is its objectID.
-        Entity entity = new Entity(entityKind, mapImage.getObjectID());
-        entity.setProperty("Latitude", mapImage.getLatitude());
-        entity.setProperty("Longitude", mapImage.getLongitude());
-        entity.setProperty("City Name", mapImage.getCityName());
-        entity.setProperty("Zoom", mapImage.getZoom());
-        entity.setProperty("Month", mapImage.getMonth());
-        entity.setProperty("Year", mapImage.getYear());
-        entity.setProperty("Timestamp", mapImage.getTimeStamp());
+            // An entity's look-up key is its objectID.
+            Entity entity = new Entity(entityKind, mapImage.getObjectID());
+            entity.setProperty("Latitude", mapImage.getLatitude());
+            entity.setProperty("Longitude", mapImage.getLongitude());
+            entity.setProperty("City Name", mapImage.getCityName());
+            entity.setProperty("Zoom", mapImage.getZoom());
+            entity.setProperty("Month", mapImage.getMonth());
+            entity.setProperty("Year", mapImage.getYear());
+            entity.setProperty("Timestamp", mapImage.getTimeStamp());
         return entity;
     }
 }

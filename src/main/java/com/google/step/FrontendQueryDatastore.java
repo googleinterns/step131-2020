@@ -70,7 +70,7 @@ public class FrontendQueryDatastore extends HttpServlet {
             endDateStr = request.getParameter("endDate");
         }
 
-//        // Add the appropriate filters according to the form input.
+        // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter =
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 

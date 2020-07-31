@@ -55,7 +55,7 @@ $(document).ready(function() {
     });
 
     $("#overlay").click(function(event) {
-        if(event.target.id !== "overlay-img") {
+        if (event.target.id !== "overlay-img") {
             $(this).hide();
         }
     });
@@ -64,26 +64,26 @@ $(document).ready(function() {
     $('#download-btn').click(function(event) {
         if ($(this).hasClass('disabled')) return;
         event.preventDefault();
-        let zip = new JSZip();
-        let images = Array.from(document.querySelectorAll('#requested-images .tile a img'));
-        let imagePromises = images.map(function callback(currentImage) {
-            let fileName = currentImage.getAttribute('filename');
-            let url = currentImage.getAttribute('src');
+        const zip = new JSZip();
+        const images = Array.from(document.querySelectorAll('#requested-images .tile a img'));
+        const imagePromises = images.map(function callback(currentImage) {
+            const fileName = currentImage.getAttribute('filename');
+            const url = currentImage.getAttribute('src');
             return urlToPromise(url).then(function(blob) {
-                zip.file(fileName, blob, {binary:true});
+                zip.file(fileName, blob, {binary: true});
             });
         });
 
         Promise.all(imagePromises).then(function() {
-            let date = new Date(Date.now());
-            let dateString = date.toLocaleDateString().replace(/\//g, '-');
-            let timeArray = date.toLocaleTimeString().split(' ')[0].split(':');
-            let hrs = timeArray[0];
-            let mins = timeArray[1];
-            zip.generateAsync({type:'blob'})
-            .then(function (blob) {
-                saveAs(blob, `Map Snapshot Images from ${dateString}_${hrs}_${mins}.zip`);
-            });
+            const date = new Date(Date.now());
+            const dateString = date.toLocaleDateString().replace(/\//g, '-');
+            const timeArray = date.toLocaleTimeString().split(' ')[0].split(':');
+            const hrs = timeArray[0];
+            const mins = timeArray[1];
+            zip.generateAsync({type: 'blob'})
+                .then(function (blob) {
+                    saveAs(blob, `Map Snapshot Images from ${dateString}_${hrs}_${mins}.zip`);
+                });
         });
     });
 
@@ -94,7 +94,7 @@ $(document).ready(function() {
 function urlToPromise(url) {
     return new Promise(function(resolve, reject) {
         JSZipUtils.getBinaryContent(url, function (err, data) {
-            if(err) {
+            if (err) {
                 reject(err);
             } else {
                 resolve(data);

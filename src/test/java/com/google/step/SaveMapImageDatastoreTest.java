@@ -1,5 +1,6 @@
 package com.google.step;
 
+import static java.lang.Math.toIntExact;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -10,7 +11,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.api.datastore.dev.LocalDatastoreService.AutoIdAllocationPolicy;
 import java.lang.Integer;
-import static java.lang.Math.toIntExact;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +52,7 @@ public final class SaveMapImageDatastoreTest {
         MAPIMAGE_B = new MapImage(35.9128, -100.3821, "Canadian, TX", 5, 7, 2020, 1596051621);
         MAPIMAGE_B.setObjectID();
         RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B, "ResultEntity");
- 
+
         // Set up Datastore entities.
         ACTUAL_ENTITY_A = new Entity("MapImageEntity");
         ACTUAL_ENTITY_A.setProperty("Latitude", 40.7128);
@@ -71,12 +71,12 @@ public final class SaveMapImageDatastoreTest {
     public void done() {
         helper.tearDown();
     }
-    
+
     // First 7 tests cover assignment of setting entity properties
     @Test
     public void testLatCreateEntity() {
         double latitude = (double) RESULT_ENTITY_A.getProperty("Latitude");
-        Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15); 
+        Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15);
     }
 
     @Test

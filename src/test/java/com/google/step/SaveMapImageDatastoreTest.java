@@ -41,7 +41,7 @@ public final class SaveMapImageDatastoreTest {
 
     @Before
     public void setUp() {
-        //NOTE: Instantiating Entities before performing helper.setUp() causes API error.
+        //NOTE: Instantiating entities before performing helper.setUp() causes API error.
         helper.setUp();
         datastore = DatastoreServiceFactory.getDatastoreService();
         SaveMapImageDatastore = new SaveMapImageDatastore();
@@ -123,6 +123,7 @@ public final class SaveMapImageDatastoreTest {
         Assert.assertEquals(1, preparedQuery.countEntities());
     }
 
+    //Next 7 tests check proper metadata storage
     @Test
     public void checkStoredPropertyLat() {
         double latitude = 0;
@@ -187,7 +188,7 @@ public final class SaveMapImageDatastoreTest {
     }
 
     @Test
-    public void testMultipleEntities() {
+    public void testMultipleEntitiesSize() {
         datastore.put(RESULT_ENTITY_B);
         Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
         PreparedQuery multipleEntities = datastore.prepare(query);

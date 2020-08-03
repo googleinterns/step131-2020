@@ -1,17 +1,18 @@
 package com.google.step;
- 
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import static org.mockito.Mockito.*;
+
 import static java.lang.Math.toIntExact;
- 
-import java.util.List;
+import java.lang.Integer;
 import java.util.ArrayList;
- 
+import java.util.List;
+import java.util.Arrays;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -21,41 +22,53 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.api.datastore.dev.LocalDatastoreService.AutoIdAllocationPolicy;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
- 
+
 @RunWith(JUnit4.class)
 public final class SaveMapImageDatastoreTest {
     private DatastoreService datastore;
     private SaveMapImageDatastore SaveMapImageDatastore;
- 
+
     // Local Datastore for testing purposes.
     private final LocalServiceTestHelper helper =
         new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
- 
+
     private MapImage MAPIMAGE_A;
+    private MapImage MAPIMAGE_B;
+    private Entity RESULT_ENTITY_A;
+    private Entity RESULT_ENTITY_B;
     private Entity ACTUAL_ENTITY_A;
- 
+    private PreparedQuery preparedQuery;
+
     @Before
     public void setUp() {
         //NOTE: Instantiating Entities before performing helper.setUp() causes API error.
         helper.setUp();
         datastore = DatastoreServiceFactory.getDatastoreService();
         SaveMapImageDatastore = new SaveMapImageDatastore();
-        
-        MAPIMAGE_A = new MapImage(35.9128, -100.3821, "Canadian, TX", 5, 7, 2020, 1596051621);
+
+        MAPIMAGE_A = new MapImage(40.7128,  -74.0060, "New York, NY", 5, 7, 2020, 1596054321);
+        MAPIMAGE_A.setObjectID();
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
+        datastore.put(RESULT_ENTITY_A);
+
+        MAPIMAGE_B = new MapImage(35.9128, -100.3821, "Canadian, TX", 5, 7, 2020, 1596051621);
+        MAPIMAGE_B.setObjectID();
+        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B,"ResultEntity");
  
         // Set up Datastore entities.
         ACTUAL_ENTITY_A = new Entity("MapImageEntity");
-        ACTUAL_ENTITY_A.setProperty("Latitude", 35.9128);
-        ACTUAL_ENTITY_A.setProperty("Longitude", -100.3821);
-        ACTUAL_ENTITY_A.setProperty("City Name", "Canadian, TX");
+        ACTUAL_ENTITY_A.setProperty("Latitude", 40.7128);
+        ACTUAL_ENTITY_A.setProperty("Longitude", -74.0060);
+        ACTUAL_ENTITY_A.setProperty("City Name", "New York, NY");
         ACTUAL_ENTITY_A.setProperty("Zoom", 5);
         ACTUAL_ENTITY_A.setProperty("Month", 7);
         ACTUAL_ENTITY_A.setProperty("Year", 2020);
-        ACTUAL_ENTITY_A.setProperty("Timestamp", 1596051621);
+        ACTUAL_ENTITY_A.setProperty("Timestamp", 1596054321);
+
+        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        preparedQuery = datastore.prepare(query);
     }
- 
+
     @After
     public void done() {
         helper.tearDown();
@@ -64,98 +77,74 @@ public final class SaveMapImageDatastoreTest {
     //First 7 tests cover assignment of setting entity properties
     @Test
     public void testLatCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
         double latitude = (double) RESULT_ENTITY_A.getProperty("Latitude");
-        Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude);
+        Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15);
         
     }
 
     @Test
     public void testLongiCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
         double longitude = (double) RESULT_ENTITY_A.getProperty("Longitude");
-        Assert.assertEquals(MAPIMAGE_A.getLongitude(), longitude);
+        Assert.assertEquals(MAPIMAGE_A.getLongitude(), longitude, 1e-15);
     }   
 
     @Test
-    public void testZoomCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
-        long zoom = (long) RESULT_ENTITY_A.getProperty("Zoom");
-        Assert.assertEquals(MAPIMAGE_A.getZoom(), zoom);
-    }
-
-    @Test
     public void testLocCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
         String cityName = (String) RESULT_ENTITY_A.getProperty("City Name");
         Assert.assertEquals(MAPIMAGE_A.getCityName(), cityName);
     }
 
     @Test
+    public void testZoomCreateEntity() {
+        int zoom = (Integer) (RESULT_ENTITY_A.getProperty("Zoom"));
+        Assert.assertEquals(MAPIMAGE_A.getZoom(), zoom);
+    }
+
+    @Test
     public void testMonthCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
-        long month = (long) RESULT_ENTITY_A.getProperty("Month");
+        int month = (Integer) (RESULT_ENTITY_A.getProperty("Month"));
         Assert.assertEquals(MAPIMAGE_A.getMonth(), month);
     }
 
     @Test
     public void testYearCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
-        long year = (long) RESULT_ENTITY_A.getProperty("Year");
+        int year = (Integer) (RESULT_ENTITY_A.getProperty("Year"));
         Assert.assertEquals(MAPIMAGE_A.getYear(), year);
     }
 
     @Test
     public void testTimeCreateEntity() {
-        Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
         long timeStamp = (long) RESULT_ENTITY_A.getProperty("Timestamp");
         Assert.assertEquals(MAPIMAGE_A.getTimeStamp(), timeStamp);
     }
 
     @Test
     public void checkQuerySizeIsOne() {
-        // Put entity into datastore.
-        Entity ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
-        datastore.put(ENTITY_A);
-
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
-        Assert.assertEquals(1, result.countEntities());
+        Assert.assertEquals(1, preparedQuery.countEntities());
     }
 
     @Test
     public void checkStoredPropertyLat() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         double latitude = 0;
-        for (Entity RESULT_ENTITY : result.asIterable()) {
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
             latitude = (double) RESULT_ENTITY.getProperty("Latitude");
-            System.out.println("LAT IS: " + latitude);
         }
         Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15);
     }
 
     @Test
     public void checkStoredPropertyLongi() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         double longitude = 0;
-        for (Entity RESULT_ENTITY : result.asIterable()) {
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
             longitude = (double) RESULT_ENTITY.getProperty("Longitude");
         }
-        Assert.assertEquals(MAPIMAGE_A.getLatitude(), longitude, 1e-15);
+        Assert.assertEquals(MAPIMAGE_A.getLongitude(), longitude, 1e-15);
     }
 
     @Test
     public void checkStoredPropertyLoc() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         String cityName = "";
-        for (Entity RESULT_ENTITY : result.asIterable()) {
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
             cityName = (String) RESULT_ENTITY.getProperty("City Name");
         }
         Assert.assertEquals(MAPIMAGE_A.getCityName(), cityName);
@@ -163,90 +152,57 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyZoom() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         int zoom = 0;
-        for (Entity RESULT_ENTITY : result.asIterable()) {
-            zoom = toIntExact((long) RESULT_ENTITY.getProperty("Zoom"));
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
+            zoom = toIntExact((long) (RESULT_ENTITY.getProperty("Zoom")));
         }
         Assert.assertEquals(MAPIMAGE_A.getZoom(), zoom);
     }
 
     @Test
     public void checkStoredPropertyMonth() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         int month = 0;
-        for (Entity RESULT_ENTITY : result.asIterable()) {
-            month = toIntExact((long) RESULT_ENTITY.getProperty("Month"));
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
+            month = toIntExact((long) (RESULT_ENTITY.getProperty("Month")));
         }
         Assert.assertEquals(MAPIMAGE_A.getMonth(), month);
     }
 
     @Test
     public void checkStoredPropertyYear() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         int year = 0;
-        for (Entity RESULT_ENTITY : result.asIterable()) {
-            year = toIntExact((long) RESULT_ENTITY.getProperty("Year"));
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
+            year = toIntExact((long) (RESULT_ENTITY.getProperty("Year")));
         }
         Assert.assertEquals(MAPIMAGE_A.getYear(), year);
     }
 
     @Test
     public void checkStoredPropertyTime() {
-        // Load entity from Datastore.
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
-        PreparedQuery result = datastore.prepare(query);
         long timeStamp = 0;
-        for (Entity RESULT_ENTITY : result.asIterable()) {
+        for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
             timeStamp = (long) RESULT_ENTITY.getProperty("Timestamp");
         }
         Assert.assertEquals(MAPIMAGE_A.getTimeStamp(), timeStamp);
-    }           
-}
-
-
-
- public List<TreeNode> delNodes(TreeNode root, int[] to_delete) {
-        List<TreeNode> result = new ArrayList<>();
-        Set<Integer> set = new HashSet<>();
-        for (int de : to_delete) {
-            set.add(de);
-        }
-        //put to-delete number in hashset for O(1) lookup
-        dfs(root, set, result, true);
-        return result;
     }
 
-    private void dfs(TreeNode root,
-                     Set<Integer> del,
-                     List<TreeNode> result, boolean isRoot) {
-        //if current root does not contain in the del and it is root,
-        // then add to the result
-        if (!del.contains(root.val) && isRoot)
-            result.add(root);
+    @Test
+    public void testMultipleEntities() {
+        datastore.put(RESULT_ENTITY_B);
+        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        PreparedQuery multipleEntities = datastore.prepare(query);
+        Assert.assertEquals(2, multipleEntities.countEntities());
+    }
 
-        // check parents is on the list of 'to_be_deleted'
-        isRoot = del.contains(root.val);
-
-        // As we are doing DFS, we need check left node and right node
-        if (root.left != null) {
-            dfs(root.left, del, result, isRoot);
-            // If the child node is on the 'to_be_deleted' list, replace it will null
-            if (del.contains(root.left.val))
-                root.left = null;
+    @Test
+    public void testSort() {
+        datastore.put(RESULT_ENTITY_B);
+        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        PreparedQuery multipleEntities = datastore.prepare(query);
+        List<String> sortedLocations = new ArrayList<String>();
+        for (Entity RESULT_ENTITY : multipleEntities.asIterable()) {
+            sortedLocations.add((String) RESULT_ENTITY.getProperty("City Name"));
         }
-
-        if (root.right != null) {
-            dfs(root.right, del, result, isRoot);
-            // If the child node is on the 'to_be_deleted' list, replace it will null
-            if (del.contains(root.right.val))
-                root.right = null;
-        }
+        Assert.assertEquals(Arrays.asList("Canadian, TX", "New York, NY"), sortedLocations);
     }
 }

@@ -35,7 +35,7 @@ public class CommonUtils {
         String cityName = (String) entity.getProperty("City Name");
         long month = (long) entity.getProperty("Month");
         long year = (long) entity.getProperty("Year");
-        Long timeStamp = (long) entity.getProperty("Timestamp");
+        long timeStamp = (long) entity.getProperty("Timestamp");
         MapImage mapImage =
                 new MapImage(
                         longitude,

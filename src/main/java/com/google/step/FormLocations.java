@@ -30,10 +30,13 @@ public class FormLocations extends HttpServlet {
         PreparedQuery results = datastore.prepare(query);
 
         // Add tracked locations to a List.
-        List<String> formLocationOptions = new ArrayList<>();
+        List<MapImage> formLocationOptions = new ArrayList<>();
         for (Entity entity : results.asIterable()) {
-            String cityName = (String) entity.getProperty("cityName");
-            formLocationOptions.add(cityName);
+            String location = (String) entity.getProperty("cityName");
+            double latitude = (double) entity.getProperty("latitude");
+            double longitude = (double) entity.getProperty("longitude");
+
+            formLocationOptions.add(new MapImage(location, latitude, longitude));
         }
 
         Gson gson = new Gson();

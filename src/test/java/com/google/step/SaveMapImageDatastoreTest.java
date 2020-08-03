@@ -1,6 +1,7 @@
 package com.google.step;
 
 import static java.lang.Math.toIntExact;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -9,8 +10,6 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.appengine.api.datastore.dev.LocalDatastoreService.AutoIdAllocationPolicy;
-import java.lang.Integer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

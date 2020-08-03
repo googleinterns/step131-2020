@@ -1,18 +1,5 @@
 package com.google.step;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import static java.lang.Math.toIntExact;
-import java.lang.Integer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -22,6 +9,17 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.api.datastore.dev.LocalDatastoreService.AutoIdAllocationPolicy;
+import java.lang.Integer;
+import static java.lang.Math.toIntExact;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public final class SaveMapImageDatastoreTest {
@@ -30,7 +28,7 @@ public final class SaveMapImageDatastoreTest {
 
     // Local Datastore for testing purposes.
     private final LocalServiceTestHelper helper =
-        new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+            new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
     private MapImage MAPIMAGE_A;
     private MapImage MAPIMAGE_B;
@@ -41,19 +39,19 @@ public final class SaveMapImageDatastoreTest {
 
     @Before
     public void setUp() {
-        //NOTE: Instantiating entities before performing helper.setUp() causes API error.
+        // NOTE: Instantiating entities before performing helper.setUp() causes API error.
         helper.setUp();
         datastore = DatastoreServiceFactory.getDatastoreService();
         SaveMapImageDatastore = new SaveMapImageDatastore();
 
-        MAPIMAGE_A = new MapImage(40.7128,  -74.0060, "New York, NY", 5, 7, 2020, 1596054321);
+        MAPIMAGE_A = new MapImage(40.7128, -74.0060, "New York, NY", 5, 7, 2020, 1596054321);
         MAPIMAGE_A.setObjectID();
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
         datastore.put(RESULT_ENTITY_A);
 
         MAPIMAGE_B = new MapImage(35.9128, -100.3821, "Canadian, TX", 5, 7, 2020, 1596051621);
         MAPIMAGE_B.setObjectID();
-        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B,"ResultEntity");
+        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B, "ResultEntity");
  
         // Set up Datastore entities.
         ACTUAL_ENTITY_A = new Entity("MapImageEntity");
@@ -74,19 +72,18 @@ public final class SaveMapImageDatastoreTest {
         helper.tearDown();
     }
     
-    //First 7 tests cover assignment of setting entity properties
+    // First 7 tests cover assignment of setting entity properties
     @Test
     public void testLatCreateEntity() {
         double latitude = (double) RESULT_ENTITY_A.getProperty("Latitude");
-        Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15);
-        
+        Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15); 
     }
 
     @Test
     public void testLongiCreateEntity() {
         double longitude = (double) RESULT_ENTITY_A.getProperty("Longitude");
         Assert.assertEquals(MAPIMAGE_A.getLongitude(), longitude, 1e-15);
-    }   
+    }
 
     @Test
     public void testLocCreateEntity() {
@@ -123,7 +120,7 @@ public final class SaveMapImageDatastoreTest {
         Assert.assertEquals(1, preparedQuery.countEntities());
     }
 
-    //Next 7 tests check proper metadata storage
+    // Next 7 tests check proper metadata storage
     @Test
     public void checkStoredPropertyLat() {
         double latitude = 0;

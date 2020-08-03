@@ -17,6 +17,10 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.api.datastore.dev.LocalDatastoreService.AutoIdAllocationPolicy;
@@ -32,13 +36,6 @@ public final class FrontendQueryDatastoreTest {
     private final LocalServiceTestHelper helper =
       new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
-//    MapImage MAP_IMAGE_A = new MapImage(77.2176496, 28.6282961, "Delhi", 10, 7, 2020, 1594038988);
-//    MapImage MAP_IMAGE_B = new MapImage(-0.0911334, 51.5054466, "London", 7, 7, 2020, 1594038988);
-//    MapImage TRACKED_LOCATION_MAP_IMAGE_A = new MapImage(77.2176496, 28.6282961, "Delhi", 10);
-//    MapImage TRACKED_LOCATION_MAP_IMAGE_B = new MapImage(-0.0911334, 51.5054466, "London", 7);
-//    Entity TRACKED_LOCATION_ENTITY_A;
-//    Entity TRACKED_LOCATION_ENTITY_B;
-
     @Before
     public void setUp() {
         //NOTE: Instantiating Entities before performing helper.setUp() causes the API error.
@@ -46,16 +43,9 @@ public final class FrontendQueryDatastoreTest {
         datastore = DatastoreServiceFactory.getDatastoreService();
 
         // Set up Datastore entities.
-//        TRACKED_LOCATION_ENTITY_A = new Entity("TrackedLocation");
-//        TRACKED_LOCATION_ENTITY_B = new Entity("TrackedLocation");
-//        TRACKED_LOCATION_ENTITY_A.setProperty("latitude", 28.6282961);
-//        TRACKED_LOCATION_ENTITY_A.setProperty("longitude", 77.2176496);
-//        TRACKED_LOCATION_ENTITY_A.setProperty("cityName", "Delhi");
-//        TRACKED_LOCATION_ENTITY_B.setProperty("latitude", 51.5054466);
-//        TRACKED_LOCATION_ENTITY_B.setProperty("longitude", -0.0911334);
-//        TRACKED_LOCATION_ENTITY_B.setProperty("cityName", "London");
-//
-//        backendQueryDatastore = new BackendQueryDatastore();
+
+
+        frontendQueryDatastore = new FrontendQueryDatastore();
     }
 
     @After
@@ -64,7 +54,16 @@ public final class FrontendQueryDatastoreTest {
     }
 
     @Test
-    public void temp() {
-        System.out.println("I do nothing!");
+    public void buildIndividualCityFilter() {
+        Filter actual = frontendQueryDatastore.buildIndividualCityFilter("Tokyo");
+        Filter expected = FilterOperator.EQUAL.of("City Name", "Tokyo");
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void buildIndividualZoomFilter() {
+        Filter actual = frontendQueryDatastore.buildIndividualZoomFilter(7);
+        Filter expected = FilterOperator.EQUAL.of("Zoom", 7);
+        Assert.assertEquals(actual, expected);
     }
 }

@@ -154,7 +154,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** Helper function for buildCityFilters * */
-    private Filter buildIndividualCityFilter(String city) {
+    public Filter buildIndividualCityFilter(String city) {
         return FilterOperator.EQUAL.of("City Name", city);
     }
 
@@ -174,7 +174,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** Helper function for buildZoomFilters * */
-    private Filter buildIndividualZoomFilter(int zoom) {
+    public Filter buildIndividualZoomFilter(int zoom) {
         return FilterOperator.EQUAL.of("Zoom", zoom);
     }
 

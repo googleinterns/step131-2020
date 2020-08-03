@@ -88,7 +88,7 @@ public final class SaveMapImageDatastoreTest {
     public void testLocCreateEntity() {
         Entity RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A,"ResultEntity");
         String cityName = (String) RESULT_ENTITY_A.getProperty("City Name");
-        Assert.assertEquals(MAPIMAGE_A.getCityName(), cityName));
+        Assert.assertEquals(MAPIMAGE_A.getCityName(), cityName);
     }
 
     @Test
@@ -132,6 +132,7 @@ public final class SaveMapImageDatastoreTest {
         double latitude = 0;
         for (Entity RESULT_ENTITY : result.asIterable()) {
             latitude = (double) RESULT_ENTITY.getProperty("Latitude");
+            System.out.println("LAT IS: " + latitude);
         }
         Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15);
     }
@@ -207,4 +208,45 @@ public final class SaveMapImageDatastoreTest {
         }
         Assert.assertEquals(MAPIMAGE_A.getTimeStamp(), timeStamp);
     }           
+}
+
+
+
+ public List<TreeNode> delNodes(TreeNode root, int[] to_delete) {
+        List<TreeNode> result = new ArrayList<>();
+        Set<Integer> set = new HashSet<>();
+        for (int de : to_delete) {
+            set.add(de);
+        }
+        //put to-delete number in hashset for O(1) lookup
+        dfs(root, set, result, true);
+        return result;
+    }
+
+    private void dfs(TreeNode root,
+                     Set<Integer> del,
+                     List<TreeNode> result, boolean isRoot) {
+        //if current root does not contain in the del and it is root,
+        // then add to the result
+        if (!del.contains(root.val) && isRoot)
+            result.add(root);
+
+        // check parents is on the list of 'to_be_deleted'
+        isRoot = del.contains(root.val);
+
+        // As we are doing DFS, we need check left node and right node
+        if (root.left != null) {
+            dfs(root.left, del, result, isRoot);
+            // If the child node is on the 'to_be_deleted' list, replace it will null
+            if (del.contains(root.left.val))
+                root.left = null;
+        }
+
+        if (root.right != null) {
+            dfs(root.right, del, result, isRoot);
+            // If the child node is on the 'to_be_deleted' list, replace it will null
+            if (del.contains(root.right.val))
+                root.right = null;
+        }
+    }
 }

@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This servlet retrieves the tracked locations to display as location options in the app.html form.
+ * This servlet retrieves tracked locations metadata and prepares it to be
+ * fetched and displayed as location options in app.html form.
  */
 @WebServlet("/form-locations")
 public class FormLocations extends HttpServlet {
@@ -24,12 +25,12 @@ public class FormLocations extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // Query Datastore for tracked metadata
+        // Query Datastore for tracked location metadata
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
         Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
         PreparedQuery results = datastore.prepare(query);
 
-        // Add tracked locations to a List.
+        // Add tracked locations as MapImage objects to a List.
         List<MapImage> formLocationOptions = new ArrayList<>();
         for (Entity entity : results.asIterable()) {
             String location = (String) entity.getProperty("cityName");

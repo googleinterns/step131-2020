@@ -30,9 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
- * corresponding to user form request. A POST request gets the parameter values from the form and
- * prepares the MapImages to be sent to QueryCloud.java.
+ * This servlet retrieves the MapImages from Datastore corresponding to parameter values of
+ * a user's form request and prepares the MapImages to be sent to QueryCloud.java.
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
@@ -153,11 +152,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         return compositeFilter;
     }
 
-    /** Helper function for buildCityFilters * */
-    private Filter buildIndividualCityFilter(String city) {
-        return FilterOperator.EQUAL.of("City Name", city);
-    }
-
     /** Builds the city filters for the overall Composite Filter * */
     private Filter buildCityFilters(ArrayList<String> cityStrings) {
         ArrayList<Filter> cityFilters = new ArrayList<>();
@@ -173,9 +167,9 @@ public class FrontendQueryDatastore extends HttpServlet {
         }
     }
 
-    /** Helper function for buildZoomFilters * */
-    private Filter buildIndividualZoomFilter(int zoom) {
-        return FilterOperator.EQUAL.of("Zoom", zoom);
+    /** Helper function for buildCityFilters * */
+    private Filter buildIndividualCityFilter(String city) {
+        return FilterOperator.EQUAL.of("City Name", city);
     }
 
     /** * Builds the zoom filters for the overall Composite Filter. * */
@@ -201,6 +195,11 @@ public class FrontendQueryDatastore extends HttpServlet {
             }
         }
         return zoomFilter;
+    }
+
+    /** Helper function for buildZoomFilters * */
+    private Filter buildIndividualZoomFilter(int zoom) {
+        return FilterOperator.EQUAL.of("Zoom", zoom);
     }
 
     /** * Builds the date filters for the overall Composite Filter. * */

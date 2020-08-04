@@ -6,6 +6,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This servlet enables requests for additional locations to be recorded.
+ */
 @WebServlet("/add-location")
 public class AddLocation extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
@@ -17,6 +20,6 @@ public class AddLocation extends HttpServlet {
         double longitude = Double.parseDouble(request.getParameter("longitude"));
         String cityName = request.getParameter("cityName");
 
-        // TODO: A new "TrackedLocation" entity should be added as well.
+        // TODO: New "TrackedLocation" entity created from form and stored.
     }
 }

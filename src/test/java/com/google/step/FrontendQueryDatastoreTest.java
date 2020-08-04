@@ -237,6 +237,168 @@ public final class FrontendQueryDatastoreTest {
 
     @Test
     public void buildCompositeFilter_OnlyZooms() {
-        
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("5");
+        zoomStrings.add("13");
+        zoomStrings.add("18");
+
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, EMPTY_STRING_ARRAY, "", "");
+
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("Zoom", 5),
+                FilterOperator.EQUAL.of("Zoom", 13),
+                FilterOperator.EQUAL.of("Zoom", 18)
+        )));
+        // We duplicate the filter to bypass Datastore's requirement
+        // for a composite filter to have two subfilters.
+        expected_filters.add(expected_filters.get(0));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter_OnlyCities() {
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, cityStrings, "", "");
+
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("City Name", "London"),
+                FilterOperator.EQUAL.of("City Name", "New York City"),
+                FilterOperator.EQUAL.of("City Name", "Tokyo")
+        )));
+        // We duplicate the filter to bypass Datastore's requirement
+        // for a composite filter to have two subfilters.
+        expected_filters.add(expected_filters.get(0));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter_OnlyDates() {
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY, JULY_9_2020_STRING, JULY_31_2020_STRING);
+
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.AND, Arrays.asList(
+                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", JULY_9_2020_EPOCH),
+                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", JULY_31_2020_EPOCH)
+        )));
+        // We duplicate the filter to bypass Datastore's requirement
+        // for a composite filter to have two subfilters.
+        expected_filters.add(expected_filters.get(0));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter_CityAndZoom() {
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, cityStrings, "", "");
+
+        // Set up each expected filter (city, zoom) individually.
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        // Add city filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("City Name", "London"),
+                FilterOperator.EQUAL.of("City Name", "New York City"),
+                FilterOperator.EQUAL.of("City Name", "Tokyo")
+        )));
+        // Add zoom filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("Zoom", 6),
+                FilterOperator.EQUAL.of("Zoom", 12),
+                FilterOperator.EQUAL.of("Zoom", 15)
+        )));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter_CityAndDate() {
+        // Set up each value from the "form".
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, cityStrings, JULY_9_2020_STRING, AUGUST_5_2020_STRING);
+
+        // Set up each expected filter (city, date) individually.
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        // Add city filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("City Name", "London"),
+                FilterOperator.EQUAL.of("City Name", "New York City"),
+                FilterOperator.EQUAL.of("City Name", "Tokyo")
+        )));
+        // Add date filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.AND, Arrays.asList(
+                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", JULY_9_2020_EPOCH),
+                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", AUGUST_5_2020_EPOCH)
+        )));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter_ZoomAndDate() {
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, EMPTY_STRING_ARRAY, JULY_31_2020_STRING, AUGUST_5_2020_STRING);
+
+        // Set up each expected filter (zoom, date) individually.
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        // Add zoom filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("Zoom", 6),
+                FilterOperator.EQUAL.of("Zoom", 12),
+                FilterOperator.EQUAL.of("Zoom", 15)
+        )));
+        // Add date filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.AND, Arrays.asList(
+                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", JULY_31_2020_EPOCH),
+                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", AUGUST_5_2020_EPOCH)
+        )));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
     }
 }

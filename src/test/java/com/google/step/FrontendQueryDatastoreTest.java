@@ -41,8 +41,14 @@ public final class FrontendQueryDatastoreTest {
     
     private final ArrayList<String> EMPTY_STRING_ARRAY = new ArrayList<>();
     private final LocalDateTime JULY_9_2020 = LocalDateTime.of(2020, 7, 9, 6, 30);
+    private final long JULY_9_2020_EPOCH = JULY_9_2020.toEpochSecond(ZoneOffset.UTC);
+    private final String JULY_9_2020_STRING = String.valueOf(JULY_9_2020.toEpochSecond(ZoneOffset.UTC));
     private final LocalDateTime JULY_31_2020 = LocalDateTime.of(2020, 7, 31, 12, 30);
+    private final long JULY_31_2020_EPOCH = JULY_31_2020.toEpochSecond(ZoneOffset.UTC);
+    private final String JULY_31_2020_STRING = String.valueOf(JULY_31_2020.toEpochSecond(ZoneOffset.UTC));
     private final LocalDateTime AUGUST_5_2020 = LocalDateTime.of(2020, 8, 5, 18, 30);
+    private final long AUGUST_5_2020_EPOCH = AUGUST_5_2020.toEpochSecond(ZoneOffset.UTC);
+    private final String AUGUST_5_2020_STRING = String.valueOf(AUGUST_5_2020.toEpochSecond(ZoneOffset.UTC));
 
 
     @Before
@@ -78,23 +84,22 @@ public final class FrontendQueryDatastoreTest {
 
     @Test
     public void buildDateFilters() {
-        long july_9_2020_epoch = JULY_9_2020.toEpochSecond(ZoneOffset.UTC);
-        long july_31_2020_epoch = JULY_31_2020.toEpochSecond(ZoneOffset.UTC);
+        
 
         Filter actual = frontendQueryDatastore.buildDateFilters(
-            july_9_2020_epoch, july_31_2020_epoch);
+            JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);
 
         Filter expected = new CompositeFilter(
             CompositeFilterOperator.AND, Arrays.asList(
-                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", july_9_2020_epoch),
-                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", july_31_2020_epoch)
+                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", JULY_9_2020_EPOCH),
+                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", JULY_31_2020_EPOCH)
         ));
         
         Assert.assertEquals(expected, actual);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void buildZoomFilters_EmptyArray() {
+    public void buildZoomFilters_NoInput() {
         Filter actual = frontendQueryDatastore.buildZoomFilters(EMPTY_STRING_ARRAY);
     }
 
@@ -150,10 +155,12 @@ public final class FrontendQueryDatastoreTest {
 
         Filter actual = frontendQueryDatastore.buildZoomFilters(zoomStrings);
         Filter expected = FilterOperator.EQUAL.of("Zoom", 12);
+
+        Assert.assertEquals(expected, actual);
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void buildCityFilters_EmptyArray() {
+    public void buildCityFilters_NoInput() {
         Filter actual = frontendQueryDatastore.buildCityFilters(EMPTY_STRING_ARRAY);
     }
 
@@ -175,5 +182,61 @@ public final class FrontendQueryDatastoreTest {
         Assert.assertEquals(expected, actual);
     }
 
-    // Lots of tests for buildCompositeFilter with only one argument (diff permuations)
+    @Test
+    public void buildCityFilters_OneInput() {
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+
+        Filter actual = frontendQueryDatastore.buildCityFilters(cityStrings);
+        Filter expected = FilterOperator.EQUAL.of("City Name", "London");
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter() {
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        Filter actual = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, cityStrings, JULY_9_2020_STRING, JULY_31_2020_STRING);
+
+        // Set up each expected filter (city, zoom, date) individually.
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        // Add city filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("City Name", "London"),
+                FilterOperator.EQUAL.of("City Name", "New York City"),
+                FilterOperator.EQUAL.of("City Name", "Tokyo")
+        )));
+        // Add zoom filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("Zoom", 6),
+                FilterOperator.EQUAL.of("Zoom", 12),
+                FilterOperator.EQUAL.of("Zoom", 15)
+        )));
+        // Add date filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.AND, Arrays.asList(
+                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", JULY_9_2020_EPOCH),
+                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", JULY_31_2020_EPOCH)
+        )));
+        Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildCompositeFilter_OnlyZooms() {
+        
+    }
 }

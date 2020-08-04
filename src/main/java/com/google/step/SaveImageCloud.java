@@ -48,8 +48,7 @@ public class SaveImageCloud extends HttpServlet {
         ArrayList<MapImage> mapImages =
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
-        Storage storage =
-            StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+        Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
         // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {

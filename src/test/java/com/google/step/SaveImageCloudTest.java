@@ -3,12 +3,10 @@ package com.google.step;
 import static org.junit.Assert.*;
 
 import com.google.api.core.ApiClock;
-import com.google.cloud.ServiceOptions;
 import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 
 @RunWith(JUnit4.class)
 public final class SaveImageCloudTest {

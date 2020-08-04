@@ -143,11 +143,12 @@ public class MapImage {
         return url;
     }
 
-    public void updateMetadata(LocalDateTime time) {
+    public MapImage updateMetadata(LocalDateTime time) {
         setMonth(time.getMonthValue());
         setYear(time.getYear());
         setObjectID();
         long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
         setTimeStamp(epoch);
+        return this;
     }
 }

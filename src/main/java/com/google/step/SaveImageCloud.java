@@ -38,6 +38,8 @@ import javax.servlet.http.HttpServletResponse;
 public class SaveImageCloud extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
+    private final Storage storage =
+            StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
@@ -96,15 +98,14 @@ public class SaveImageCloud extends HttpServlet {
     }
 
     public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
-            throws StorageException {
+            throws StorageException, IllegalArgumentException {
         try {
-            Storage storage =
-                    StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+            if (imageData == null) throw new IllegalArgumentException("Image data is null");
             BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
             Blob blob = storage.create(blobInfo, imageData);
             return blob;
-        } catch (StorageException e) {
+        } catch (StorageException | IllegalArgumentException e) {
             LOGGER.severe(e.getMessage());
             throw e;
         }

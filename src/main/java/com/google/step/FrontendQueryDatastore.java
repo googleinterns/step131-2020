@@ -108,7 +108,7 @@ public class FrontendQueryDatastore extends HttpServlet {
      * first checking for empty values from the form, then using sub-filters of zooms, dates, and
      * locations based off user-input values from the form. *
      */
-    private CompositeFilter buildCompositeFilter(
+    public CompositeFilter buildCompositeFilter(
             ArrayList<String> zoomStrings,
             ArrayList<String> cityStrings,
             String startDateStr,
@@ -159,7 +159,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** Builds the city filters for the overall Composite Filter * */
-    private Filter buildCityFilters(ArrayList<String> cityStrings) {
+    public Filter buildCityFilters(ArrayList<String> cityStrings) {
         ArrayList<Filter> cityFilters = new ArrayList<>();
         for (int i = 0; i < cityStrings.size(); i++) {
             String city = cityStrings.get(i);
@@ -179,7 +179,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** * Builds the zoom filters for the overall Composite Filter. * */
-    private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
+    public Filter buildZoomFilters(ArrayList<String> zoomStrings) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
             try {
@@ -204,7 +204,7 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** * Builds the date filters for the overall Composite Filter. * */
-    private Filter buildDateFilters(long startDateLong, long endDateLong) {
+    public Filter buildDateFilters(long startDateLong, long endDateLong) {
         return new CompositeFilter(
                 CompositeFilterOperator.AND,
                 Arrays.asList(

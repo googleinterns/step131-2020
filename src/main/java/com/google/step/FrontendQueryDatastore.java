@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This servlet retrieves the MapImages from Datastore corresponding to parameter values of
- * a user's form request and prepares the MapImages to be sent to QueryCloud.java.
+ * This servlet retrieves the MapImages from Datastore corresponding to parameter values of a user's
+ * form request and prepares the MapImages to be sent to QueryCloud.java.
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {

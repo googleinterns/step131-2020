@@ -18,10 +18,10 @@ public class CommonUtils {
     }
 
     /**
-     * Helper function for entitiesToMapImages(PreparedQuery pq).
-     * Converts each individual entity into a MapImage object.
-     * NOTE: entity.get"Type" (i.e. entity.getDouble) will return either DatastoreException
-     * if the property doesn't exist, or a ClassCastException if the value is the wrong type.
+     * Helper function for entitiesToMapImages(PreparedQuery pq). Converts each individual entity
+     * into a MapImage object. NOTE: entity.get"Type" (i.e. entity.getDouble) will return either
+     * DatastoreException if the property doesn't exist, or a ClassCastException if the value is the
+     * wrong type.
      */
     public static MapImage entityToMapImage(Entity entity) {
         double latitude = (double) entity.getProperty("Latitude");

@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This servlet retrieves tracked locations metadata and prepares it to be
- * fetched and displayed as location options in app.html form.
+ * This servlet retrieves tracked locations metadata and prepares it to be fetched and displayed as
+ * location options in app.html form.
  */
 @WebServlet("/form-locations")
 public class FormLocations extends HttpServlet {

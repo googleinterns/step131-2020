@@ -6,9 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * This servlet enables requests for additional locations to be recorded.
- */
+/** This servlet enables requests for additional locations to be recorded. */
 @WebServlet("/add-location")
 public class AddLocation extends HttpServlet {
     private final String PROJECT_ID = System.getenv("PROJECT_ID");

@@ -17,12 +17,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import com.google.cloud.storage.contrib.nio.testing.LocalStorageHelper;
 
 @RunWith(JUnit4.class)
 public final class SaveImageCloudTest {
     private SaveImageCloud saveCloud;
     private Storage storage;
-    private StorageOptions options;
+    private LocalStorageHelper storageHelper;
 
     private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
@@ -51,16 +52,7 @@ public final class SaveImageCloudTest {
     @Before
     public void setUp() {
         saveCloud = new SaveImageCloud();
-        options =
-                StorageOptions.newBuilder()
-                        .setProjectId(PROJECT_ID)
-                        .setClock(TIME_SOURCE)
-                        .setRetrySettings(ServiceOptions.getNoRetrySettings())
-                        .build();
-    }
-
-    public void initializeService() {
-        storage = options.getService();
+        storage = LocalStorageHelper.getOptions().getService();
     }
 
     @Test
@@ -89,16 +81,12 @@ public final class SaveImageCloudTest {
 
     @Test
     public void saveImageToGCSNotNull() {
-        initializeService();
-        Blob result = saveCloud.saveImageToCloudStorage(GCS_CONTENT, MAP_IMAGE_1);
+        Blob result = saveCloud.saveImageToCloudStorage(storage, GCS_CONTENT, MAP_IMAGE_1);
         assertNotNull(result);
-        BlobId id = BlobId.of(BUCKET_NAME, result.getName());
-        storage.delete(id);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void saveImageToGCSIllegalArgumentException() {
-        initializeService();
-        saveCloud.saveImageToCloudStorage(null, MAP_IMAGE_1);
+        saveCloud.saveImageToCloudStorage(storage, null, MAP_IMAGE_1);
     }
 }

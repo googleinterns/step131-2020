@@ -119,6 +119,10 @@
             <artifactId>appengine-api-labs</artifactId>
             <version>1.9.80</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-nio</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

@@ -37,7 +37,7 @@ public final class FrontendQueryDatastoreTest {
 
     // Local Datastore for testing purposes.
     private final LocalServiceTestHelper helper =
-      new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+        new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
     
     private final ArrayList<String> EMPTY_STRING_ARRAY = new ArrayList<>();
     private final LocalDateTime JULY_9_2020 = LocalDateTime.of(2020, 7, 9, 6, 30);
@@ -56,9 +56,6 @@ public final class FrontendQueryDatastoreTest {
         //NOTE: Instantiating Entities before performing helper.setUp() causes the API error.
         helper.setUp();
         datastore = DatastoreServiceFactory.getDatastoreService();
-
-        // Set up Datastore entities.
-
 
         frontendQueryDatastore = new FrontendQueryDatastore();
     }

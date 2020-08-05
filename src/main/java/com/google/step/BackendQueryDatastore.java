@@ -39,7 +39,7 @@ public class BackendQueryDatastore extends HttpServlet {
 
         // Combine Datastore tracked metadata with zooms to store new MapImage objects in a List.
         List<MapImage> mapImages = loadTrackedLocations(results);
-        
+
         // Send new MapImage objects through JSON to SaveImageCloud.java
         Gson gson = new Gson();
         String data = gson.toJson(mapImages);
@@ -51,9 +51,7 @@ public class BackendQueryDatastore extends HttpServlet {
         queue.add(options);
     }
 
-    /***
-        Query Datastore for the locations and zoom levels that we need to get for this month.
-    ***/
+    /** * Query Datastore for the locations and zoom levels that we need to get for this month. * */
     public PreparedQuery getQuery() {
         Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
         return datastore.prepare(query);

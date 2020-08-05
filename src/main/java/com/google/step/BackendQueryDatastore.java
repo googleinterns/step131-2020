@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
         description = "taskqueue: Get MapImage data from Datastore",
         urlPatterns = "/backend-query-datastore")
 public class BackendQueryDatastore extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     @Override

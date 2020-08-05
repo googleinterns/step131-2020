@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -24,9 +25,7 @@ import org.apache.http.client.utils.URIBuilder;
  */
 @WebServlet("/redirect")
 public class Redirect extends HttpServlet {
-    // Both of these variables are unique identifiers for OAuth for the project.
-    private final String CLIENT_ID = System.getenv("client_id");
-    private final String CLIENT_SECRET = System.getenv("client_secret");
+    private static final Logger LOGGER = Logger.getLogger(Redirect.class.getName());
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -35,29 +34,31 @@ public class Redirect extends HttpServlet {
         // The request was approved
         if (code != null) {
             try {
-                String req = "https://oauth2.googleapis.com/token";
+                // Use a URIBuilder object to serialize the request parameters
                 URIBuilder builder = new URIBuilder();
-                builder.setScheme("https");
-                builder.setHost("google.com");
-                builder.addParameter("client_id", CLIENT_ID);
-                builder.addParameter("client_secret", CLIENT_SECRET);
+                builder.setScheme("https"); // Filler scheme for builder
+                builder.setHost("google.com"); // Filler host for builder
+                builder.addParameter("client_id", CommonUtils.CLIENT_ID);
+                builder.addParameter("client_secret", CommonUtils.CLIENT_SECRET);
                 builder.addParameter("code", code);
                 builder.addParameter("redirect_uri", redirectUri);
                 builder.addParameter("grant_type", "authorization_code");
-                String base = builder.build().toString();
-                // Get escaped query parameters
-                String data = base.substring(base.indexOf("?") + 1);
+                String baseURL = builder.build().toString();
+                byte[] queryParameters =
+                        baseURL.substring(baseURL.indexOf("?") + 1)
+                                .getBytes(StandardCharsets.UTF_8);
+                String req = "https://oauth2.googleapis.com/token";
                 URL url = new URL(req);
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("POST");
                 con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                con.setRequestProperty("Content-Length", Integer.toString(data.getBytes().length));
+                con.setRequestProperty("Content-Length", Integer.toString(queryParameters.length));
                 con.setDoInput(true);
                 con.setDoOutput(true);
-                // TODO: add logging for error handling
                 try (DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
-                    writer.write(data.getBytes(StandardCharsets.UTF_8));
+                    writer.write(queryParameters);
                 } catch (IOException e) {
+                    LOGGER.severe(e.getMessage());
                 }
                 InputStream is = con.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -69,7 +70,7 @@ public class Redirect extends HttpServlet {
                 session.setAttribute("accessToken", tokenResponse.getAccessToken());
                 response.sendRedirect("/app.html");
             } catch (URISyntaxException e) {
-                // TODO: add logging
+                LOGGER.severe(e.getMessage());
             }
         }
     }

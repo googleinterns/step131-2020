@@ -23,8 +23,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private static final Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
 
     @Override
@@ -38,15 +36,7 @@ public class QueryCloud extends HttpServlet {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             mapImages.forEach(
                     image -> {
-                        BlobInfo blobInfo =
-                                BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
-                        String url =
-                                storage.signUrl(
-                                                blobInfo,
-                                                30,
-                                                TimeUnit.MINUTES,
-                                                Storage.SignUrlOption.withV4Signature())
-                                        .toString();
+                        String url = CommonUtils.getCloudFileURL(storage, image.getObjectID(), 30).toString();
                         image.setURL(url);
                     });
             String data = gson.toJson(mapImages);

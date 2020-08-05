@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/form-locations")
 public class FormLocations extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -5,8 +5,17 @@ import static java.lang.Math.toIntExact;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import java.util.ArrayList;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 public class CommonUtils {
+    protected static final String PROJECT_ID = System.getenv("PROJECT_ID");
+    protected static final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
+    protected static final String CLIENT_ID = System.getenv("client_id");
+    protected static final String CLIENT_SECRET = System.getenv("client_secret");
+
     /**
      * * Converts the entities returned from the Datastore query into MapImage objects for us to
      * use. *
@@ -47,5 +56,10 @@ public class CommonUtils {
                         timeStamp);
         mapImage.setObjectID();
         return mapImage;
+    }
+
+    public static URL getCloudFileURL(Storage storage, String objectID, int timeInMinutes) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, objectID).build();
+        return storage.signUrl(blobInfo, timeInMinutes, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature());
     }
 }

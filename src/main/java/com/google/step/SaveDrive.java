@@ -16,20 +16,18 @@ import com.google.appengine.api.datastore.Query;
 import com.google.apphosting.api.ApiProxy;
 import com.google.apphosting.api.ApiProxy.CancelledException;
 import com.google.apphosting.api.DeadlineExceededException;
-import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
 
 /** This servlet will be used to upload images to the shared Google Drive */
 @WebServlet(
@@ -83,7 +81,8 @@ public class SaveDrive extends HttpServlet {
     }
 
     /** Upload a file to Drive */
-    public File uploadFile(Drive drive, File fileMetadata, InputStream inputStream) throws IOException {
+    public File uploadFile(Drive drive, File fileMetadata, InputStream inputStream)
+            throws IOException {
         InputStreamContent isc = new InputStreamContent("image/png", inputStream);
         File file =
                 drive.files()
@@ -95,7 +94,8 @@ public class SaveDrive extends HttpServlet {
     }
 
     /** Get the parent folder of a Drive folder */
-    public FileList getParentFolder(Drive drive, String parentID, String folderName) throws IOException {
+    public FileList getParentFolder(Drive drive, String parentID, String folderName)
+            throws IOException {
         FileList result =
                 drive.files()
                         .list()

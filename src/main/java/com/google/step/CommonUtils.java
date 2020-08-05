@@ -4,10 +4,10 @@ import static java.lang.Math.toIntExact;
 
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
-import java.util.ArrayList;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class CommonUtils {
@@ -60,6 +60,7 @@ public class CommonUtils {
 
     public static URL getCloudFileURL(Storage storage, String objectID, int timeInMinutes) {
         BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, objectID).build();
-        return storage.signUrl(blobInfo, timeInMinutes, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature());
+        return storage.signUrl(
+                blobInfo, timeInMinutes, TimeUnit.MINUTES, Storage.SignUrlOption.withV4Signature());
     }
 }

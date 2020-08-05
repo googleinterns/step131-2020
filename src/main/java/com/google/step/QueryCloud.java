@@ -1,7 +1,6 @@
 package com.google.step;
 
 import com.google.auth.ServiceAccountSigner.SigningException;
-import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.gson.Gson;
@@ -9,7 +8,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -36,7 +34,9 @@ public class QueryCloud extends HttpServlet {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             mapImages.forEach(
                     image -> {
-                        String url = CommonUtils.getCloudFileURL(storage, image.getObjectID(), 30).toString();
+                        String url =
+                                CommonUtils.getCloudFileURL(storage, image.getObjectID(), 30)
+                                        .toString();
                         image.setURL(url);
                     });
             String data = gson.toJson(mapImages);

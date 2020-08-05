@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -28,6 +29,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.StringBuilder;
+import java.time.LocalDateTime;
 
 /**
  * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
@@ -58,22 +61,23 @@ public class FrontendQueryDatastore extends HttpServlet {
         } catch (NullPointerException e) {
             LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
         }
-        String startDateStr = request.getParameter("startDate");
-        String endDateStr = request.getParameter("endDate");
+        String startDateStr = "";
+        String endDateStr = "";
+        if (request.getParameter("startDate") != null) {
+            startDateStr = request.getParameter("startDate");
+        }
+        if (request.getParameter("endDate") != null) {
+            endDateStr = request.getParameter("endDate");
+        }
 
         // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter =
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        Query query =
-                new Query("MapImage")
-                        .setFilter(compositeFilter)
-                        .addSort("City Name", SortDirection.ASCENDING)
-                        .addSort("Zoom", SortDirection.ASCENDING)
-                        .addSort("Month", SortDirection.ASCENDING);
+        Query query = buildQuery(compositeFilter);
 
-        // Add all the mapEntities that matched the filter
+        // Add all the mapEntities that matched the filter.
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
@@ -130,7 +134,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             long startDateLong = Long.parseLong(startDateStr);
             long endDateLong = Long.parseLong(endDateStr);
-            filters.add(buildDateFilters(startDateLong, endDateLong));
+            filters.add(buildDateFilter(startDateLong, endDateLong));
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Building Date Filters: " + e.getMessage());
         }
@@ -210,5 +214,14 @@ public class FrontendQueryDatastore extends HttpServlet {
                 Arrays.asList(
                         FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
                         FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
+    }
+
+    public Query buildQuery(CompositeFilter compositeFilter) {
+        Query query = new Query("MapImage")
+            .setFilter(compositeFilter)
+            .addSort("Timestamp", SortDirection.ASCENDING)
+            .addSort("Zoom", SortDirection.ASCENDING)
+            .addSort("City Name", SortDirection.ASCENDING);
+        return query;
     }
 }

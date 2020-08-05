@@ -2,7 +2,6 @@ package com.google.step;
 
 import static org.junit.Assert.*;
 
-import com.google.api.core.ApiClock;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -22,29 +21,14 @@ public final class SaveImageCloudTest {
     private Storage storage;
     private LocalStorageHelper storageHelper;
 
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private final LocalDateTime TIME = LocalDateTime.of(2020, 7, 10, 9, 30);
     private final MapImage MAP_IMAGE_1 =
             new MapImage("Test Location", 47.345, 34.456).updateMetadata(TIME);
     private final BlobInfo BLOB_INFO_1 =
-            BlobInfo.newBuilder(BUCKET_NAME, MAP_IMAGE_1.getObjectID())
+            BlobInfo.newBuilder(CommonUtils.BUCKET_NAME, MAP_IMAGE_1.getObjectID())
                     .setContentType("image/png")
                     .build();
     private final byte[] GCS_CONTENT = "test".getBytes();
-
-    private static final ApiClock TIME_SOURCE =
-            new ApiClock() {
-                @Override
-                public long nanoTime() {
-                    return 42_000_000_000L;
-                }
-
-                @Override
-                public long millisTime() {
-                    return 42_000L;
-                }
-            };
 
     @Before
     public void setUp() {

@@ -66,6 +66,13 @@ public class MapImage {
         this.cityName = location;
     }
 
+    /** Overload the constructor for faster loading & querying from Datastore. * */
+    public MapImage(double latitude, double longitude, int zoom) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.zoom = zoom;
+    }
+
     /** Overload the constructor loading tracked locations from Datastore. * */
     public MapImage(String location, double latitude, double longitude) {
         this.cityName = location;

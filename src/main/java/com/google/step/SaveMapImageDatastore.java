@@ -42,6 +42,9 @@ public class SaveMapImageDatastore extends HttpServlet {
     /** Makes new entity of kind entityKind and sets properties. */
     public Entity createEntity(MapImage mapImage, String entityKind) {
         // An entity's look-up key is its objectID.
+        if (mapImage.getObjectID() == null) {
+            mapImage.setObjectID();
+        }
         Entity entity = new Entity(entityKind, mapImage.getObjectID());
         entity.setProperty("Latitude", mapImage.getLatitude());
         entity.setProperty("Longitude", mapImage.getLongitude());

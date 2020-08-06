@@ -127,7 +127,8 @@ public final class FormLocationsTest {
             longitudes[i] = (double) RESULT_ENTITY.getProperty("longitude");
             i++;
         }
-        Assert.assertEquals((double) ACTUAL_ENTITY_A.getProperty("longitude"), longitudes[1], 1e-15);
+        Assert.assertEquals(
+                (double) ACTUAL_ENTITY_A.getProperty("longitude"), longitudes[1], 1e-15);
     }
 
     @Test
@@ -139,7 +140,8 @@ public final class FormLocationsTest {
             longitudes[i] = (double) RESULT_ENTITY.getProperty("longitude");
             i++;
         }
-        Assert.assertEquals((double) ACTUAL_ENTITY_B.getProperty("longitude"), longitudes[0], 1e-15);
+        Assert.assertEquals(
+                (double) ACTUAL_ENTITY_B.getProperty("longitude"), longitudes[0], 1e-15);
     }
 
     @Test
@@ -211,7 +213,8 @@ public final class FormLocationsTest {
 
     @Test
     public void testEmptyPreparedQuery() {
-        Query query = new Query("No Tracked Loc Entities").addSort("cityName", SortDirection.ASCENDING);
+        Query query =
+                new Query("No Tracked Loc Entities").addSort("cityName", SortDirection.ASCENDING);
         PreparedQuery preparedQuery = datastore.prepare(query);
         List<MapImage> resultList = formLocations.convertMetdataToMapImages(preparedQuery);
         Assert.assertEquals(new ArrayList<MapImage>(), resultList);

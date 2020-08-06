@@ -56,9 +56,7 @@ public class BackendQueryDatastore extends HttpServlet {
         return datastore.prepare(query);
     }
 
-    /**
-     * Utilize Datastore tracked metadata with zooms to create new MapImage objects in a List. *
-     */
+    /** Utilize Datastore tracked metadata with zooms to create new MapImage objects in a List. * */
     public List<MapImage> loadTrackedLocations(PreparedQuery results) {
         List<MapImage> mapImages = new ArrayList<>();
         for (Entity entity : results.asIterable()) {

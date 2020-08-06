@@ -101,7 +101,7 @@ public final class BackendQueryDatastoreTest {
 
         // Load the tracked locations from Datastore.
         Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
-        PreparedQuery results = datastore.prepare(query);  
+        PreparedQuery results = datastore.prepare(query);
         List<MapImage> actual = backendQueryDatastore.loadTrackedLocations(results);
 
         // Add all tracked locations from start to end zooms in expected.

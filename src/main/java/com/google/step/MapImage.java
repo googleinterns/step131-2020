@@ -51,7 +51,7 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
-    /** 
+    /**
      * Overload constructor for fast BackendQueryDatastore.java tracked location metadata retrieval.
      * *
      */

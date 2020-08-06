@@ -33,7 +33,7 @@ public final class SaveMapImageDatastoreTest {
     private MapImage MAPIMAGE_B;
     private Entity RESULT_ENTITY_A;
     private Entity RESULT_ENTITY_B;
-    private MapImage EntitiesCTUAL_ENTITY_A;
+    private Entity ACTUAL_ENTITY_A;
     private PreparedQuery preparedQuery;
 
     @Before

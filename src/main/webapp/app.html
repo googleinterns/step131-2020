@@ -28,7 +28,7 @@
             <!-- User form to request certain recorded Google Maps snapshots. -->
             <form id="request-form" method="POST">
                 <!-- Date range input. -->
-                <label id="date-filter-label">Date Range:
+                <label id="date-filter-label" class="alert alert-info" role="alert">Date Range:
                     <input type="text" name="dateFilter" value=""/>
                 </label>
 
@@ -71,12 +71,13 @@
             <button class="btn btn-info disabled" id="download-btn">Download</button>
 
             <br>
-            <h2>Preview</h2>
+            <h4>Preview</h4>
             <div id="map"></div>
 
             <br>
+            <br>
             <div>
-                <p>Requested Images:</p>
+                <h4>Requested Images:</h4>
                 <section id="requested-images" class="grid-container"></section>
             </div>
         </div>

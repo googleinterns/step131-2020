@@ -1,5 +1,7 @@
 package com.google.step;
 
+import static org.mockito.Mockito.*;
+
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -8,15 +10,14 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 public final class BackendQueryDatastoreTest {
@@ -77,7 +78,7 @@ public final class BackendQueryDatastoreTest {
 
         // Load the tracked locations from Datastore.
         Query query = new Query("TrackedLocation").addSort("cityName", SortDirection.ASCENDING);
-        PreparedQuery results = datastore.prepare(query);  
+        PreparedQuery results = datastore.prepare(query);
         List<MapImage> actual = backendQueryDatastore.loadTrackedLocations(results);
 
         // Add all tracked locations from start to end zooms in expected.

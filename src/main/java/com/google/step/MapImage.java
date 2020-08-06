@@ -51,7 +51,10 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
-    /** Overload constructor for fast BackendQueryDatastore.java tracked location metadata retrieval. * */
+    /** 
+     * Overload constructor for fast BackendQueryDatastore.java tracked location metadata retrieval.
+     * *
+     */
     public MapImage(double latitude, double longitude, String location, int zoom) {
         this.latitude = latitude;
         this.longitude = longitude;
@@ -59,10 +62,7 @@ public class MapImage {
         this.zoom = zoom;
     }
 
-    /** 
-     * Overload constructor for fast FormLocation.java tracked location retrieval.
-     * *
-     */
+    /** Overload constructor for fast FormLocation.java tracked location retrieval. * */
     public MapImage(double latitude, double longitude, String location) {
         this.latitude = latitude;
         this.longitude = longitude;

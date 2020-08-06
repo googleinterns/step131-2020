@@ -58,6 +58,7 @@ public class CommonUtils {
         return mapImage;
     }
 
+    /* Helper method to retrieve a file from Cloud Storage and sign the URL for the specified duration. */
     public static URL getCloudFileURL(Storage storage, String objectID, int timeInMinutes) {
         BlobInfo blobInfo = BlobInfo.newBuilder(BUCKET_NAME, objectID).build();
         return storage.signUrl(

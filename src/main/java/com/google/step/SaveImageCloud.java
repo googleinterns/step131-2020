@@ -84,6 +84,7 @@ public class SaveImageCloud extends HttpServlet {
         con.getInputStream().close();
     }
 
+    /* This method retrieves the image data from a given request URL.  */
     public byte[] getImageData(String requestURL) throws IOException {
         try {
             URL url = new URL(requestURL);
@@ -97,6 +98,7 @@ public class SaveImageCloud extends HttpServlet {
         }
     }
 
+    /* This method saves an image to Cloud Storage. */
     public Blob saveImageToCloudStorage(Storage storage, byte[] imageData, MapImage mapImage)
             throws StorageException, IllegalArgumentException {
         try {
@@ -111,6 +113,7 @@ public class SaveImageCloud extends HttpServlet {
         }
     }
 
+    /* This method generates the request URLs for the Static Maps API. */
     public ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
         ArrayList<String> requestUrls = new ArrayList<>();
         for (MapImage mapImage : mapImages) {

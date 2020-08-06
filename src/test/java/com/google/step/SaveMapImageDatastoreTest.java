@@ -33,7 +33,7 @@ public final class SaveMapImageDatastoreTest {
     private MapImage MAPIMAGE_B;
     private Entity RESULT_ENTITY_A;
     private Entity RESULT_ENTITY_B;
-    private Entity ACTUAL_ENTITY_A;
+    private MapImage EntitiesCTUAL_ENTITY_A;
     private PreparedQuery preparedQuery;
 
     @Before
@@ -49,7 +49,7 @@ public final class SaveMapImageDatastoreTest {
         MAPIMAGE_B.setObjectID();
 
         // Set up Datastore entities.
-        ACTUAL_ENTITY_A = new Entity("MapImageEntity");
+        ACTUAL_ENTITY_A = new Entity("MapImage Entities");
         ACTUAL_ENTITY_A.setProperty("Latitude", 40.7128);
         ACTUAL_ENTITY_A.setProperty("Longitude", -74.0060);
         ACTUAL_ENTITY_A.setProperty("City Name", "New York, NY");
@@ -67,58 +67,58 @@ public final class SaveMapImageDatastoreTest {
     // First 7 tests cover assignment of setting entity properties
     @Test
     public void testLatCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         double latitude = (double) RESULT_ENTITY_A.getProperty("Latitude");
         Assert.assertEquals(MAPIMAGE_A.getLatitude(), latitude, 1e-15);
     }
 
     @Test
     public void testLongiCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         double longitude = (double) RESULT_ENTITY_A.getProperty("Longitude");
         Assert.assertEquals(MAPIMAGE_A.getLongitude(), longitude, 1e-15);
     }
 
     @Test
     public void testLocCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         String cityName = (String) RESULT_ENTITY_A.getProperty("City Name");
         Assert.assertEquals(MAPIMAGE_A.getCityName(), cityName);
     }
 
     @Test
     public void testZoomCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         int zoom = (Integer) (RESULT_ENTITY_A.getProperty("Zoom"));
         Assert.assertEquals(MAPIMAGE_A.getZoom(), zoom);
     }
 
     @Test
     public void testMonthCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         int month = (Integer) (RESULT_ENTITY_A.getProperty("Month"));
         Assert.assertEquals(MAPIMAGE_A.getMonth(), month);
     }
 
     @Test
     public void testYearCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         int year = (Integer) (RESULT_ENTITY_A.getProperty("Year"));
         Assert.assertEquals(MAPIMAGE_A.getYear(), year);
     }
 
     @Test
     public void testTimeCreateEntity() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         long timeStamp = (long) RESULT_ENTITY_A.getProperty("Timestamp");
         Assert.assertEquals(MAPIMAGE_A.getTimeStamp(), timeStamp);
     }
 
     @Test
     public void checkQuerySizeIsOne() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         Assert.assertEquals(1, preparedQuery.countEntities());
     }
@@ -126,9 +126,9 @@ public final class SaveMapImageDatastoreTest {
     // Next 7 tests check proper metadata storage
     @Test
     public void checkStoredPropertyLat() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         double latitude = 0;
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -139,9 +139,9 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyLongi() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         double longitude = 0;
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -152,9 +152,9 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyLoc() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         String cityName = "";
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -165,9 +165,9 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyZoom() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         int zoom = 0;
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -178,9 +178,9 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyMonth() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         int month = 0;
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -191,9 +191,9 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyYear() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         int year = 0;
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -204,9 +204,9 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void checkStoredPropertyTime() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         preparedQuery = datastore.prepare(query);
         long timeStamp = 0;
         for (Entity RESULT_ENTITY : preparedQuery.asIterable()) {
@@ -217,22 +217,22 @@ public final class SaveMapImageDatastoreTest {
 
     @Test
     public void testMultipleEntitiesSize() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B, "ResultEntity");
+        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B, "MapImage Entities");
         datastore.put(RESULT_ENTITY_B);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         PreparedQuery multipleEntities = datastore.prepare(query);
         Assert.assertEquals(2, multipleEntities.countEntities());
     }
 
     @Test
     public void testSort() {
-        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "ResultEntity");
+        RESULT_ENTITY_A = SaveMapImageDatastore.createEntity(MAPIMAGE_A, "MapImage Entities");
         datastore.put(RESULT_ENTITY_A);
-        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B, "ResultEntity");
+        RESULT_ENTITY_B = SaveMapImageDatastore.createEntity(MAPIMAGE_B, "MapImage Entities");
         datastore.put(RESULT_ENTITY_B);
-        Query query = new Query("ResultEntity").addSort("City Name", SortDirection.ASCENDING);
+        Query query = new Query("MapImage Entities").addSort("City Name", SortDirection.ASCENDING);
         PreparedQuery multipleEntities = datastore.prepare(query);
         List<String> sortedLocations = new ArrayList<String>();
         for (Entity RESULT_ENTITY : multipleEntities.asIterable()) {

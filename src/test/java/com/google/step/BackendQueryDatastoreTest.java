@@ -34,8 +34,8 @@ public final class BackendQueryDatastoreTest {
 
     MapImage MAP_IMAGE_A = new MapImage(77.2176496, 28.6282961, "Delhi", 10, 7, 2020, 1594038988);
     MapImage MAP_IMAGE_B = new MapImage(-0.0911334, 51.5054466, "London", 7, 7, 2020, 1594038988);
-    MapImage TRACKED_LOCATION_MAP_IMAGE_A = new MapImage(77.2176496, 28.6282961, "Delhi", 10);
-    MapImage TRACKED_LOCATION_MAP_IMAGE_B = new MapImage(-0.0911334, 51.5054466, "London", 7);
+    MapImage TRACKED_LOCATION_MAP_IMAGE_A = new MapImage(28.6282961, 77.2176496, "Delhi", 10);
+    MapImage TRACKED_LOCATION_MAP_IMAGE_B = new MapImage(51.5054466, -0.0911334, "London", 7);
     Entity TRACKED_LOCATION_ENTITY_A;
     Entity TRACKED_LOCATION_ENTITY_B;
 

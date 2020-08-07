@@ -65,7 +65,7 @@ public class BackendQueryDatastore extends HttpServlet {
                 double longitude = (double) entity.getProperty("longitude");
                 String cityName = (String) entity.getProperty("cityName");
 
-                MapImage mapImage = new MapImage(latitude, longitude, zoom, cityName);
+                MapImage mapImage = new MapImage(latitude, longitude, cityName, zoom);
                 mapImages.add(mapImage);
             }
         }

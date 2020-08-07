@@ -38,7 +38,6 @@ import java.time.LocalDateTime;
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private final Logger LOGGER = Logger.getLogger(FrontendQueryDatastore.class.getName());
 
     /** Get form parameters and query Datastore to get objectIDs based on those parameters */

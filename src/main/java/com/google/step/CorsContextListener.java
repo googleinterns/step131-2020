@@ -16,13 +16,11 @@ import javax.servlet.annotation.WebListener;
  */
 @WebListener
 public class CorsContextListener implements ServletContextListener {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         Storage storage = StorageOptions.getDefaultInstance().getService();
-        Bucket bucket = storage.get(BUCKET_NAME);
+        Bucket bucket = storage.get(CommonUtils.BUCKET_NAME);
         String origin = "https://map-snapshot-step.uc.r.appspot.com";
         HttpMethod method = HttpMethod.GET;
         String responseHeader = "Content-Type";

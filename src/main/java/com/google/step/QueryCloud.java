@@ -1,7 +1,6 @@
 package com.google.step;
 
 import com.google.auth.ServiceAccountSigner.SigningException;
-import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.gson.Gson;
@@ -9,7 +8,6 @@ import com.google.gson.reflect.TypeToken;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,8 +21,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/query-cloud")
 public class QueryCloud extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private static final Logger LOGGER = Logger.getLogger(QueryCloud.class.getName());
 
     @Override
@@ -38,14 +34,8 @@ public class QueryCloud extends HttpServlet {
             Storage storage = StorageOptions.getDefaultInstance().getService();
             mapImages.forEach(
                     image -> {
-                        BlobInfo blobInfo =
-                                BlobInfo.newBuilder(BUCKET_NAME, image.getObjectID()).build();
                         String url =
-                                storage.signUrl(
-                                                blobInfo,
-                                                30,
-                                                TimeUnit.MINUTES,
-                                                Storage.SignUrlOption.withV4Signature())
+                                CommonUtils.getCloudFileURL(storage, image.getObjectID(), 30)
                                         .toString();
                         image.setURL(url);
                     });

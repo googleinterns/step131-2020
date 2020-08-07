@@ -14,3 +14,5 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn package --file pom.xml
+        env:
+            PROJECT_ID: map-snapshot-step

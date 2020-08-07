@@ -22,7 +22,6 @@ import javax.servlet.http.HttpSession;
         description = "taskqueue: Set up SaveDrive.java to run in the background",
         urlPatterns = "/start-save-drive")
 public class StartSaveDrive extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
     private static final Logger LOGGER = Logger.getLogger(StartSaveDrive.class.getName());
 
     @Override

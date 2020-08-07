@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletResponse;
         description = "taskqueue: Save images to GCS",
         urlPatterns = "/save-images-cloud-job")
 public class SaveImageCloud extends HttpServlet {
-    private final String PROJECT_ID = System.getenv("PROJECT_ID");
-    private final String BUCKET_NAME = String.format("%s.appspot.com", PROJECT_ID);
     private static final Logger LOGGER = Logger.getLogger(SaveImageCloud.class.getName());
 
     @Override
@@ -48,14 +46,18 @@ public class SaveImageCloud extends HttpServlet {
         ArrayList<MapImage> mapImages =
                 gson.fromJson(reader, new TypeToken<ArrayList<MapImage>>() {}.getType());
         ArrayList<String> requestUrls = generateRequestUrls(mapImages);
-
+        Storage storage =
+                StorageOptions.newBuilder()
+                        .setProjectId(CommonUtils.PROJECT_ID)
+                        .build()
+                        .getService();
         // Get each MapImage image data from Static Maps and send it to Cloud Storage.
         for (int i = 0; i < mapImages.size(); i++) {
             try {
                 MapImage mapImage = mapImages.get(i);
                 byte[] imageData = getImageData(requestUrls.get(i));
                 mapImage.updateMetadata(LocalDateTime.now());
-                saveImageToCloudStorage(imageData, mapImage);
+                saveImageToCloudStorage(storage, imageData, mapImage);
             } catch (DeadlineExceededException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage());
                 throw e;
@@ -76,12 +78,13 @@ public class SaveImageCloud extends HttpServlet {
         try (DataOutputStream writer = new DataOutputStream(con.getOutputStream())) {
             writer.write(data.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-            // TODO: add logging
+            LOGGER.severe(e.getMessage());
         }
         // Consume the InputStream
         con.getInputStream().close();
     }
 
+    /* This method retrieves the image data from a given request URL.  */
     public byte[] getImageData(String requestURL) throws IOException {
         try {
             URL url = new URL(requestURL);
@@ -95,21 +98,22 @@ public class SaveImageCloud extends HttpServlet {
         }
     }
 
-    public Blob saveImageToCloudStorage(byte[] imageData, MapImage mapImage)
-            throws StorageException {
+    /* This method saves an image to Cloud Storage. */
+    public Blob saveImageToCloudStorage(Storage storage, byte[] imageData, MapImage mapImage)
+            throws StorageException, IllegalArgumentException {
         try {
-            Storage storage =
-                    StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
-            BlobId blobId = BlobId.of(BUCKET_NAME, mapImage.getObjectID());
+            if (imageData == null) throw new IllegalArgumentException("Image data is null");
+            BlobId blobId = BlobId.of(CommonUtils.BUCKET_NAME, mapImage.getObjectID());
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/png").build();
             Blob blob = storage.create(blobInfo, imageData);
             return blob;
-        } catch (StorageException e) {
+        } catch (StorageException | IllegalArgumentException e) {
             LOGGER.severe(e.getMessage());
             throw e;
         }
     }
 
+    /* This method generates the request URLs for the Static Maps API. */
     public ArrayList<String> generateRequestUrls(ArrayList<MapImage> mapImages) {
         ArrayList<String> requestUrls = new ArrayList<>();
         for (MapImage mapImage : mapImages) {

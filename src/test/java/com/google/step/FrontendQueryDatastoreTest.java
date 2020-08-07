@@ -81,7 +81,6 @@ public final class FrontendQueryDatastoreTest {
 
     @Test
     public void buildDateFilters() {
-        
 
         Filter actual = frontendQueryDatastore.buildDateFilters(
             JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);

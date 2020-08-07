@@ -38,6 +38,8 @@ public class SaveDrive extends HttpServlet {
     // The unique identifier for the shared Google Drive
     private final String DRIVE_ID = "0AJnQ8N4V8NrAUk9PVA";
     private static final Logger LOGGER = Logger.getLogger(SaveDrive.class.getName());
+    protected static final String MIME_TYPE_FOLDER = "application/vnd.google-apps.folder";
+    protected static final String MIME_TYPE_PNG = "image/png";
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -68,8 +70,12 @@ public class SaveDrive extends HttpServlet {
                     // Get the parent folder for the image
                     String parentFolderID = getParentFolderID(drive, image);
                     fileMetadata.setParents(Collections.singletonList(parentFolderID));
-                    // Upload file
-                    uploadFile(drive, fileMetadata, url.openStream());
+                    // Upload file if necessary
+                    FileList result =
+                            getDriveItem(
+                                    drive, parentFolderID, fileMetadata.getName(), MIME_TYPE_PNG);
+                    if (result.getFiles().size() == 0)
+                        uploadFile(drive, fileMetadata, url.openStream());
                     // Delete the DriveMapImage entity from Datastore
                     Key key = new KeyFactory.Builder("DriveMapImage", image.getObjectID()).getKey();
                     datastore.delete(key);
@@ -83,26 +89,26 @@ public class SaveDrive extends HttpServlet {
     /** Upload a file to Drive */
     public File uploadFile(Drive drive, File fileMetadata, InputStream inputStream)
             throws IOException {
-        InputStreamContent isc = new InputStreamContent("image/png", inputStream);
+        InputStreamContent isc = new InputStreamContent(MIME_TYPE_PNG, inputStream);
         File file =
                 drive.files()
                         .create(fileMetadata, isc)
-                        .set("supportsAllDrives", true)
+                        .setSupportsAllDrives(true)
                         .setFields("id")
                         .execute();
         return file;
     }
 
-    /** Get the parent folder of a Drive folder */
-    public FileList getParentFolder(Drive drive, String parentID, String folderName)
+    /** Get a file or folder from Drive */
+    public FileList getDriveItem(Drive drive, String parentID, String itemName, String mimeType)
             throws IOException {
         FileList result =
                 drive.files()
                         .list()
                         .setQ(
                                 String.format(
-                                        "mimeType='application/vnd.google-apps.folder' and trashed=false and name='%s' and parents in '%s'",
-                                        folderName, parentID))
+                                        "mimeType='%s' and trashed=false and name='%s' and parents in '%s'",
+                                        mimeType, itemName, parentID))
                         .setSpaces("drive")
                         .setDriveId(DRIVE_ID)
                         .setIncludeItemsFromAllDrives(true) // Required parameter for shared drives
@@ -118,7 +124,7 @@ public class SaveDrive extends HttpServlet {
         File fileMetadata = new File();
         fileMetadata.setName(folderName);
         fileMetadata.setParents(Collections.singletonList(parentID));
-        fileMetadata.setMimeType("application/vnd.google-apps.folder");
+        fileMetadata.setMimeType(MIME_TYPE_FOLDER);
         File file =
                 drive.files()
                         .create(fileMetadata)
@@ -129,7 +135,9 @@ public class SaveDrive extends HttpServlet {
     }
 
     /** Get the parent folder ID in Drive of a corresponding MapImage */
-    public String getParentFolderID(Drive drive, MapImage mapImage) throws IOException {
+    public String getParentFolderID(Drive drive, MapImage mapImage)
+            throws IOException, IllegalArgumentException {
+        if (mapImage == null) throw new IllegalArgumentException("MapImage is null");
         String yearString = Integer.toString(mapImage.getYear());
         String yearFolderID = "";
         String monthString = Integer.toString(mapImage.getMonth());
@@ -138,7 +146,7 @@ public class SaveDrive extends HttpServlet {
         String cityFolderID = "";
 
         // Check if the year folder exists
-        FileList result = getParentFolder(drive, DRIVE_ID, yearString);
+        FileList result = getDriveItem(drive, DRIVE_ID, yearString, MIME_TYPE_FOLDER);
         if (result.getFiles().size() == 0) {
             File file = createFolder(drive, DRIVE_ID, yearString);
             yearFolderID = file.getId();
@@ -148,7 +156,7 @@ public class SaveDrive extends HttpServlet {
         }
 
         // Check if the month folder exists
-        result = getParentFolder(drive, yearFolderID, monthString);
+        result = getDriveItem(drive, yearFolderID, monthString, MIME_TYPE_FOLDER);
         if (result.getFiles().size() == 0) {
             File file = createFolder(drive, yearFolderID, monthString);
             monthFolderID = file.getId();
@@ -158,7 +166,7 @@ public class SaveDrive extends HttpServlet {
         }
 
         // Check if the city folder exists
-        result = getParentFolder(drive, monthFolderID, cityString);
+        result = getDriveItem(drive, monthFolderID, cityString, MIME_TYPE_FOLDER);
         if (result.getFiles().size() == 0) {
             File file = createFolder(drive, monthFolderID, cityString);
             cityFolderID = file.getId();

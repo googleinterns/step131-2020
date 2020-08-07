@@ -211,7 +211,6 @@ function loadDateRange() {
     * @param {number} end end of date range.
     */
     function callback(start, end) {
-        $('#request-form').submit((eventObj) => {
             // Add date range as hidden values to form.
             $('<input />').attr('type', 'hidden')
                 .attr('id', 'startDateId')
@@ -224,7 +223,6 @@ function loadDateRange() {
                 .attr('name', 'endDate')
                 .appendTo('#request-form');
             return true;
-        });
     }
 
     $('input[name="dateFilter"]').daterangepicker({

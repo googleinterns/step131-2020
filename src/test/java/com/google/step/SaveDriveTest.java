@@ -54,7 +54,9 @@ public final class SaveDriveTest {
         EXPECTED_FILE.setName("test.txt");
         EXPECTED_FILE.setId(FILE_ID);
         EXPECTED_FILE_LIST.setFiles(new ArrayList<File>());
+        // Create mock return for drive.files()
         when(drive.files()).thenReturn(files);
+        // Create mock return for creating files
         when(drive.files().create(any(File.class))).thenReturn(filesCreate);
         when(drive.files().create(any(File.class)).setSupportsAllDrives(true))
                 .thenReturn(filesCreate);
@@ -72,6 +74,7 @@ public final class SaveDriveTest {
                 .thenReturn(filesCreate);
         when(drive.files().create(any(File.class), any(InputStreamContent.class)).execute())
                 .thenReturn(EXPECTED_FILE);
+        // Create mock return for listing files
         when(drive.files().list()).thenReturn(filesList);
         when(drive.files().list().setQ(anyString())).thenReturn(filesList);
         when(drive.files().list().setDriveId(anyString())).thenReturn(filesList);

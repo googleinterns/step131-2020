@@ -33,9 +33,8 @@ import java.lang.StringBuilder;
 import java.time.LocalDateTime;
 
 /**
- * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
- * corresponding to user form request. A POST request gets the parameter values from the form and
- * prepares the MapImages to be sent to QueryCloud.java.
+ * This servlet retrieves the MapImages from Datastore corresponding to parameter values of a user's
+ * form request and prepares the MapImages to be sent to QueryCloud.java.
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
@@ -50,15 +49,15 @@ public class FrontendQueryDatastore extends HttpServlet {
 
         // Get parameters from form.
         ArrayList<String> zoomStrings = new ArrayList<>();
-        if(request.getParameterValues("zoom-level") != null) {
+        ArrayList<String> cityStrings = new ArrayList<>();
+        try {
             zoomStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("zoom-level")));
-        } else {
+        } catch (NullPointerException e) {
             LOGGER.log(Level.FINE, "Getting Zoom parameters: Zoom array is empty.");
         }
-        ArrayList<String> cityStrings = new ArrayList<>();
-        if(request.getParameterValues("city") != null) {
+        try {
             cityStrings = new ArrayList<>(Arrays.asList(request.getParameterValues("city")));
-        } else {
+        } catch (NullPointerException e) {
             LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
         }
         String startDateStr = "";
@@ -107,32 +106,34 @@ public class FrontendQueryDatastore extends HttpServlet {
         response.getWriter().println(mapImages.size() > 0 ? responseData : "[]");
     }
 
-
     /**
      * * Builds a composite filter for the Datastore query. The Composite Filter is constructed by
      * first checking for empty values from the form, then using sub-filters of zooms, dates, and
      * locations based off user-input values from the form. *
      */
-    private CompositeFilter buildCompositeFilter(
-            ArrayList<String> zoomStrings, ArrayList<String> cityStrings, String startDateStr, String endDateStr) {
+    public CompositeFilter buildCompositeFilter(
+            ArrayList<String> zoomStrings,
+            ArrayList<String> cityStrings,
+            String startDateStr,
+            String endDateStr) {
         // Most efficient filter ordering for Datastore query is equality, inequality, sort order.
         // For complex queries like these, an index must be made & deployed before building query.
         // Indexes must be made in WEB-INF/index.yaml. See index.yaml for more information.
         ArrayList<Filter> filters = new ArrayList<>();
-        
+
         // Build city filters.
         if (!cityStrings.isEmpty()) {
             filters.add(buildCityFilters(cityStrings));
         }
         // Build zoom filters.
-        if(!zoomStrings.isEmpty()) {
+        if (!zoomStrings.isEmpty()) {
             filters.add(buildZoomFilters(zoomStrings));
         }
         // Build date filters.
         try {
             long startDateLong = Long.parseLong(startDateStr);
             long endDateLong = Long.parseLong(endDateStr);
-            filters.add(buildDateFilter(startDateLong, endDateLong));
+            filters.add(buildDateFilters(startDateLong, endDateLong));
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Building Date Filters: " + e.getMessage());
         }
@@ -155,13 +156,13 @@ public class FrontendQueryDatastore extends HttpServlet {
         return compositeFilter;
     }
 
-    /** Helper function for buildCityFilters **/
-    private Filter buildIndividualCityFilter(String city) {
+    /** Helper function for buildCityFilters * */
+    public Filter buildIndividualCityFilter(String city) {
         return FilterOperator.EQUAL.of("City Name", city);
     }
 
-    /** Builds the city filters for the overall Composite Filter **/
-    private Filter buildCityFilters(ArrayList<String> cityStrings) {
+    /** Builds the city filters for the overall Composite Filter * */
+    public Filter buildCityFilters(ArrayList<String> cityStrings) {
         ArrayList<Filter> cityFilters = new ArrayList<>();
         for (int i = 0; i < cityStrings.size(); i++) {
             String city = cityStrings.get(i);
@@ -175,28 +176,43 @@ public class FrontendQueryDatastore extends HttpServlet {
         }
     }
 
-    /** Helper function for buildZoomFilters **/
-    private Filter buildIndividualZoomFilter(int zoom) {
+    /** Helper function for buildZoomFilters * */
+    public Filter buildIndividualZoomFilter(int zoom) {
         return FilterOperator.EQUAL.of("Zoom", zoom);
     }
 
     /** * Builds the zoom filters for the overall Composite Filter. * */
-    private Filter buildZoomFilters(ArrayList<String> zoomStrings) throws IllegalArgumentException {
+    public Filter buildZoomFilters(ArrayList<String> zoomStrings) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
-            int zoom = Integer.parseInt(zoomStrings.get(i));
-            zoomFilters.add(buildIndividualZoomFilter(zoom));
+            try {
+                int zoom = Integer.parseInt(zoomStrings.get(i));
+                zoomFilters.add(buildIndividualZoomFilter(zoom));
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
+            }
         }
+        Filter zoomFilter = null;
         if (zoomFilters.size() > 1) {
             return new CompositeFilter(CompositeFilterOperator.OR, zoomFilters);
         } else {
             // We ensure that zoomFilters is not empty in buildCompositeFilter().
-            return zoomFilters.get(0);
+            try {
+                zoomFilter = zoomFilters.get(0);
+            } catch (NumberFormatException e) {
+                LOGGER.log(Level.WARNING, "Building Zoom Filters: " + e.getMessage());
+            }
         }
+        return zoomFilter;
+    }
+
+    /** Helper function for buildZoomFilters * */
+    private Filter buildIndividualZoomFilter(int zoom) {
+        return FilterOperator.EQUAL.of("Zoom", zoom);
     }
 
     /** * Builds the date filters for the overall Composite Filter. * */
-    private Filter buildDateFilter(long startDateLong, long endDateLong) {
+    public Filter buildDateFilters(long startDateLong, long endDateLong) {
         return new CompositeFilter(
                 CompositeFilterOperator.AND,
                 Arrays.asList(

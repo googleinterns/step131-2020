@@ -35,15 +35,15 @@ public class MapImage {
     private String url;
 
     public MapImage(
-            double longitude,
             double latitude,
+            double longitude,
             String cityName,
             int zoom,
             int month,
             int year,
             long timeStamp) {
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         this.cityName = cityName;
         this.zoom = zoom;
         this.month = month;
@@ -51,11 +51,33 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
+    public MapImage(double longitude, double latitude, String cityName, int zoom) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.cityName = cityName;
+        this.zoom = zoom;
+    }
+
+    /** Overload the constructor for faster loading & querying from Datastore. * */
+    public MapImage(double latitude, double longitude, int zoom, String location) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.zoom = zoom;
+        this.cityName = location;
+    }
+
     /** Overload the constructor for faster loading & querying from Datastore. * */
     public MapImage(double latitude, double longitude, int zoom) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.zoom = zoom;
+    }
+
+    /** Overload the constructor loading tracked locations from Datastore. * */
+    public MapImage(String location, double latitude, double longitude) {
+        this.cityName = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /**
@@ -82,6 +104,10 @@ public class MapImage {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public void setZoom(int zoom) {
+        this.zoom = zoom;
     }
 
     public void setTimeStamp(long timeStamp) {

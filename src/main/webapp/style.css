@@ -12,11 +12,90 @@
 }
 
 #date-filter-label,
-.dropdown {
+.dropdown,
+#submit-btn {
   margin-right: 3px;
 }
 
-#submit-btn {
+#submit-btn,
+#download-btn {
   height: 62px;
   text-transform: uppercase;
+}
+
+#map {
+  border: thin solid black;
+  height: 400px;
+  width: 400px;
+  display: inline-block;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-gap: 1em;
+}
+
+.tile {
+  position: relative;
+  width: 100%;
+  border: 1px solid black;
+}
+
+.tile a {
+  cursor: pointer;
+}
+
+.tile img {
+  object-fit: cover;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.tile h4 {
+  margin: 0;
+  color: aliceblue;
+  background-color: #000;
+  padding: 10px 14px;
+  opacity: 0.8;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.tile:hover {
+  border: 1px solid #06f;
+  opacity: 0.55;
+}
+
+#overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+}
+
+#overlay img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#download-btn.disabled {
+  cursor: not-allowed;
+}
+
+#request-form {
+  display: inline-block;
 }

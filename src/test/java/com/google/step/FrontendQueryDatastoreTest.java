@@ -50,6 +50,10 @@ public final class FrontendQueryDatastoreTest {
     private final long AUGUST_5_2020_EPOCH = AUGUST_5_2020.toEpochSecond(ZoneOffset.UTC);
     private final String AUGUST_5_2020_STRING = String.valueOf(AUGUST_5_2020.toEpochSecond(ZoneOffset.UTC));
 
+    Entity MAP_IMAGE_A;
+    Entity MAP_IMAGE_B;
+    Entity MAP_IMAGE_C;
+
 
     @Before
     public void setUp() {
@@ -445,4 +449,6 @@ public final class FrontendQueryDatastoreTest {
 
         Assert.assertEquals(expected, actual);
     }
+
+    @Test
 }

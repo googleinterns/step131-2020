@@ -50,9 +50,13 @@ public final class FrontendQueryDatastoreTest {
     private final long AUGUST_5_2020_EPOCH = AUGUST_5_2020.toEpochSecond(ZoneOffset.UTC);
     private final String AUGUST_5_2020_STRING = String.valueOf(AUGUST_5_2020.toEpochSecond(ZoneOffset.UTC));
 
-    Entity MAP_IMAGE_A;
-    Entity MAP_IMAGE_B;
-    Entity MAP_IMAGE_C;
+    MapImage MAPIMAGE_A = new MapImage(40.7128, -74.0060, "New York City", 6, 7, 2020, JULY_9_2020_EPOCH);
+    MapImage MAPIMAGE_B = new MapImage(35.9128, -100.3821, "Canadian, TX", 12, 7, 2020, JULY_31_2020_EPOCH);
+    MapImage MAPIMAGE_C = new MapImage(35.6907172, 139.7066884, "Tokyo", 18, 8, 2020, AUGUST_5_2020_EPOCH);
+
+    Entity ENTITY_MAPIMAGE_A;
+    Entity ENTITY_MAPIMAGE_B;
+    Entity ENTITY_MAPIMAGE_C;
 
 
     @Before
@@ -60,6 +64,37 @@ public final class FrontendQueryDatastoreTest {
         //NOTE: Instantiating Entities before performing helper.setUp() causes the API error.
         helper.setUp();
         datastore = DatastoreServiceFactory.getDatastoreService();
+
+        // Instantiate MapImage Object IDs.
+        MAPIMAGE_A.setObjectID();
+        MAPIMAGE_B.setObjectID();
+        MAPIMAGE_C.setObjectID();
+
+        // Set up Datastore entities.
+        ENTITY_MAPIMAGE_A = new Entity("MapImage");
+        ENTITY_MAPIMAGE_A.setProperty("Latitude", 40.7128);
+        ENTITY_MAPIMAGE_A.setProperty("Longitude", -74.0060);
+        ENTITY_MAPIMAGE_A.setProperty("City Name", "New York City");
+        ENTITY_MAPIMAGE_A.setProperty("Zoom", 6);
+        ENTITY_MAPIMAGE_A.setProperty("Month", 7);
+        ENTITY_MAPIMAGE_A.setProperty("Year", 2020);
+        ENTITY_MAPIMAGE_A.setProperty("Timestamp", JULY_9_2020_EPOCH);
+        ENTITY_MAPIMAGE_B = new Entity("MapImage");
+        ENTITY_MAPIMAGE_B.setProperty("Latitude", 35.9128);
+        ENTITY_MAPIMAGE_B.setProperty("Longitude", -100.3821);
+        ENTITY_MAPIMAGE_B.setProperty("City Name", "Canadian, TX");
+        ENTITY_MAPIMAGE_B.setProperty("Zoom", 12);
+        ENTITY_MAPIMAGE_B.setProperty("Month", 7);
+        ENTITY_MAPIMAGE_B.setProperty("Year", 2020);
+        ENTITY_MAPIMAGE_B.setProperty("Timestamp", JULY_31_2020_EPOCH);
+        ENTITY_MAPIMAGE_C = new Entity("MapImage");
+        ENTITY_MAPIMAGE_C.setProperty("Latitude", 35.6907172);
+        ENTITY_MAPIMAGE_C.setProperty("Longitude", 139.7066884);
+        ENTITY_MAPIMAGE_C.setProperty("City Name", "Tokyo");
+        ENTITY_MAPIMAGE_C.setProperty("Zoom", 18);
+        ENTITY_MAPIMAGE_C.setProperty("Month", 8);
+        ENTITY_MAPIMAGE_C.setProperty("Year", 2020);
+        ENTITY_MAPIMAGE_C.setProperty("Timestamp", AUGUST_5_2020_EPOCH);
 
         frontendQueryDatastore = new FrontendQueryDatastore();
     }
@@ -450,5 +485,212 @@ public final class FrontendQueryDatastoreTest {
         Assert.assertEquals(expected, actual);
     }
 
+    // These tests make sure the proper indexes for querying are present.
+    // TODO: Currently these tests don't run because of a testing issue in CommonUtils.
+    // NOTE: It's possible to automatically construct indexes from local datastore tests.
+    //      See index.yaml for more details.
     @Test
+    public void performQuery_AllProperties() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, cityStrings, JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void performQuery_OnlyZooms() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up each value from the "form".
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, cityStrings, "", "");
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void performQuery_OnlyCities() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, EMPTY_STRING_ARRAY, "", "");
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void performQuery_OnlyDates() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, EMPTY_STRING_ARRAY, JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void performQuery_CityAndZoom() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, cityStrings, "", "");
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void performQuery_CityAndDate() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up each value from the "form".
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, cityStrings, JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void performQuery_ZoomAndDate() {
+        // Put the entities into Datastore.
+        datastore.put(ENTITY_MAPIMAGE_A);
+        datastore.put(ENTITY_MAPIMAGE_B);
+        datastore.put(ENTITY_MAPIMAGE_C);
+
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+
+        // Set up actual MapImages.
+        CompositeFilter compositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            EMPTY_STRING_ARRAY, cityStrings, JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);
+        Query query = frontendQueryDatastore.buildQuery(compositeFilter);
+        PreparedQuery results = datastore.prepare(query);
+        ArrayList<MapImage> actual = CommonUtils.entitiesToMapImages(results);
+
+        // Set up expected MapImages.
+        ArrayList<MapImage> expected = new ArrayList<>();
+        expected.add(MAPIMAGE_A);
+        expected.add(MAPIMAGE_B);
+        expected.add(MAPIMAGE_C);
+
+        Assert.assertEquals(actual, expected);
+    }
 }

@@ -206,11 +206,6 @@ public class FrontendQueryDatastore extends HttpServlet {
         return zoomFilter;
     }
 
-    /** Helper function for buildZoomFilters * */
-    private Filter buildIndividualZoomFilter(int zoom) {
-        return FilterOperator.EQUAL.of("Zoom", zoom);
-    }
-
     /** * Builds the date filters for the overall Composite Filter. * */
     public Filter buildDateFilters(long startDateLong, long endDateLong) {
         return new CompositeFilter(

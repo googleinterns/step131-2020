@@ -134,7 +134,7 @@ public class FrontendQueryDatastore extends HttpServlet {
         try {
             long startDateLong = Long.parseLong(startDateStr);
             long endDateLong = Long.parseLong(endDateStr);
-            filters.add(buildDateFilter(startDateLong, endDateLong));
+            filters.add(buildDateFilters(startDateLong, endDateLong));
         } catch (NumberFormatException e) {
             LOGGER.log(Level.WARNING, "Building Date Filters: " + e.getMessage());
         }

@@ -81,8 +81,6 @@ public final class FrontendQueryDatastoreTest {
 
     @Test
     public void buildDateFilters() {
-        
-
         Filter actual = frontendQueryDatastore.buildDateFilters(
             JULY_9_2020_EPOCH, JULY_31_2020_EPOCH);
 
@@ -395,6 +393,55 @@ public final class FrontendQueryDatastoreTest {
                 FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", AUGUST_5_2020_EPOCH)
         )));
         Filter expected = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void buildQuery() {
+        // Set up each value from the "form".
+        ArrayList<String> zoomStrings = new ArrayList<>();
+        zoomStrings.add("6");
+        zoomStrings.add("12");
+        zoomStrings.add("15");
+        ArrayList<String> cityStrings = new ArrayList<>();
+        cityStrings.add("London");
+        cityStrings.add("New York City");
+        cityStrings.add("Tokyo");
+
+        CompositeFilter actualCompositeFilter = frontendQueryDatastore.buildCompositeFilter(
+            zoomStrings, cityStrings, JULY_9_2020_STRING, JULY_31_2020_STRING);
+        Query actual = frontendQueryDatastore.buildQuery(actualCompositeFilter);
+
+        // Set up each expected filter (city, zoom, date) individually.
+        ArrayList<Filter> expected_filters = new ArrayList<>();
+        // Add city filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("City Name", "London"),
+                FilterOperator.EQUAL.of("City Name", "New York City"),
+                FilterOperator.EQUAL.of("City Name", "Tokyo")
+        )));
+        // Add zoom filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.OR, Arrays.asList(
+                FilterOperator.EQUAL.of("Zoom", 6),
+                FilterOperator.EQUAL.of("Zoom", 12),
+                FilterOperator.EQUAL.of("Zoom", 15)
+        )));
+        // Add date filters.
+        expected_filters.add(new CompositeFilter(
+            CompositeFilterOperator.AND, Arrays.asList(
+                FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", JULY_9_2020_EPOCH),
+                FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", JULY_31_2020_EPOCH)
+        )));
+
+        Filter expectedCompositeFilter = new CompositeFilter(CompositeFilterOperator.AND, expected_filters);
+        Query expected = new Query("MapImage")
+            .setFilter(expectedCompositeFilter)
+            .addSort("Timestamp", SortDirection.ASCENDING)
+            .addSort("Zoom", SortDirection.ASCENDING)
+            .addSort("City Name", SortDirection.ASCENDING);
 
         Assert.assertEquals(expected, actual);
     }

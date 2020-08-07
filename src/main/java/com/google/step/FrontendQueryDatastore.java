@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -28,11 +29,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.StringBuilder;
+import java.time.LocalDateTime;
 
 /**
- * This servlet retrieves the mapImage metadata (location, zoom level, etc.) from Datastore
- * corresponding to user form request. A POST request gets the parameter values from the form and
- * prepares the MapImages to be sent to QueryCloud.java.
+ * This servlet retrieves the MapImages from Datastore corresponding to parameter values of a user's
+ * form request and prepares the MapImages to be sent to QueryCloud.java.
  */
 @WebServlet("/frontend-query-datastore")
 public class FrontendQueryDatastore extends HttpServlet {
@@ -57,22 +59,23 @@ public class FrontendQueryDatastore extends HttpServlet {
         } catch (NullPointerException e) {
             LOGGER.log(Level.FINE, "Getting City parameters: City array is empty.");
         }
-        String startDateStr = request.getParameter("startDate");
-        String endDateStr = request.getParameter("endDate");
+        String startDateStr = "";
+        String endDateStr = "";
+        if (request.getParameter("startDate") != null) {
+            startDateStr = request.getParameter("startDate");
+        }
+        if (request.getParameter("endDate") != null) {
+            endDateStr = request.getParameter("endDate");
+        }
 
         // Add the appropriate filters according to the form input.
         CompositeFilter compositeFilter =
                 buildCompositeFilter(zoomStrings, cityStrings, startDateStr, endDateStr);
 
         // Build the query for Datastore.
-        Query query =
-                new Query("MapImage")
-                        .setFilter(compositeFilter)
-                        .addSort("City Name", SortDirection.ASCENDING)
-                        .addSort("Zoom", SortDirection.ASCENDING)
-                        .addSort("Month", SortDirection.ASCENDING);
+        Query query = buildQuery(compositeFilter);
 
-        // Add all the mapEntities that matched the filter
+        // Add all the mapEntities that matched the filter.
         PreparedQuery resultList = datastore.prepare(query);
         ArrayList<MapImage> mapImages = new ArrayList<>();
         try {
@@ -107,7 +110,7 @@ public class FrontendQueryDatastore extends HttpServlet {
      * first checking for empty values from the form, then using sub-filters of zooms, dates, and
      * locations based off user-input values from the form. *
      */
-    private CompositeFilter buildCompositeFilter(
+    public CompositeFilter buildCompositeFilter(
             ArrayList<String> zoomStrings,
             ArrayList<String> cityStrings,
             String startDateStr,
@@ -153,12 +156,12 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** Helper function for buildCityFilters * */
-    private Filter buildIndividualCityFilter(String city) {
+    public Filter buildIndividualCityFilter(String city) {
         return FilterOperator.EQUAL.of("City Name", city);
     }
 
     /** Builds the city filters for the overall Composite Filter * */
-    private Filter buildCityFilters(ArrayList<String> cityStrings) {
+    public Filter buildCityFilters(ArrayList<String> cityStrings) {
         ArrayList<Filter> cityFilters = new ArrayList<>();
         for (int i = 0; i < cityStrings.size(); i++) {
             String city = cityStrings.get(i);
@@ -173,12 +176,12 @@ public class FrontendQueryDatastore extends HttpServlet {
     }
 
     /** Helper function for buildZoomFilters * */
-    private Filter buildIndividualZoomFilter(int zoom) {
+    public Filter buildIndividualZoomFilter(int zoom) {
         return FilterOperator.EQUAL.of("Zoom", zoom);
     }
 
     /** * Builds the zoom filters for the overall Composite Filter. * */
-    private Filter buildZoomFilters(ArrayList<String> zoomStrings) {
+    public Filter buildZoomFilters(ArrayList<String> zoomStrings) {
         ArrayList<Filter> zoomFilters = new ArrayList<>();
         for (int i = 0; i < zoomStrings.size(); i++) {
             try {
@@ -202,12 +205,25 @@ public class FrontendQueryDatastore extends HttpServlet {
         return zoomFilter;
     }
 
+    /** Helper function for buildZoomFilters * */
+    private Filter buildIndividualZoomFilter(int zoom) {
+        return FilterOperator.EQUAL.of("Zoom", zoom);
+    }
+
     /** * Builds the date filters for the overall Composite Filter. * */
-    private Filter buildDateFilters(long startDateLong, long endDateLong) {
+    public Filter buildDateFilters(long startDateLong, long endDateLong) {
         return new CompositeFilter(
                 CompositeFilterOperator.AND,
                 Arrays.asList(
                         FilterOperator.GREATER_THAN_OR_EQUAL.of("Timestamp", startDateLong),
                         FilterOperator.LESS_THAN_OR_EQUAL.of("Timestamp", endDateLong)));
+    }
+
+    private Query buildQuery(CompositeFilter compositeFilter) {
+        Query query = new Query("MapImage")
+            .setFilter(compositeFilter)
+            .addSort("Timestamp", SortDirection.ASCENDING)
+            .addSort("Zoom", SortDirection.ASCENDING);
+        return query;
     }
 }

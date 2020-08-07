@@ -3,36 +3,38 @@
     <head>
         <meta charset="UTF-8">
         <title>Map Snapshot</title>
-        <!-- Bootstrap CDN CSS LINK -->
+
+        <link href="style.css" rel="stylesheet" type="text/css">
+        <!-- Bootstrap CDN CSS Link. -->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
             integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
             crossorigin="anonymous">
-        <!-- Bootstrap-select CDN CSS LINK -->
+        <!-- Bootstrap-select CDN CSS Link. -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
-        <!-- Date range UI scripts & styling. -->
+        <!-- Date range UI styling. -->
         <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-
-        <link href="style.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id="main-container">
-
             <h1 id="title">Maps Over Time</h1>
             <p id="description">Use this form to search for snapshots of Google Maps at different points in time.</p>
-            <div class="alert alert-warning" role="alert">Disclaimer: Snapshots Recorded Since 07/2020</div>
+            <div class="alert alert-warning" role="alert">Disclaimer: Snapshots Recorded Since 07/2020.</div>
 
             <div id="overlay">
                 <img src="#" id="overlay-img" alt="overlay image"/>
             </div>
 
+            <!-- User form to request certain recorded Google Maps snapshots. -->
             <form id="request-form" method="POST">
-                <label id="date-filter-label">Date Range:
+                <!-- Date range input. -->
+                <label id="date-filter-label" class="alert alert-info" role="alert">Date Range:
                     <input type="text" name="dateFilter" value=""/>
                 </label>
 
+                <!-- Location input. -->
                 <select id="locations" class="selectpicker show-tick" name="city" onchange="updateLocation()" data-live-search="true" data-actions-box="true" data-selected-text-format="count" data-style="btn-info" multiple></select>
 
-                <!-- Zoom ranges are based on documented Zoom Bands. -->
+                <!-- Zoom range input. Options based on documented Zoom Bands. -->
                 <select id="zoom" class="selectpicker show-tick" name="zoom-level" onchange="updateZoom()" data-live-search="true" data-actions-box="true" data-selected-text-format="count" data-style="btn-info" multiple>
                     <!-- Global zoom level (0-3) and Continental zoom 4 are not tracked. -->
                     <optgroup label="Continental">
@@ -61,16 +63,20 @@
                         <option value="18">18</option>
                     </optgroup>
                 </select>
+
                 <input class="btn btn-info" id="submit-btn" type="submit"/>
             </form>
+
             <button class="btn btn-info disabled" id="download-btn">Download</button>
+
             <br>
-            <h2>Preview</h2>
+            <h4>Preview</h4>
             <div id="map"></div>
 
             <br>
+            <br>
             <div>
-                <p>Requested Images:</p>
+                <h4>Requested Images:</h4>
                 <section id="requested-images" class="grid-container"></section>
             </div>
         </div>
@@ -97,6 +103,8 @@
         <script src="js/jszip-utils.min.js"></script>
 
         <script src="js/script.js"></script>
+
+        <!-- Maps JavaScript API for selected form options preview. -->
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBtqf-TDvu363fF63gLIJG62LU-4Mdu7Ss&callback=createMap"></script>
     </body>
 </html>

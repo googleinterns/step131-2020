@@ -5,11 +5,11 @@ import java.time.ZoneId;
 
 /** Class representing a map snapshot image and its metadata. */
 public class MapImage {
-    /** Snapshot's longitude coordinate. */
-    private double longitude;
-
     /** Snapshot's latitude coordinate. */
     private double latitude;
+
+    /** Snapshot's longitude coordinate. */
+    private double longitude;
 
     /** Snapshot's cityName coordinate. */
     private String cityName;
@@ -51,26 +51,52 @@ public class MapImage {
         this.timeStamp = timeStamp;
     }
 
-    public MapImage(double longitude, double latitude, String cityName, int zoom) {
+    /**
+     * Overload constructor for fast BackendQueryDatastore.java tracked location metadata retrieval.
+     * *
+     */
+    public MapImage(double latitude, double longitude, String location, int zoom) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.cityName = location;
+        this.zoom = zoom;
+    }
+
+    /** Overload constructor for fast FormLocation.java tracked location retrieval. * */
+    public MapImage(double latitude, double longitude, String location) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.cityName = location;
+    }
+
+    /** Given a local date, set appropriate time-related and objectID MapImage attributes. * */
+    public MapImage updateMetadata(LocalDateTime time) {
+        setMonth(time.getMonthValue());
+        setYear(time.getYear());
+        setObjectID();
+        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
+        setTimeStamp(epoch);
+        return this;
+    }
+
+    public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public void setZoom(int zoom) {
         this.zoom = zoom;
     }
 
-    /** Overload the constructor for faster loading & querying from Datastore. * */
-    public MapImage(double latitude, double longitude, int zoom, String location) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.zoom = zoom;
-        this.cityName = location;
+    public void setMonth(int month) {
+        this.month = month;
     }
 
-    /** Overload the constructor loading tracked locations from Datastore. * */
-    public MapImage(String location, double latitude, double longitude) {
-        this.cityName = location;
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     /**
@@ -87,32 +113,12 @@ public class MapImage {
         url = gcsURL;
     }
 
-    public void setMonth(int month) {
-        this.month = month;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public void setCityName(String cityName) {
-        this.cityName = cityName;
-    }
-
-    public void setZoom(int zoom) {
-        this.zoom = zoom;
-    }
-
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
+    public double getLatitude() {
+        return latitude;
     }
 
     public double getLongitude() {
         return longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
     }
 
     public String getCityName() {
@@ -141,14 +147,5 @@ public class MapImage {
 
     public String getURL() {
         return url;
-    }
-
-    public MapImage updateMetadata(LocalDateTime time) {
-        setMonth(time.getMonthValue());
-        setYear(time.getYear());
-        setObjectID();
-        long epoch = time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
-        setTimeStamp(epoch);
-        return this;
     }
 }

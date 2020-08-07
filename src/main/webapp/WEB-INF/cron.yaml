@@ -1,3 +1,4 @@
+# This YAML file creates a Cron job (server automation) that initiates the periodic Google Maps snapshot and storage process.
 # Retries up to five times by default.
 # Intervals between retries are 30 minutes, 1h, 2h, 4h, 8h. Retries must happen within a week.
 # Old Intervals between retries were 4hrs, 8hrs, 16h, 32h, 64h. Retries must happen within a week.

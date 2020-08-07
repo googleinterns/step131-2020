@@ -76,6 +76,7 @@ public class Redirect extends HttpServlet {
     }
 }
 
+/** Class representing the access token required as part of the authorization process. * */
 class TokenResponse {
     private String access_token;
     private int expires_in;

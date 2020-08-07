@@ -71,8 +71,11 @@ public class SaveDrive extends HttpServlet {
                     String parentFolderID = getParentFolderID(drive, image);
                     fileMetadata.setParents(Collections.singletonList(parentFolderID));
                     // Upload file if necessary
-                    FileList result = getDriveItem(drive, parentFolderID, fileMetadata.getName(), MIME_TYPE_PNG);
-                    if (result.getFiles().size() == 0) uploadFile(drive, fileMetadata, url.openStream());
+                    FileList result =
+                            getDriveItem(
+                                    drive, parentFolderID, fileMetadata.getName(), MIME_TYPE_PNG);
+                    if (result.getFiles().size() == 0)
+                        uploadFile(drive, fileMetadata, url.openStream());
                     // Delete the DriveMapImage entity from Datastore
                     Key key = new KeyFactory.Builder("DriveMapImage", image.getObjectID()).getKey();
                     datastore.delete(key);
@@ -90,7 +93,7 @@ public class SaveDrive extends HttpServlet {
         File file =
                 drive.files()
                         .create(fileMetadata, isc)
-                        .set("supportsAllDrives", true)
+                        .setSupportsAllDrives(true)
                         .setFields("id")
                         .execute();
         return file;
@@ -132,7 +135,8 @@ public class SaveDrive extends HttpServlet {
     }
 
     /** Get the parent folder ID in Drive of a corresponding MapImage */
-    public String getParentFolderID(Drive drive, MapImage mapImage) throws IOException, IllegalArgumentException {
+    public String getParentFolderID(Drive drive, MapImage mapImage)
+            throws IOException, IllegalArgumentException {
         if (mapImage == null) throw new IllegalArgumentException("MapImage is null");
         String yearString = Integer.toString(mapImage.getYear());
         String yearFolderID = "";

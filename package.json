@@ -7,11 +7,11 @@
     "bootstrap-select": "^1.13.18"
   },
   "devDependencies": {
-    "eslint": "^7.4.0",
+    "eslint": "^7.32.0",
     "eslint-config-google": "^0.14.0",
     "htmllint-cli": "0.0.7",
     "markdownlint": "^0.20.4",
-    "stylelint": "^13.6.1",
+    "stylelint": "^13.13.1",
     "stylelint-config-standard": "^20.0.0"
   },
   "scripts": {

@@ -10,7 +10,7 @@
     "eslint": "^7.4.0",
     "eslint-config-google": "^0.14.0",
     "htmllint-cli": "0.0.7",
-    "markdownlint": "^0.20.4",
+    "markdownlint": "^0.41.0",
     "stylelint": "^13.6.1",
     "stylelint-config-standard": "^20.0.0"
   },
